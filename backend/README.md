@@ -1,5 +1,5 @@
 
-## Getting Started
+# Getting Started
 First we need pipx. [Why use pipx?](https://python-poetry.org/docs/#installing-with-pipx)
 
 ```
@@ -50,7 +50,9 @@ http://127.0.0.1:8000/
 
 Success! If you have any problems contact Brensen Villegas or Ian McBride.
 
-## Full Installation
+---
+
+# Full Installation
 First we need pipx. [Why use pipx?](https://python-poetry.org/docs/#installing-with-pipx)
 
 ```
@@ -148,13 +150,17 @@ autotester
 .idea
 ```
 
-## Useful Links
+---
+
+# Useful Links
 - https://python-poetry.org/
 - https://python-poetry.org/docs/cli/
 
-## Possible fix
+---
 
-### .venv not showing up
+# Possible problems and fixes
+
+## .venv not showing up
 If you care to have .venv in the current directory and it's not there, run the following
 to see where it is.
 
@@ -177,7 +183,9 @@ Now you are okay to run install
 poetry install
 ```
 
-## For future ref..
+---
+
+# For future ref..
 Create a Django application called grades by running:
 ```
 python3 manage.py startapp grades
