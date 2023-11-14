@@ -52,7 +52,7 @@ Success! If you have any problems contact Brensen Villegas or Ian McBride.
 
 ---
 
-# Full Installation
+# Clean Install
 First we need pipx. [Why use pipx?](https://python-poetry.org/docs/#installing-with-pipx)
 
 ```
