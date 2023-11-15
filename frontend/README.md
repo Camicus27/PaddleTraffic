@@ -2,7 +2,7 @@
 
 ## Getting Started
 
-First, download and install [Node.js](https://nodejs.org/en/). You can install either the LTS or Current releases.
+First, download and install [Node.js](https://nodejs.org/en/). You can install either the LTS or Current release.
 
 Once Node.js has installed successfully, navigate to the `frontend` directory and within that directory run the following command to download the required dependencies:
 ```sh
