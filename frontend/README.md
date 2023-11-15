@@ -1,6 +1,20 @@
 # frontend
 
-This template should help get you started developing with Vue 3 in Vite.
+## Getting Started
+
+First, download and install [Node.js](https://nodejs.org/en/). You can install either the LTS or Current releases.
+
+Once Node.js has installed successfully, navigate to the `frontend` directory and within that directory run the following command to download the required dependencies:
+```sh
+npm install
+```
+
+To run a development server, run the following command:
+```sh
+npm run dev
+```
+
+To see other commands, see the [Project Setup](#Project Setup) section.
 
 ## Recommended IDE Setup
 
@@ -22,16 +36,6 @@ If the standalone TypeScript plugin doesn't feel fast enough to you, Volar has a
 See [Vite Configuration Reference](https://vitejs.dev/config/).
 
 ## Project Setup
-
-```sh
-npm install
-```
-
-### Compile and Hot-Reload for Development
-
-```sh
-npm run dev
-```
 
 ### Type-Check, Compile and Minify for Production
 
