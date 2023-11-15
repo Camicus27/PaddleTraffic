@@ -186,7 +186,17 @@ poetry install
 ---
 
 # For future ref..
+
+## Creating New Projects
 Create a Django application called grades by running:
 ```
-python3 manage.py startapp grades
+python manage.py startapp PROJECT_NAME
+```
+
+add the name of the project to `INSTALLED_APPS` in settings.py
+
+## Migrations
+```
+python manage.py makemigrations // generate changes
+python manage.py migrate // apply changes
 ```
