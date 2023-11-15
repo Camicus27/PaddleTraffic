@@ -14,7 +14,7 @@ To run a development server, run the following command:
 npm run dev
 ```
 
-To see other commands, see the [Project Setup](#Project Setup) section.
+To see other commands, see the Project Setup section below.
 
 ## Recommended IDE Setup
 
