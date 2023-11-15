@@ -1,0 +1,5 @@
+uploads/*
+db.sqlite3
+*.pyc
+.DS_Store
+autotester
