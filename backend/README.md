@@ -2,13 +2,13 @@
 # Getting Started
 First we need pipx. [Why use pipx?](https://python-poetry.org/docs/#installing-with-pipx)
 
-```
+```sh
 pip install pipx
 ```
 
 Start by installing poetry
 
-```
+```sh
 pipx install poetry
 ```
 
@@ -16,13 +16,13 @@ pipx install poetry
 
 Add Environment Variables when prompted
 
-```
+```sh
 pipx ensurepath
 ```
 
 Before moving on, virtual environments aren't set to be in the project folder by default so, let's set that to be true, it can be helpfulto see what's in the virtual environment sometimes.
 
-```
+```sh
 poetry config virtualenvs.in-project true
 ```
 
