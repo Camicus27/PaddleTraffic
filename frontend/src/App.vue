@@ -1,12 +1,14 @@
 <script setup lang="ts">
+import { RouterView } from 'vue-router'
+
 import CommonHeader from './components/CommonHeader.vue'
-import Sidebar from './components/SideBar.vue'
+
 import CommonFooter from './components/CommonFooter.vue'
 </script>
 
 <template>
   <CommonHeader />
-  <Sidebar />
+  <RouterView />
   <CommonFooter />
 </template>
 

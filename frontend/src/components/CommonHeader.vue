@@ -1,12 +1,15 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import { RouterLink } from 'vue-router'
+</script>
 
 <template>
   <div class="header">
     <img src="@/assets/logo.png" class="logo" alt="PaddleTraffic Logo" width="125" height="125" />
     <h1>PaddleTraffic</h1>
-    <a href="">Map</a>
-    <a href="">Matchmaking</a>
-    <a href="">About</a>
+    <RouterLink to="/">Home</RouterLink>
+    <RouterLink to="/map">Map</RouterLink>
+    <RouterLink to="/matchmaking">Matchmaking</RouterLink>
+    <RouterLink to="/about">About</RouterLink>
   </div>
 </template>
 
