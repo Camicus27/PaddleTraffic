@@ -12,17 +12,17 @@
 
 <style scoped>
 .header {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    background-color: #9fb184;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  background-color: #9fb184;
 }
 
 .header h1 {
-    padding: .5em;
+  padding: 0.5em;
 }
 
 .header a {
-    padding: 1em;
+  padding: 1em;
 }
 </style>
