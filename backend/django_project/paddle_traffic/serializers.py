@@ -3,9 +3,9 @@ from rest_framework import serializers
 
 
 class LocationSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Location
-        fields = [
+    class Meta:  # Serializers just return a Meta class
+        model = Location  # which hold the class as the type of the model
+        fields = [  # and fields of said model
             'id',
             'latitude',
             'longitude',
