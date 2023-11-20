@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import Sidebar from '../components/Sidebar.vue'
 </script>
 
 <template>
-    <Sidebar />
+    <h1>This is the home view!</h1>
 </template>

@@ -21,11 +21,11 @@ import { RouterLink } from 'vue-router'
   background-color: #9fb184;
 }
 
-.header h1 {
+.header > h1 {
   padding: 0.5em;
 }
 
-.header a {
+.header > a {
   padding: 1em;
 }
 </style>
