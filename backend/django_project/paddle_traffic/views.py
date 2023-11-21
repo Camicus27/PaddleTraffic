@@ -33,3 +33,9 @@ def AllLocations(request):
     # return the json formatted as an HTTP response
     return JsonResponse(serializer.data)
 
+def LocationById(request, id):
+    locations = Location.objects.filter(id=id)
+    serializer = LocationSerializer(locations, many=False)
+    # return the json formatted as an HTTP response
+    return JsonResponse(serializer.data)
+
