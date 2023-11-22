@@ -4,7 +4,8 @@ import SidebarItem from './SidebarItem.vue'
 
 let matchList = ref([
   { id: 1, loc: 'The playground', time: '12:00 pm', skillLvl: 'beginner' },
-  { id: 2, loc: 'Picklecoin Tournament', time: '3:00 pm', skillLvl: 'advanced' }
+  { id: 2, loc: 'Picklecoin Tournament', time: '3:00 pm', skillLvl: 'advanced' },
+  { id: 3, loc: 'Picklecoin HQ', time: '4:30 pm', skillLvl: 'intermediate' }
 ])
 </script>
 

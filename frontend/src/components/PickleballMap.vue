@@ -9,8 +9,22 @@ const map: Ref<mapboxgl.Map | undefined> = ref()
 onMounted(() => {
   map.value = new mapboxgl.Map({
     container: mapContainer.value,
-    style: 'mapbox://styles/mapbox/streets-v11'
+    style: 'mapbox://styles/mapbox/streets-v11',
+    center: [-111.876183, 40.758701],
+    zoom: 11
   });
+
+  new mapboxgl.Marker()
+  .setLngLat([-111.880222, 40.774807])
+  .addTo(map.value);
+
+  new mapboxgl.Marker()
+  .setLngLat([-111.862977, 40.720215])
+  .addTo(map.value);
+
+  new mapboxgl.Marker()
+  .setLngLat([-111.862123, 40.783499])
+  .addTo(map.value);
 })
 
 onUnmounted(() => {
