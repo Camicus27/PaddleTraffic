@@ -1,5 +1,7 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import PickleballMap from '@/components/PickleballMap.vue';
+</script>
 
 <template>
-    <h1>This is the map view!</h1>
+    <PickleballMap/>
 </template>
