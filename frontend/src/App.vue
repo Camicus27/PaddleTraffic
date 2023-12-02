@@ -10,7 +10,12 @@ import CommonFooter from './components/CommonFooter.vue'
   <CommonHeader />
   <div class="main-wrapper">
     <CommonSidebar />
-    <RouterView />
+    <!-- This allows us to keep all pages loaded, and avoids too many API calls -->
+    <RouterView v-slot="{ Component }">
+      <KeepAlive>
+        <component :is="Component" />
+      </KeepAlive>
+    </RouterView>
   </div>
   <CommonFooter />
 </template>
