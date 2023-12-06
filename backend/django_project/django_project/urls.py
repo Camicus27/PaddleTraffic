@@ -16,7 +16,7 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from django_project.paddle_traffic import views
+from paddle_traffic import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),

@@ -1,7 +1,8 @@
 from django.shortcuts import render
 from django.http import JsonResponse, Http404, HttpResponse
-import models as mod
-import serializers as ser
+from django.views.decorators.csrf import csrf_exempt
+from paddle_traffic import models as mod
+from paddle_traffic import serializers as ser
 import json
 # Create your views here.
 
@@ -20,6 +21,9 @@ def dataToReturn(request, custom_url_number): # custom_url_number, represents th
     elif ...
         ...
 """
+
+
+@csrf_exempt
 def locations(request):
     """
     GET /locations
@@ -39,11 +43,12 @@ def locations(request):
     def get():
         m_locations = mod.Location.objects.all()
         serializer = ser.LocationSerializer(m_locations, many=True)
-        return JsonResponse(serializer.data)
+        return JsonResponse(serializer.data, safe=False)  # returns just a list as in JUST the value. safe=True means must be key value pair
     funs = {"POST": post, "GET": get}
     return get_response(request, funs)
 
 
+@csrf_exempt
 def locations_id(request, id):
     """
     GET /locations/{id}
@@ -62,6 +67,7 @@ def locations_id(request, id):
             updated_location = serializer.save()
         else:
             return HttpResponse("Invalid JSON data", status=400, content_type="text/plain")  # Bad Request
+        return HttpOKRequestJson()
 
     def get():
         m_locations = mod.Location.objects.filter(id=id)
@@ -81,6 +87,7 @@ def locations_id(request, id):
     return get_response(request, funs)
 
 
+@csrf_exempt
 def events(request):
     def get():
         m_events = mod.Event.objects.all()
@@ -99,7 +106,7 @@ def events(request):
     return get_response(request, funs)
 
 
-
+@csrf_exempt
 def events_id(request):
     def put(data):
         try:
