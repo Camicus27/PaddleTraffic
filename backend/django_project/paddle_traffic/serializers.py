@@ -6,7 +6,7 @@ class LocationSerializer(serializers.ModelSerializer):
     class Meta:  # Serializers just return a Meta class
         model = Location  # which hold the class as the type of the model
         fields = [  # and fields of said model
-            'id',
+            'name',
             'latitude',
             'longitude',
             'court_count',
@@ -15,38 +15,59 @@ class LocationSerializer(serializers.ModelSerializer):
             'estimated_wait_time',
         ]
 
+class LocationUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Location
+        fields = [
+            'name',
+            'latitude',
+            'longitude',
+            'court_count',
+            'courts_occupied',
+            'number_waiting',
+            'estimated_wait_time',
+        ]
+        # Make certain fields optional for updates
+        extra_kwargs = {
+            'name': {'required': False},
+            'latitude': {'required': False},
+            'longitude': {'required': False},
+            'court_count': {'required': False},
+            'courts_occupied': {'required': False},
+            'number_waiting': {'required': False},
+            'estimated_wait_time': {'required': False}
+        }
+
 
 class EventSerializer(serializers.ModelSerializer):
     class Meta:
         model = Event
         fields = [
-            'id',
+            'name',
             'location',
-            'datetime',
+            'host',
+            'players',
+            'date',
+            'time'
         ]
 
 
-class PlayerSerializer(serializers.ModelSerializer):
+class EventUpdateSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Player
+        model = Event
         fields = [
-            'id',  # TODO finish from models
+            'name',
+            'location',
+            'host',
+            'players',
+            'date',
+            'time'
         ]
-
-
-class PlaysInSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = PlaysIn
-        fields = [
-            'id',
-            'player',
-            'event',
-        ]
-
-
-class EventOrganizerSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = EventOrganizer
-        fields = [
-            'id',  # TODO finish from models
-        ]
+        extra_kwargs = {
+            'name': {'required': False},
+            'location': {'required': False},
+            'host': {'required': False},
+            'players': {'required': False},
+            'date': {'required': False},
+            'time': {'required': False}
+        }

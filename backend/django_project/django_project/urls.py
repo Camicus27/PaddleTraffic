@@ -20,8 +20,10 @@ from django_project.paddle_traffic import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('locations/', views.AllLocations),
-    path('locations/<int:id>/', views.LocationById)
+    path('locations/', views.locations),
+    path('locations/<int:id>/', views.locations_id),
+    path('events/', views.events),
+    path('events/<int:id>/', views.events_id)
     #  Add custom numbered, lettered, named, urls using the following
     #  path('<int:custom_url_number>/locations/')
 ]
