@@ -1,11 +1,15 @@
 from django.db import models
-from django.db.models import UniqueConstraint
+from django.contrib.auth.models import User, Group
 
-
-# Create your models here.
-
-
+'''
+Represents a location on the map that has courts, like a park or rec center.
+Identified by a lat/long coordinate, it has various information assigned.
+How many courts here, how many are occupied, how many people waiting for courts,
+and an estimated wait time. Additionally, it can access 'scheduled_events' for references
+to all the Events being held at the location.
+'''
 class Location(models.Model):
+    name = models.CharField(max_length=255)
     latitude = models.DecimalField(decimal_places=6)
     longitude = models.DecimalField(decimal_places=6)
     court_count = models.IntegerField()
@@ -13,21 +17,16 @@ class Location(models.Model):
     number_waiting = models.IntegerField()
     estimated_wait_time = models.DurationField()
 
-
+'''
+Represents a match or larger scale event/tournament that can be held at a location.
+Must have a location and host, and many players can sign up to attend.
+Also has some identifying data such as a name (i.e. John Doe's Beginnner Match) and
+a date and time to show up for the event.
+'''
 class Event(models.Model):
-    location = models.ForeignKey(Location, on_delete=models.CASCADE)
-    datetime = models.DateTimeField()
-
-
-class Player(models.Model):
-    pass
-
-
-class PlaysIn(models.Model):
-    UniqueConstraint(fields=["player, event"], name='unique_player_event')
-    player = models.ForeignKey(Player, on_delete=models.CASCADE)
-    event = models.ForeignKey(Event, on_delete=models.CASCADE)
-
-
-class EventOrganizer(models.Model):
-    pass
+    name = models.CharField(max_length=255)
+    location = models.ForeignKey(Location, on_delete=models.CASCADE, related_name='scheduled_events', null=False)
+    host = models.ForeignKey(User, on_delete=models.CASCADE, related_name='hosted_events', null=False)
+    players = models.ManyToManyField(User, related_name='attending_events', blank=True)
+    date = models.DateField()
+    time = models.TimeField()
