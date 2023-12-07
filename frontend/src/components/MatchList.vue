@@ -13,7 +13,6 @@ onBeforeMount(() => {
 </script>
 
 <template>
-  <h1>tmp</h1>
   <div class="posts" v-for="post in posts" :key="post.id">
     <h3>Title: {{ post.title }}</h3>
     <h4>Body: {{ post.body }}</h4>
