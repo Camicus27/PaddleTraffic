@@ -4,11 +4,13 @@ import { RouterLink } from 'vue-router'
 
 <template>
   <div class="header">
-    <img src="@/assets/logo.png" class="logo" alt="PaddleTraffic Logo" width="125" height="125" />
-    <RouterLink class="paddletraffic" to="/">PaddleTraffic</RouterLink>
-    <RouterLink to="/map">Map</RouterLink>
-    <RouterLink to="/matchmaking">Matchmaking</RouterLink>
-    <RouterLink to="/about">About</RouterLink>
+    <RouterLink to="/">
+      <img src="@/assets/logo.png" class="logo" alt="PaddleTraffic Logo" width="125" height="125" />
+    </RouterLink>
+    <RouterLink class="paddletraffic nav-button" to="/">PaddleTraffic</RouterLink>
+    <RouterLink class="nav-button" to="/map">Map</RouterLink>
+    <RouterLink class="nav-button" to="/matchmaking">Matchmaking</RouterLink>
+    <RouterLink class="nav-button" to="/about">About</RouterLink>
   </div>
 </template>
 
@@ -26,7 +28,7 @@ import { RouterLink } from 'vue-router'
 }
 
 
-a {
+.nav-button {
   font-size: x-large;
   /* Large font size for navigation buttons */
   margin-left: .5em;
@@ -47,8 +49,8 @@ a {
   /* Slightly rounded corners for a softer look */
 }
 
-a:hover,
-a:focus {
+.nav-button:hover,
+.nav-button:focus {
   color: #9fb184;
   /* Theme color for hover */
   background-color: #333333;
@@ -62,6 +64,6 @@ a:focus {
 }
 
 .paddletraffic {
-  font-size:xx-large;
+  font-size: xx-large;
 }
 </style>
