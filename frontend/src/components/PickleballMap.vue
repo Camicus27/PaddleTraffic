@@ -14,8 +14,11 @@ onMounted(() => {
     zoom: 11
   });
 
+  const popup = new mapboxgl.Popup().setText('This is a pickleball location!');
+
   new mapboxgl.Marker()
   .setLngLat([-111.880222, 40.774807])
+  .setPopup(popup)
   .addTo(map.value);
 
   new mapboxgl.Marker()
