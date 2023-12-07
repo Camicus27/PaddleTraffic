@@ -25,6 +25,7 @@ a date and time to show up for the event.
 '''
 class Event(models.Model):
     name = models.CharField(max_length=255)
+    description = models.CharField(max_length=2047)
     location = models.ForeignKey(Location, on_delete=models.CASCADE, related_name='scheduled_events', null=False)
     host = models.ForeignKey(User, on_delete=models.CASCADE, related_name='hosted_events', null=False)
     players = models.ManyToManyField(User, related_name='attending_events', blank=True)

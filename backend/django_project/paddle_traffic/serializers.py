@@ -39,12 +39,17 @@ class LocationUpdateSerializer(serializers.ModelSerializer):
             'estimated_wait_time': {'required': False}
         }
 
-
+"""
+    date = serializers.DateField(input_formats=['%Y-%m-%d'])
+    time = serializers.TimeField(input_formats=['%H:%M:%S'])
+"""
 class EventSerializer(serializers.ModelSerializer):
     class Meta:
         model = Event
         fields = [
+            'id',
             'name',
+            'description',
             'location',
             'host',
             'players',
@@ -58,6 +63,7 @@ class EventUpdateSerializer(serializers.ModelSerializer):
         model = Event
         fields = [
             'name',
+            'description',
             'location',
             'host',
             'players',
@@ -66,6 +72,7 @@ class EventUpdateSerializer(serializers.ModelSerializer):
         ]
         extra_kwargs = {
             'name': {'required': False},
+            'description': {'required': False},
             'location': {'required': False},
             'host': {'required': False},
             'players': {'required': False},
