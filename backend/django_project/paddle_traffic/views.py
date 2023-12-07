@@ -1,7 +1,8 @@
 from django.shortcuts import render
 from django.http import JsonResponse, Http404, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
-from paddle_traffic import models as mod
+from paddle_traffic import models as m
+from django.db import models as django_model
 from paddle_traffic import serializers as ser
 import json
 # Create your views here.
@@ -32,7 +33,7 @@ def dataToReturn(request, custom_url_number): # custom_url_number, represents th
 
 def report(request, id):
     def post(all_data):
-        location: mod.Location = try_get_instance(mod.Location, id)
+        location: m.Location = try_get_instance(m.Location, id)
         data = all_data.get("report", None)
         if data is None:
             return HttpBadRequestJson()
@@ -68,7 +69,7 @@ def locations(request):
         return HttpOKRequestJson()
 
     def get():
-        m_locations = mod.Location.objects.all()
+        m_locations = m.Location.objects.all()
         serializer = ser.LocationSerializer(m_locations, many=True)
         return JsonResponse({"locations": serializer.data})
 
@@ -85,7 +86,7 @@ def locations_id(request, id):
     :return: JsonResponse
     """
     def patch(all_data):
-        existing_location = try_get_instance(mod.Location, id)
+        existing_location = try_get_instance(m.Location, id)
         if existing_location is None:
             return HttpNotFound(str(id))
         data = all_data.get("location", None)
@@ -100,13 +101,13 @@ def locations_id(request, id):
         return HttpOKRequestJson()
 
     def get():
-        m_location = try_get_instance(mod.Location, id)
+        m_location = try_get_instance(m.Location, id)
         serializer = ser.LocationSerializer(m_location, many=False)
         # return the json formatted as an HTTP response
         return JsonResponse({"location": serializer.data})
 
     def delete():
-        location = try_get_instance(mod.Location, id)
+        location = try_get_instance(m.Location, id)
         if location is None:
             return HttpNotFound(str(id))
         location.delete()
@@ -119,7 +120,7 @@ def locations_id(request, id):
 @csrf_exempt
 def events(request):
     def get():
-        m_events = mod.Event.objects.all()
+        m_events = m.Event.objects.all()
         serializer = ser.EventSerializer(m_events, many=True)
         return JsonResponse({"events": serializer.data})
 
@@ -139,7 +140,7 @@ def events(request):
 @csrf_exempt
 def events_id(request, id):
     def patch(data):
-        existing_event = try_get_instance(mod.Event, id)
+        existing_event = try_get_instance(m.Event, id)
         if existing_event is None:
             return HttpNotFound(str(id))
 
@@ -150,7 +151,7 @@ def events_id(request, id):
         return HttpOKRequestJson()
 
     def get():
-        m_event = try_get_instance(mod.Event, id)
+        m_event = try_get_instance(m.Event, id)
         if m_event is None:
             return HttpNotFound(str(id))
         serializer = ser.EventSerializer(instance=m_event, many=False)
@@ -158,7 +159,7 @@ def events_id(request, id):
         return JsonResponse({"event": serializer.data})
 
     def delete():
-        m_event = try_get_instance(mod.Event, id)
+        m_event = try_get_instance(m.Event, id)
         if m_event is None:
             return HttpNotFound(str(id))
         m_event.delete()
@@ -206,7 +207,7 @@ Helper query stuff
 """
 
 
-def try_get_instance(model_class: mod.Model, id):
+def try_get_instance(model_class: django_model.Model, id):
     try:
         existing_location = model_class.objects.get(id=id)
         return existing_location
