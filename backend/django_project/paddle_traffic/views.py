@@ -10,10 +10,11 @@ import json
 # todo
 # no negative people etc, add data checking
 #   - clean() methods ... ? yeh... great
-# empty list on invalid id? or bad_request response?
 # add more documentation to the wiki, cuz it's not great rn.
 # add report URI endpoint
 # add join event URI endpoint
+# empty list on invalid id? or bad_request response? later
+
 
 
 """
@@ -32,6 +33,7 @@ def dataToReturn(request, custom_url_number): # custom_url_number, represents th
         ...
 """
 
+
 def report(request, id):
     def post(all_data):
         location: mod.Location = try_get_instance(mod.Location, id)
@@ -48,6 +50,7 @@ def report(request, id):
 
     funs = {"POST": post}
     return get_response(request, funs)
+
 
 @csrf_exempt
 def locations(request):
