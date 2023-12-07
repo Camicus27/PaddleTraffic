@@ -2,7 +2,7 @@
 
 <template>
     <div class="about-wrapper">
-    <h2>Welcome to PaddleTraffic!</h2>
+    <h1>Welcome to PaddleTraffic!</h1>
     <p>At PaddleTraffic, our mission is to revolutionize the way pickleball enthusiasts find and join games at local courts.
         Recognizing the growing popularity of pickleball — now the fastest-growing sport in the United States — we
         identified a need for an innovative solution to help players easily locate available courts and join games.</p>
@@ -42,7 +42,15 @@
 
 <style scoped>
     .about-wrapper {
-        margin: 4em;
+        margin-left: 4em;
+        margin-right: 4em;
+        margin-top: 2em;
+        margin-bottom: 2em;
+    }
+
+    h1 {
+        font-size: 2.5em;
+        margin-bottom: .75em;
     }
 
     h2 {
