@@ -8,7 +8,7 @@ import json
 
 
 # todo
-# wrap stuff in locations and event
+
 # change put to patch
 # add report URI endpoint
 # add join event URI endpoint
@@ -74,19 +74,22 @@ def locations_id(request, id):
         existing_location = try_get_instance(mod.Location, id)
         if existing_location is None:
             return HttpNotFound(str(id))
+        data = all_data.get("location", None)
+        if data is None:
+            return HttpBadRequestJson()
 
         serializer = ser.LocationUpdateSerializer(instance=existing_location, data=data)
         if serializer.is_valid():
             updated_location = serializer.save()
         else:
-            return HttpResponse("Invalid JSON data", status=400, content_type="text/plain")  # Bad Request
+            return HttpBadRequestJson()
         return HttpOKRequestJson()
 
     def get():
         m_location = try_get_instance(mod.Location, id)
         serializer = ser.LocationSerializer(m_location, many=False)
         # return the json formatted as an HTTP response
-        return JsonResponse(serializer.data)
+        return JsonResponse({"location": serializer.data})
 
     def delete():
         location = try_get_instance(mod.Location, id)
@@ -138,7 +141,7 @@ def events_id(request, id):
             return HttpNotFound(str(id))
         serializer = ser.EventSerializer(instance=m_event, many=False)
         # return the json formatted as an HTTP response
-        return JsonResponse(serializer.data)
+        return JsonResponse({"event": serializer.data})
 
     def delete():
         m_event = try_get_instance(mod.Event, id)
