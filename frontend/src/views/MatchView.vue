@@ -5,10 +5,6 @@ import MatchList from '@/components/MatchList.vue'
 <template>
   <div>
     <h1>This is the matchmaking view!</h1>
-    <h2>
-      The elements below are placeholders, fetched from the API
-      https://jsonplaceholder.typicode.com/guide/
-    </h2>
     <MatchList />
   </div>
 </template>
