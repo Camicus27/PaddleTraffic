@@ -8,13 +8,12 @@ import json
 
 
 # todo
-
-# change put to patch
+# no negative people etc, add data checking
+#   - clean() methods ... ? yeh... great
+# empty list on invalid id? or bad_request response?
+# add more documentation to the wiki, cuz it's not great rn.
 # add report URI endpoint
 # add join event URI endpoint
-# add more documentation to the wiki, cuz it's not great rn.
-# empty list on invalid id? or bad_request response?
-# no negative people etc, add data checking
 
 
 """
