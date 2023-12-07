@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onBeforeMount, type Ref } from 'vue';
 import axios from 'axios'
+import MatchForm from './MatchForm.vue'
 
 const posts : Ref<any> = ref({})
 
@@ -13,6 +14,7 @@ onBeforeMount(() => {
 </script>
 
 <template>
+  <MatchForm />
   <div class="posts" v-for="post in posts" :key="post.id">
     <h3>Title: {{ post.title }}</h3>
     <h4>Body: {{ post.body }}</h4>
