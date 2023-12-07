@@ -10,8 +10,8 @@ to all the Events being held at the location.
 '''
 class Location(models.Model):
     name = models.CharField(max_length=255)
-    latitude = models.DecimalField(decimal_places=6)
-    longitude = models.DecimalField(decimal_places=6)
+    latitude = models.DecimalField(max_digits=9, decimal_places=6) # max_digits can change but we can't not have them
+    longitude = models.DecimalField(max_digits=9, decimal_places=6)
     court_count = models.IntegerField()
     courts_occupied = models.IntegerField()
     number_waiting = models.IntegerField()
@@ -25,6 +25,7 @@ a date and time to show up for the event.
 '''
 class Event(models.Model):
     name = models.CharField(max_length=255)
+    description = models.CharField(max_length=2047)
     location = models.ForeignKey(Location, on_delete=models.CASCADE, related_name='scheduled_events', null=False)
     host = models.ForeignKey(User, on_delete=models.CASCADE, related_name='hosted_events', null=False)
     players = models.ManyToManyField(User, related_name='attending_events', blank=True)

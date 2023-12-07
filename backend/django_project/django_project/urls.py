@@ -16,7 +16,15 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from paddle_traffic import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('locations/', views.locations),
+    path('locations/<int:id>/', views.locations_id),
+    path('locations/<int:id>/report/', views.report),
+    path('events/', views.events),
+    path('events/<int:id>/', views.events_id),
+    #  Add custom numbered, lettered, named, urls using the following
+    #  path('<int:custom_url_number>/locations/')
 ]
