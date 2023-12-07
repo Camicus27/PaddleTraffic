@@ -22,9 +22,9 @@ onBeforeMount(() => {
 
 <style scoped>
 .posts {
-    border: 2px solid gray;
-    background-color: lightcyan;
-    padding: 1em;
-    margin: 1em;
+  border: 2px solid gray;
+  background-color: lightcyan;
+  padding: 1em;
+  margin: 1em;
 }
 </style>

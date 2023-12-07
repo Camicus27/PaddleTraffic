@@ -1,5 +1,8 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+</script>
 
 <template>
-    <h1>This is the about view!</h1>
+    <div id="about-main-content">
+        <h1>This is the about view!</h1>
+    </div>
 </template>
