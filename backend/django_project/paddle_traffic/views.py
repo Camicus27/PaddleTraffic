@@ -32,6 +32,22 @@ def dataToReturn(request, custom_url_number): # custom_url_number, represents th
         ...
 """
 
+def report(request, id):
+    def post(all_data):
+        location: mod.Location = try_get_instance(mod.Location, id)
+        data = all_data.get("report", None)
+        if data is None:
+            return HttpBadRequestJson()
+        court_count = data.get("court_count", None)
+        courts_occupied = data.get("court_count", None)
+        if court_count is None or courts_occupied is None:
+            return HttpBadRequestJson()
+        location.court_count = court_count
+        location.courts_occupied = courts_occupied
+        location.save()
+
+    funs = {"POST": post}
+    return get_response(request, funs)
 
 @csrf_exempt
 def locations(request):
