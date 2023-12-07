@@ -6,15 +6,11 @@ from paddle_traffic import serializers as ser
 import json
 # Create your views here.
 
-
 # todo
 # no negative people etc, add data checking
 #   - clean() methods ... ? yeh... great
-# add more documentation to the wiki, cuz it's not great rn.
-# add report URI endpoint
-# add join event URI endpoint
-# empty list on invalid id? or bad_request response? later
-
+# add join event URI endpoint?
+# where id is None potentially return something that is "none"?
 
 
 """
