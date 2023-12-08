@@ -1,5 +1,6 @@
 **Making data after a model change**
-Just be sure that if models have changed or you are setting up a new environment that migrations need to made for the sqlite database to work properly. Run the following sequence of commands while in the backend directory:
+
+Be sure that if models have changed or you are setting up a new environment that migrations need to made for the sqlite database to work properly. Run the following sequence of commands while in the backend directory:
 
 ```sh
 python manage.py makemigrations
