@@ -3,5 +3,7 @@ import PickleballMap from '@/components/PickleballMap.vue';
 </script>
 
 <template>
-    <PickleballMap/>
+    <div id="map-main-content">
+        <PickleballMap/>
+    </div>
 </template>

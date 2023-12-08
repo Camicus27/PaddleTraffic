@@ -1,2 +1,3 @@
 # For anyone else who creates an jetbrains project with the repo
 .idea/*
+backend/django_project/paddle_traffic/migrations/*.py
