@@ -18,15 +18,20 @@ onMounted(() => {
 })
 
 function getEvents() {
-  axios.get(`${URL}/events`)
+  axios.get(`${URL}/events` , {
+    headers: {
+      
+    }
+  })
     .then((response) => matches.value = response.data)
     .catch((error) => console.log(error))
+  console.log(matches.value)
 }
 
 </script>
 
 <template>
-  <MatchForm :matches="matches" />
+  <MatchForm />
   <button @click="getEvents">Reload Events</button>
   <div class="matches" v-for="{ id, name, location, host, players, date, time } in matches" :key="id">
     <h2>{{ name }}</h2>

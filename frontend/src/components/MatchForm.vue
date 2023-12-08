@@ -1,10 +1,6 @@
 <script setup lang="ts">
-import { ref, type Ref} from 'vue'
+import { ref} from 'vue'
 import axios from 'axios'
-
-const { matches } = defineProps<{
-  matches: Ref<any>
-}>()
 
 const eventForm = ref({
     name: '',
