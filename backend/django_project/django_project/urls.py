@@ -20,6 +20,8 @@ from paddle_traffic import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('users/', views.users),
+    path('users/<int:id>/', views.users_id),
     path('locations/', views.locations),
     path('locations/<int:id>/', views.locations_id),
     path('locations/<int:id>/report/', views.report),

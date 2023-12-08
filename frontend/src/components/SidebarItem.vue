@@ -1,11 +1,12 @@
 <script setup lang="ts">
 import { RouterLink } from 'vue-router'
 defineProps<{
+  name: string
   location: string
-  players: string[]
-  desiredPlayers: number
+  host: string
+  players: Array<string>
+  date: string
   time: string
-  skillLevel: string
 }>()
 </script>
 
@@ -14,21 +15,18 @@ defineProps<{
     <p class="match-loc">
       Match at <RouterLink to="/map">{{ location }}</RouterLink>
     </p>
-    <p class="player-list">Players ({{ desiredPlayers }}): 
+    <p class="player-list">Players: 
       <ul>
         <li class="player-link" v-for="player in players" :key="player">
             <a href="">{{ player }}</a>
         </li>
-        <li class="join-match-link" v-if="(desiredPlayers === 4 && players.length < 4) || (desiredPlayers === 2 && players.length < 2)">
+        <li class="join-match-link" v-if="(players.length < 4)">
           &lbrack; <a href="">Join Game</a> &rbrack;
         </li>
       </ul>
     </p>
     <p class="match-time">
       Time: {{ time }}
-    </p>
-    <p class="match-skill-level">
-      Skill level: {{ skillLevel }}
     </p>
   </div>
 </template>

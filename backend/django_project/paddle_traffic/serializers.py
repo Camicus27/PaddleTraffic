@@ -2,6 +2,71 @@ from .models import *
 from rest_framework import serializers
 
 
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = [
+            'id',
+            'username',
+            'first_name',
+            'last_name',
+            'email',
+            'groups',
+            'user_permissions',
+            'is_staff',
+            'is_active',
+            'is_superuser',
+            'last_login',
+            'date_joined'
+        ]
+
+class UserUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = [
+            'username',
+            'first_name',
+            'last_name',
+            'email',
+            'groups',
+            'user_permissions',
+            'is_staff',
+            'is_active',
+            'is_superuser'
+        ]
+        extra_kwargs = {
+            'username': {'required': False},
+            'first_name': {'required': False},
+            'last_name': {'required': False},
+            'email': {'required': False},
+            'groups': {'required': False},
+            'user_permissions': {'required': False},
+            'is_staff': {'required': False},
+            'is_active': {'required': False},
+            'is_superuser': {'required': False}
+        }
+
+class GroupSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Group
+        fields = [
+            'id',
+            'name',
+            'permissions'
+        ]
+
+class GroupUpdateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Group
+        fields = [
+            'name',
+            'permissions'
+        ]
+        extra_kwargs = {
+            'name': {'required': False},
+            'permissions': {'required': False}
+        }
+
 class LocationSerializer(serializers.ModelSerializer):
     class Meta:  # Serializers just return a Meta class
         model = Location  # which hold the class as the type of the model
