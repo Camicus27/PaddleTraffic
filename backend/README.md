@@ -1,3 +1,12 @@
+**Making data after a model change**
+
+Be sure that if models have changed or you are setting up a new environment that migrations need to made for the sqlite database to work properly. Run the following sequence of commands while in the backend directory:
+
+```sh
+python manage.py makemigrations
+python manage.py migrate
+python makedata.py
+```
 
 # Getting Started
 First we need pipx. [Why use pipx?](https://python-poetry.org/docs/#installing-with-pipx)
