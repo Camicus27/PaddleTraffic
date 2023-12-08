@@ -44,7 +44,9 @@ function getAllPlayers() {
 
 <template>
   <MatchForm />
-  <button @click="getEvents">Reload Events</button>
+  <div class="button-wrapper">
+    <button @click="getEvents">Reload Events</button>
+  </div>
   <template v-if="!isFetching">
     <div class="matches" v-for="{ id, name, location, host, players, date, time } in matches" :key="id">
       <h2>{{ name }}</h2>
@@ -61,9 +63,42 @@ function getAllPlayers() {
 
 <style scoped>
 .matches {
-  border: 2px solid gray;
-  background-color: lightcyan;
+  border: 3px solid gray;
+  background-color: #d0d4ca;
   padding: 1em;
   margin: 1em;
 }
-</style>
+
+.button-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* New styles for the button */
+button {
+  background-color: #4a5834;
+  /* Green background */
+  color: white;
+  /* White text */
+  padding: 12px 24px;
+  /* Padding around the text */
+  border: none;
+  /* No border */
+  border-radius: 4px;
+  /* Rounded corners */
+  cursor: pointer;
+  /* Pointer cursor on hover */
+  font-size: 16px;
+  /* Font size */
+  transition: background-color 0.3s;
+  /* Smooth transition for hover effect */
+  margin-top: 2em;
+  margin-bottom: 1em;
+  font-size: x-large;
+}
+
+button:hover {
+  background-color: #71864f;
+  /* Darker shade of green on hover */
+}</style>

@@ -3,6 +3,7 @@ import { ref, onMounted, type Ref } from 'vue'
 import axios from 'axios'
 
 const isFetching = ref(true)
+const submittedSuccessfully = ref(false)
 
 const eventForm = ref({
     name: '',
@@ -54,6 +55,7 @@ function submitForm() {
         .then(response => {
             // Handle the response here. For example, logging the new location ID.
             console.log('New event ID:', response.data);
+            submittedSuccessfully.value = true
         })
         .catch(error => {
             // Handle errors here
@@ -61,23 +63,6 @@ function submitForm() {
         });
 }
 
-// function updatePlayers(event: Event) {
-//     // Manually update the model based on the selected options
-//     if (event.target != null) {
-//         const players = eventForm.value.players
-//         const select = event.target as HTMLSelectElement
-//         const selections = Array.from(select.selectedOptions).map(option => option.value)
-
-//         selections.forEach(function (selection) {
-//             if (players.includes(selection)) {
-//                 players.splice(players.indexOf(selection), 1)
-//             }
-//             else {
-//                 players.push(selection)
-//             }
-//         })
-//     }
-// }
 
 </script>
 
@@ -135,6 +120,12 @@ function submitForm() {
 
             <button type="submit">Submit</button>
         </form>
+        <div class="alert-wrapper" v-if="submittedSuccessfully">
+            <div class="alert-success">
+                <span class="closebtn" @click="submittedSuccessfully = !submittedSuccessfully">&times;</span>
+                <strong>Success!</strong> Your form has been submitted. Please reload the events to see the change.
+            </div>
+        </div>
     </div>
 </template>
 
@@ -184,7 +175,7 @@ select[multiple] {
 /* Button Styling */
 button[type="submit"] {
     padding: 10px 15px;
-    background-color: #0056b3;
+    background-color: #4a5834;
     color: white;
     border: none;
     border-radius: 4px;
@@ -193,7 +184,7 @@ button[type="submit"] {
 }
 
 button[type="submit"]:hover {
-    background-color: #004494;
+    background-color: #71864f;
 }
 
 .selected-players {
@@ -207,5 +198,43 @@ button[type="submit"]:hover {
     background-color: #f2f2f2;
     border-radius: 4px;
     border: 1px solid #ddd;
+}
+
+.alert-wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 2em;
+    font-size: large;
+    font-family: 'Open Sans', sans-serif;
+}
+
+.alert-success {
+    padding: 20px;
+    padding-right: 40px;
+    background-color: #4b5320;
+    /* Olive green background */
+    color: white;
+    margin-bottom: 15px;
+    border-radius: 4px;
+    position: relative;
+}
+
+.alert-success strong {
+    margin-right: 10px;
+}
+
+.closebtn {
+    position: absolute;
+    top: 5px;
+    right: 15px;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.closebtn:hover {
+    color: #6b8e23;
+    /* Lighter shade for hover */
 }
 </style>
