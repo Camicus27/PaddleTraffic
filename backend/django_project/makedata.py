@@ -23,8 +23,8 @@ def initial_data():
     
     thePark = Location.objects.create(
         name = "The Park",
-        latitude = 1.0000,
-        longitude = 1.0000,
+        latitude = 40.745929,
+        longitude = -111.873945,
         court_count = 4,
         courts_occupied = 2,
         number_waiting = 0,
@@ -32,8 +32,8 @@ def initial_data():
     )
     picklecoinHQ = Location.objects.create(
         name = "Picklecoin HQ",
-        latitude = 1.0000,
-        longitude = 1.0000,
+        latitude = 40.767807,
+        longitude = -111.845182,
         court_count = 24,
         courts_occupied = 24,
         number_waiting = 15,
@@ -41,8 +41,8 @@ def initial_data():
     )
     theMoon = Location.objects.create(
         name = "The Moon",
-        latitude = 1.0000,
-        longitude = 1.0000,
+        latitude = 40.673265,
+        longitude = -111.683013,
         court_count = 2,
         courts_occupied = 2,
         number_waiting = 3,
