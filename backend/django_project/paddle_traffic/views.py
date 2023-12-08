@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.http import JsonResponse, Http404, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from paddle_traffic import models as m
+from django.contrib.auth.models import User
 from django.db import models as django_model
 from paddle_traffic import serializers as ser
 import json
@@ -29,6 +30,44 @@ def dataToReturn(request, custom_url_number): # custom_url_number, represents th
     elif ...
         ...
 """
+
+@csrf_exempt
+def users(request):
+    """
+    GET /users
+    POST /users
+
+    :param request:
+    :return: JsonResponse
+    """
+    def get():
+        all_users = User.objects.all()
+        serializer = ser.UserSerializer(all_users, many=True)
+        return JsonResponse({"users": serializer.data})
+
+    funs = {"GET": get}
+    return get_response(request, funs)
+
+
+@csrf_exempt
+def users_id(request, id):
+    """
+    GET /users/{id}
+    :param request:
+    :param id: id of the user
+    :return: JsonResponse
+    """
+    def get():
+        try:
+            user = User.objects.get(pk=id)
+        except User.DoesNotExist:
+            return HttpNotFound(f"User with ID {id} ")
+
+        serializer = ser.UserSerializer(user)
+        return JsonResponse({"user": serializer.data})
+
+    funs = {"GET": get}
+    return get_response(request, funs)
 
 
 def report(request, id):
