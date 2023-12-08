@@ -123,6 +123,18 @@ def events(request):
         m_events = m.Event.objects.all()
         serializer = ser.EventSerializer(m_events, many=True)
         return JsonResponse({"events": serializer.data})
+    
+    def post(all_data):
+        data = all_data.get("event", None)
+        if data is None:
+            return HttpBadRequestJson()
+        serializer = ser.EventSerializer(data=data)
+        if not serializer.is_valid():
+            print(data)
+            print(serializer.errors)
+            return HttpBadRequestJson()
+        new_event = serializer.save()
+        return HttpOKRequestJson()
 
     def patch(data):
         serializer = ser.EventSerializer(data=data)
@@ -133,7 +145,7 @@ def events(request):
         new_event = serializer.save()
         return HttpOKRequestJson()
 
-    funs = {"GET": get, "PATCH": patch}
+    funs = {"GET": get, "POST": post, "PATCH": patch}
     return get_response(request, funs)
 
 
