@@ -44,7 +44,7 @@ else
     URL = env.VITE_DEV_URL
 
 function submitForm() {
-    axios.post(`${URL}/events`, { event: eventForm.value })
+    axios.post(`${URL}/events/`, { event: eventForm.value })
         .then(response => {
             // Handle the response here. For example, logging the new location ID.
             console.log('New event ID:', response.data);

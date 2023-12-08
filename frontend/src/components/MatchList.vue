@@ -18,14 +18,12 @@ onMounted(() => {
 })
 
 function getEvents() {
-  axios.get(`${URL}/events` , {
-    headers: {
-      
-    }
-  })
-    .then((response) => matches.value = response.data)
+  axios.get(`${URL}/events/`)
+    .then((response) => {
+      matches.value = response.data
+      console.log(matches.value)
+    })
     .catch((error) => console.log(error))
-  console.log(matches.value)
 }
 
 </script>
@@ -33,16 +31,18 @@ function getEvents() {
 <template>
   <MatchForm />
   <button @click="getEvents">Reload Events</button>
-  <div class="matches" v-for="{ id, name, location, host, players, date, time } in matches" :key="id">
-    <h2>{{ name }}</h2>
-    <h3>Players:</h3>
-    <ul>
-      <!-- Maybe shouldn't use player for the key, since not guaranteed to be unique -->
-      <li>{{ host }} (Host)</li>
-      <li v-for="player in players" :key="player">{{ player }}</li>
-    </ul>
-    <h3>Match at {{ location }}, {{ date }} {{ time }}</h3>
-  </div>
+  <template v-if="matches.length">
+    <div class="matches" v-for="{ id, name, location, host, players, date, time } in matches" :key="id">
+      <h2>{{ name }}</h2>
+      <h3>Players:</h3>
+      <ul>
+        <!-- Maybe shouldn't use player for the key, since not guaranteed to be unique -->
+        <li>{{ host }} (Host)</li>
+        <li v-for="player in players" :key="player">{{ player }}</li>
+      </ul>
+      <h3>Match at {{ location }}, {{ date }} {{ time }}</h3>
+    </div>
+  </template>
 </template>
 
 <style scoped>
