@@ -42,26 +42,53 @@
 </template>
 
 <style scoped>
-    .about-wrapper {
-        margin-left: 4em;
-        margin-right: 4em;
-        margin-top: 2em;
-        margin-bottom: 2em;
-    }
+.about-wrapper {
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    max-width: 800px; /* Limit the width for better readability */
+    padding: 20px;
+}
 
-    h1 {
-        font-size: 2.5em;
-        margin-bottom: .75em;
-    }
+h1, h2 {
+    font-family: 'Open Sans', sans-serif;
+    color: #4b5320; /* Olive green color to match the home page */
+    text-align: center;
+}
 
-    h2 {
-        font-size: 1.75em;
-        margin-bottom: 1em;
-        margin-top: 1em;
-    }
+h1 {
+    margin-bottom: 0.5em;
+    font-size: 3rem; /* Slightly smaller than home page for better fit */
+}
 
-    p {
-        font-size: 1.15em;
-    }
-    
+h2 {
+    font-size: 2rem;
+    margin-top: 1em;
+    margin-bottom: 0.5em;
+}
+
+p {
+    font-size: 1.2rem;
+    line-height: 1.6;
+    color: #333; /* Dark grey for readability */
+    text-align: justify; /* Justify text for a neat appearance */
+    margin-bottom: 1em; /* Add some space after paragraphs */
+}
+
+/* If you have links on the about page, style them to match the home page */
+a {
+    display: inline-block;
+    background-color: #4b5320; /* Olive green background */
+    color: #fff;
+    padding: 10px 15px;
+    text-decoration: none;
+    border-radius: 5px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+a:hover {
+    background-color: #6b8e23;
+    color: #d3d3d3;
+}
 </style>
