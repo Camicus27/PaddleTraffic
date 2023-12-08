@@ -8,6 +8,37 @@ const mapContainer = ref();
 mapboxgl.accessToken = 'pk.eyJ1Ijoic3VudHp1Y2Fwc3RvbmUiLCJhIjoiY2xwOHl6MGZiMWQwcjJ2bzNpdTh3ZXZ5diJ9.2OxP9v87qKxpFmL7FFrD-g';
 const map: Ref<mapboxgl.Map | undefined> = ref();
 
+function initGeoloc(mapInstance: mapboxgl.Map) {
+  const geolocateControl = new mapboxgl.GeolocateControl({
+    fitBoundsOptions: { maxZoom: 11 },
+    positionOptions: { enableHighAccuracy: true },
+    trackUserLocation: true,
+  });
+
+  mapInstance.addControl(geolocateControl);
+  mapInstance.on('load', () => geolocateControl.trigger());
+}
+
+function addMarkers(mapInstance: mapboxgl.Map) {
+  const locations = [
+    {
+      name: "Hogan Park",
+      latitude: 40.874056,
+      longitude: -111.901012,
+      court_count: 6,
+      courts_occupied: 3,
+      number_waiting: 10,
+      estimated_wait_time: "15m"
+    }
+  ];
+
+  locations.forEach(loc => {
+    new mapboxgl.Marker()
+      .setLngLat([loc.longitude, loc.latitude])
+      .addTo(mapInstance);
+  });
+}
+
 onMounted(() => {
   map.value = new mapboxgl.Map({
     container: mapContainer.value,
@@ -16,36 +47,10 @@ onMounted(() => {
     zoom: 11
   });
 
-  const geolocateControl = new mapboxgl.GeolocateControl({
-    fitBoundsOptions: { maxZoom: 11 },
-    positionOptions: { enableHighAccuracy: true },
-    trackUserLocation: true,
-    // showUserHeading: true
-  });
-  
-  // Add location button to map
-  map.value.addControl(geolocateControl);
-
-  // Get location on load
-  map.value.on('load', () => {
-    geolocateControl?.trigger();
-  });
-
-  // Todo: Get locations from database and dynamically add markers
-  const popup = new mapboxgl.Popup().setText('This is a pickleball location!');
-
-  new mapboxgl.Marker()
-  .setLngLat([-111.880222, 40.774807])
-  .setPopup(popup)
-  .addTo(map.value);
-
-  new mapboxgl.Marker()
-  .setLngLat([-111.862977, 40.720215])
-  .addTo(map.value);
-
-  new mapboxgl.Marker()
-  .setLngLat([-111.862123, 40.783499])
-  .addTo(map.value);
+  if (map.value) {
+    initGeoloc(map.value);
+    addMarkers(map.value);
+  }
 })
 
 onUnmounted(() => {
