@@ -4,22 +4,25 @@ import mapboxgl from "mapbox-gl";
 
 const mapContainer = ref();
 
-// Will improve token handling
+// Todo: improve token handling
 mapboxgl.accessToken = 'pk.eyJ1Ijoic3VudHp1Y2Fwc3RvbmUiLCJhIjoiY2xwOHl6MGZiMWQwcjJ2bzNpdTh3ZXZ5diJ9.2OxP9v87qKxpFmL7FFrD-g';
 const map: Ref<mapboxgl.Map | undefined> = ref();
 
-function initGeoloc(mapInstance: mapboxgl.Map) {
+// Get users geolocation if permitted
+function initGeoloc(mapVal: mapboxgl.Map) {
   const geolocateControl = new mapboxgl.GeolocateControl({
     fitBoundsOptions: { maxZoom: 11 },
     positionOptions: { enableHighAccuracy: true },
     trackUserLocation: true,
   });
 
-  mapInstance.addControl(geolocateControl);
-  mapInstance.on('load', () => geolocateControl.trigger());
+  mapVal.addControl(geolocateControl);
+  mapVal.on('load', () => geolocateControl.trigger());
 }
 
-function addMarkers(mapInstance: mapboxgl.Map) {
+// Add markers to map
+function addMarkers(mapVal: mapboxgl.Map) {
+  // Todo: get locations from database
   const locations = [
     {
       name: "Hogan Park",
@@ -35,7 +38,7 @@ function addMarkers(mapInstance: mapboxgl.Map) {
   locations.forEach(loc => {
     new mapboxgl.Marker()
       .setLngLat([loc.longitude, loc.latitude])
-      .addTo(mapInstance);
+      .addTo(mapVal);
   });
 }
 
