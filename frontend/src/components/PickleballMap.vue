@@ -143,14 +143,14 @@ onUnmounted(() => {
 }
 
 .map-container {
-  min-height: 40em;
+  min-height: 45em;
 }
 
 .info-section {
   margin-top: 1em;
   padding: 1em;
   border: 3px solid black;
-  background-color: lightsteelblue;
+  background-color: #d0d4ca;
 }
 
 .flex-row {
@@ -175,8 +175,9 @@ onUnmounted(() => {
 }
 
 form {
-  background-color: #D0D4CA;
+  background-color: #b2bda2;
   padding: 10px;
+  border: 1px solid black;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
@@ -198,7 +199,7 @@ input[type="number"] {
 
 input[type="submit"] {
   width: 100%;
-  background-color: #9ab375;
+  background-color: #849b62;
   color: white;
   padding: 3px;
   border: none;
