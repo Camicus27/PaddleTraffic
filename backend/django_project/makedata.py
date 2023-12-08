@@ -50,7 +50,7 @@ def initial_data():
     )
     hoganPark = Location.objects.create(
         name = "Hogan Park",
-        latitude = 40.874055
+        latitude = 40.874055,
         longitude = -111.901010,
         court_count = 6,
         courts_occupied = 6,

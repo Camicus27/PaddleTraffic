@@ -70,19 +70,23 @@ def users_id(request, id):
     return get_response(request, funs)
 
 
+@csrf_exempt
 def report(request, id):
     def post(all_data):
         location: m.Location = try_get_instance(m.Location, id)
         data = all_data.get("report", None)
         if data is None:
             return HttpBadRequestJson()
-        court_count = data.get("court_count", None)
-        courts_occupied = data.get("court_count", None)
-        if court_count is None or courts_occupied is None:
+        courts_occupied = data.get("courts_occupied", None)
+        number_waiting = data.get("number_waiting", None)
+        if courts_occupied is None or number_waiting is None:
             return HttpBadRequestJson()
-        location.court_count = court_count
         location.courts_occupied = courts_occupied
+        location.number_waiting = number_waiting
         location.save()
+
+        serializer = ser.LocationSerializer(location)
+        return JsonResponse({"location": serializer.data})
 
     funs = {"POST": post}
     return get_response(request, funs)
@@ -169,8 +173,6 @@ def events(request):
             return HttpBadRequestJson()
         serializer = ser.EventSerializer(data=data)
         if not serializer.is_valid():
-            print(data)
-            print(serializer.errors)
             return HttpBadRequestJson()
         new_event = serializer.save()
         return HttpOKRequestJson()
@@ -178,7 +180,6 @@ def events(request):
     def patch(data):
         serializer = ser.EventSerializer(data=data)
         if not serializer.is_valid():
-            print(serializer.errors)
             return HttpBadRequestJson()
 
         new_event = serializer.save()
