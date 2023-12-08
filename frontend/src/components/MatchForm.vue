@@ -1,6 +1,8 @@
 <script setup lang="ts">
-import { ref} from 'vue'
+import { ref, onMounted, type Ref } from 'vue'
 import axios from 'axios'
+
+const isFetching = ref(true)
 
 const eventForm = ref({
     name: '',
@@ -12,28 +14,32 @@ const eventForm = ref({
     time: ''
 })
 
-const playerNames = ref([
-    { id: 1, name: "Emily Thompson" },
-    { id: 2, name: "Marcus Johnson" },
-    { id: 3, name: "Aisha Patel" },
-    { id: 4, name: "Santiago Rivera" },
-    { id: 5, name: "Fiona O'Reilly" },
-    { id: 6, name: "Takashi Yamamoto" },
-    { id: 7, name: "Nadia Petrova" },
-    { id: 8, name: "Kwame Nkrumah" },
-    { id: 9, name: "Elena García" },
-    { id: 10, name: "Arjun Singh" },
-    { id: 11, name: "Mia Wong" },
-    { id: 12, name: "Liam O'Connor" },
-    { id: 13, name: "Zoe Martin" },
-    { id: 14, name: "Abdul Rahman" },
-    { id: 15, name: "Gabriela Rodriguez" },
-    { id: 16, name: "Oliver Smith" },
-    { id: 17, name: "Amelie Dupont" },
-    { id: 18, name: "Ivan Kuznetsov" },
-    { id: 19, name: "Layla Al-Masri" },
-    { id: 20, name: "Noah Andersen" }
-])
+onMounted(() => {
+    getAllPlayers()
+    getAllLocations()
+})
+
+const allPlayers: Ref<any> = ref([])
+
+function getAllPlayers() {
+    axios.get(`${URL}/users/`)
+        .then((response) => {
+            allPlayers.value = response.data.users
+            isFetching.value = false
+        })
+        .catch((error) => console.log(error))
+}
+
+const allLocations: Ref<any> = ref([])
+
+function getAllLocations() {
+    axios.get(`${URL}/locations/`)
+        .then((response) => {
+            allLocations.value = response.data.locations
+            isFetching.value = false
+        })
+        .catch((error) => console.log(error))
+}
 
 let URL: string
 // This is the collection of environment variables.
@@ -90,27 +96,30 @@ function submitForm() {
 
             <div>
                 <label for="location">Location:</label>
-                <input type="text" id="location" v-model="eventForm.location" />
+                <select id="location" v-model="eventForm.location">
+                    <!-- Options should be populated dynamically -->
+                    <option v-for="{ id, name } in allLocations" :key="id" :value="id">{{ name }}</option>
+                </select>
             </div>
 
             <div>
                 <label for="host">Host:</label>
                 <select id="host" v-model="eventForm.host">
                     <!-- Options should be populated dynamically -->
-                    <option value="Anonymous Player">Anonymous Player</option>
+                    <option v-for="{ id, username } in allPlayers" :key="id" :value="id">{{ username }}</option>
                 </select>
             </div>
             <div>
                 <div>
                     <label for="players">Players:</label>
                     <select id="players" multiple v-model="eventForm.players"><!--@change="updatePlayers"-->
-                        <option v-for="{ id, name } in playerNames" :key="id" :value="name">{{ name }}</option>
+                        <option v-for="{ id, username } in allPlayers" :key="id" :value="id">{{ username }}</option>
                         <!-- Options should be populated dynamically -->
                     </select>
                 </div>
                 <div class="selected-players">
                     <span v-for="player in eventForm.players" :key="player.toString()" class="selected-player">
-                        {{ player }}
+                        {{ allPlayers.filter((p: any) => p.id === player)[0].username }}
                     </span>
                 </div>
             </div>
