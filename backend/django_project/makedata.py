@@ -48,6 +48,133 @@ def initial_data():
         number_waiting = 3,
         estimated_wait_time = datetime.timedelta(minutes=15)
     )
+    hoganPark = Location.objects.create(
+        name = "Hogan Park",
+        latitude = 40.874055
+        longitude = -111.901010,
+        court_count = 6,
+        courts_occupied = 6,
+        number_waiting = 2,
+        estimated_wait_time = datetime.timedelta(minutes=10)
+    )
+    avenuePark = Location.objects.create(
+        name = "11th Avenue Park",
+        latitude = 40.783488,
+        longitude = -111.862134,
+        court_count = 6,
+        courts_occupied = 2,
+        number_waiting = 0,
+        estimated_wait_time = datetime.timedelta(minutes=0)
+    )
+    aveAndC = Location.objects.create(
+        name = "5th Ave & C Street",
+        latitude = 40.774847,
+        longitude = -111.880206,
+        court_count = 2,
+        courts_occupied = 0,
+        number_waiting = 0,
+        estimated_wait_time = datetime.timedelta(minutes=0)
+    )
+    fairont = Location.objects.create(
+        name = "Fairont Park-West",
+        latitude = 40.720147,
+        longitude = -111.862813,
+        court_count = 6,
+        courts_occupied = 6,
+        number_waiting = 10,
+        estimated_wait_time = datetime.timedelta(minutes=25)
+    )
+    bickley = Location.objects.create(
+        name = "Bickley",
+        latitude = 40.716158,
+        longitude = -111.877278,
+        court_count = 1,
+        courts_occupied = 1,
+        number_waiting = 4,
+        estimated_wait_time = datetime.timedelta(minutes=20)
+    )
+    westBountiful = Location.objects.create(
+        name = "West Bountiful",
+        latitude = 40.895123,
+        longitude = -111.901440,
+        court_count = 4,
+        courts_occupied = 4,
+        number_waiting = 1,
+        estimated_wait_time = datetime.timedelta(minutes=10)
+    )
+    twinHollow = Location.objects.create(
+        name = "Twin Hollow",
+        latitude = 40.903635,
+        longitude = -111.862690,
+        court_count = 6,
+        courts_occupied = 5,
+        number_waiting = 0,
+        estimated_wait_time = datetime.timedelta(minutes=0)
+    )
+    murray = Location.objects.create(
+        name = "Murray City Park",
+        latitude = 40.660899,
+        longitude = -111.886080,
+        court_count = 6,
+        courts_occupied = 6,
+        number_waiting = 5,
+        estimated_wait_time = datetime.timedelta(minutes=25)
+    )
+    cottonwood = Location.objects.create(
+        name = "Cottonwood",
+        latitude = 40.651424,
+        longitude = -111.842278,
+        court_count = 3,
+        courts_occupied = 2,
+        number_waiting = 1,
+        estimated_wait_time = datetime.timedelta(minutes=10)
+    )
+    butler = Location.objects.create(
+        name = "Butler Park",
+        latitude = 40.615042,
+        longitude = -111.817880,
+        court_count = 6,
+        courts_occupied = 6,
+        number_waiting = 7,
+        estimated_wait_time = datetime.timedelta(minutes=20)
+    )
+    centennial = Location.objects.create(
+        name = "Centennial Park",
+        latitude = 40.701042,
+        longitude = -112.018665,
+        court_count = 12,
+        courts_occupied = 9,
+        number_waiting = 0,
+        estimated_wait_time = datetime.timedelta(minutes=0)
+    )
+    altaCanyon = Location.objects.create(
+        name = "Alta Canyon",
+        latitude = 40.576097,
+        longitude = -111.834556,
+        court_count = 4,
+        courts_occupied = 4,
+        number_waiting = 13,
+        estimated_wait_time = datetime.timedelta(hours=1)
+    )
+    flatironMesa = Location.objects.create(
+        name = "Flatiron Mesa Park",
+        latitude = 40.597158,
+        longitude = -111.840582,
+        court_count = 5,
+        courts_occupied = 0,
+        number_waiting = 0,
+        estimated_wait_time = datetime.timedelta(minutes=0)
+    )
+    crescentCommunity = Location.objects.create(
+        name = "Crescent Community Park",
+        latitude = 40.550329,
+        longitude = -111.882503,
+        court_count = 4,
+        courts_occupied = 1,
+        number_waiting = 0,
+        estimated_wait_time = datetime.timedelta(minutes=0)
+    )
+    
     
     match0 = Event.objects.create(
         name = "Battle of the Picklers",
