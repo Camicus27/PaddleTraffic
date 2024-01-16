@@ -31,6 +31,11 @@ def dataToReturn(request, custom_url_number): # custom_url_number, represents th
         ...
 """
 
+
+def login(request):
+    pass
+
+
 @csrf_exempt
 def users(request):
     """

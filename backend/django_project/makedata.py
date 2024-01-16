@@ -10,15 +10,15 @@ def initial_data():
     eventOrganizers, _ = Group.objects.get_or_create(name='Event Organizers')
     players, _ = Group.objects.get_or_create(name='Players')
 
-    administr = User.objects.create_superuser("PickleCoinCEO", "pickle.coin.ceo@paddletraffic.net", "picklers4life")
-    organizer1 = User.objects.create_user("organizer1", "organizer1@paddletraffic.net", "a1")
-    organizer2 = User.objects.create_user("organizer2", "organizer2@paddletraffic.net", "a2")
-    eventOrganizers.user_set.add(organizer1, organizer2)
+    # administr = User.objects.create_superuser("PickleCoinCEO", "pickle.coin.ceo@paddletraffic.net", "picklers4life")
+    # organizer1 = User.objects.create_user("organizer1", "organizer1@paddletraffic.net", "a1")
+    # organizer2 = User.objects.create_user("organizer2", "organizer2@paddletraffic.net", "a2")
+    # eventOrganizers.user_set.add(organizer1, organizer2)
 
-    p1 = User.objects.create_user("p1", "p1@paddletraffic.net", "p1")
-    p2 = User.objects.create_user("p2", "p2@paddletraffic.net", "p2")
-    p3 = User.objects.create_user("p3", "p3@paddletraffic.net", "p3")
-    players.user_set.add(p1, p2, p3)
+    # p1 = User.objects.create_user("p1", "p1@paddletraffic.net", "p1")
+    # p2 = User.objects.create_user("p2", "p2@paddletraffic.net", "p2")
+    # p3 = User.objects.create_user("p3", "p3@paddletraffic.net", "p3")
+    # players.user_set.add(p1, p2, p3)
     
     
     thePark = Location.objects.create(
@@ -182,7 +182,7 @@ def initial_data():
         location = picklecoinHQ,
         host = organizer1,
         date = datetime.date(2023, 12, 22),
-        time = datetime.time(12, 00, 00, 999999, datetime.timezone(datetime.timedelta(hours=-7), "MST"))
+        time = datetime.time(12, 00, 00, 999999)
     )
     match0.players.add(p1, p2)
     match1 = Event.objects.create(
@@ -191,7 +191,7 @@ def initial_data():
         location = thePark,
         host = organizer2,
         date = datetime.date(2023, 12, 19),
-        time = datetime.time(16, 00, 00, 999999, datetime.timezone(datetime.timedelta(hours=-7), "MST"))
+        time = datetime.time(16, 00, 00, 999999)
     )
     match1.players.add(p2)
     match2 = Event.objects.create(
@@ -200,7 +200,7 @@ def initial_data():
         location = picklecoinHQ,
         host = organizer1,
         date = datetime.date(2023, 12, 20),
-        time = datetime.time(15, 30, 00, 999999, datetime.timezone(datetime.timedelta(hours=-7), "MST"))
+        time = datetime.time(15, 30, 00, 999999)
     )
     match3 = Event.objects.create(
         name = "Moon Match",
@@ -208,7 +208,7 @@ def initial_data():
         location = theMoon,
         host = organizer2,
         date = datetime.date(2023, 12, 24),
-        time = datetime.time(20, 00, 00, 999999, datetime.timezone(datetime.timedelta(hours=-7), "MST"))
+        time = datetime.time(20, 00, 00, 999999)
     )
     match3.players.add(p1, p2, p3)
 

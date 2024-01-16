@@ -36,6 +36,7 @@ function initGeoloc(mapVal: mapboxgl.Map) {
     fitBoundsOptions: { maxZoom: 11 },
     positionOptions: { enableHighAccuracy: true },
     trackUserLocation: true,
+    showAccuracyCircle: false
   });
 
   mapVal.addControl(geolocateControl);
