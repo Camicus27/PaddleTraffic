@@ -1,4 +1,5 @@
-from django.shortcuts import render
+from django.contrib.auth import authenticate
+from django.shortcuts import render, redirect
 from django.http import JsonResponse, Http404, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from paddle_traffic import models as m
@@ -33,7 +34,20 @@ def dataToReturn(request, custom_url_number): # custom_url_number, represents th
 
 
 def login(request):
-    pass
+    if request.method == "POST":
+
+        username = request.POST.get("username", "")
+        password = request.POST.get("password", "")
+
+        user = authenticate(username=username, password=password)
+        if user is not None:  # Success
+            login(request, user)
+            return redirect("/")
+        else:  # Failure
+            return render(request, "login.html", {"error": "Username and password do not match"})
+    else:
+        # GET the login page
+        return render(request, "login.html")
 
 
 @csrf_exempt
