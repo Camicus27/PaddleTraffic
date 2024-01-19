@@ -72,21 +72,26 @@ const locForm = ref({
 })
 
 function submitForm() {
-  axios.post(`${URL}/locations/${currSelection.value?.id}/report/`, { report: locForm.value })
-    .then(response => {
-      // Handle the response here. For example, logging the new location ID.
-      console.log('New event ID:', response.data);
-      axios.get(`${URL}/locations/`)
-        .then((response) => {
-          allLocations.value = response.data.locations
-        })
-        .catch((error) => console.log(error))
-        currSelection.value = response.data.location
-    })
-    .catch(error => {
-      // Handle errors here
-      console.error('Error:', error);
-    });
+  let c_o = locForm.value.courts_occupied
+  // if(locForm.value.number_waiting < 30 && c_o <= (currSelection.value?.court_count ?? 0) && 0 <= c_o) {
+    axios.post(`${URL}/locations/${currSelection.value?.id}/report/`, { report: locForm.value })
+      .then(response => {
+        // Handle the response here. For example, logging the new location ID.
+        console.log('New event ID:', response.data);
+        axios.get(`${URL}/locations/`)
+          .then((response) => {
+            allLocations.value = response.data.locations
+          })
+          .catch((error) => console.log(error))
+          currSelection.value = response.data.location
+      })
+      .catch(error => {
+        // Handle errors here
+        console.error('Error:', error);
+      });
+  // } else {
+
+  // }
 }
 
 onMounted(() => {
@@ -123,9 +128,9 @@ onUnmounted(() => {
       <div class="padding-x">
         <form @submit.prevent="submitForm">
           <label for="courtsOccupied">Courts Occupied:</label><br>
-          <input type="number" id="courtsOccupied" name="courtsOccupied" min="0" v-model="locForm.courts_occupied"><br><br>
+          <input type="number" id="courtsOccupied" name="courtsOccupied" min="0" :max="currSelection.court_count" v-model="locForm.courts_occupied" required><br><br>
           <label for="numberWaiting">Number Waiting:</label><br>
-          <input type="number" id="numberWaiting" name="numberWaiting" min="0" v-model="locForm.number_waiting"><br><br>
+          <input type="number" id="numberWaiting" name="numberWaiting" min="0" max="30" v-model="locForm.number_waiting" required><br><br>
           <input type="submit" value="Update Status">
         </form>
       </div>
