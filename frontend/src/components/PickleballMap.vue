@@ -14,9 +14,15 @@ interface Location {
   estimated_wait_time: number;
 }
 
+// interface MapMarker {
+//   id: number,
+//   marker: mapboxgl.Marker
+// }
+
 const mapContainer = ref();
 const currSelection = ref<Location | undefined>();
 const allLocations: Ref<Location[]> = ref([])
+const mapMarkers = ref<{ [key: number]: mapboxgl.Marker }>({});
 
 // Todo: improve token handling
 mapboxgl.accessToken = 'pk.eyJ1Ijoic3VudHp1Y2Fwc3RvbmUiLCJhIjoiY2xwOHl6MGZiMWQwcjJ2bzNpdTh3ZXZ5diJ9.2OxP9v87qKxpFmL7FFrD-g';
@@ -52,6 +58,13 @@ function addMarkers(mapVal: mapboxgl.Map) {
         const marker = new mapboxgl.Marker()
           .setLngLat([loc.longitude, loc.latitude])
           .addTo(mapVal);
+
+        mapMarkers.value[loc.id] = marker
+
+        let fill_el = marker.getElement().querySelector('path')
+        // affects how much to take into account the court_count, greater means more tolerance, less means less tolerance
+        updateMarkerColor(loc, fill_el);
+
         // Add an event listener to each marker
         marker.getElement().addEventListener('click', () => {
           updateInfoSection(loc.id);
@@ -59,6 +72,28 @@ function addMarkers(mapVal: mapboxgl.Map) {
       });
     })
     .catch((error) => console.log(error))
+}
+
+function updateMarkerColor(loc: Location, fill_el: SVGPathElement | null) {
+  let waiting_constant = 1.2;
+  // ratio for number waiting / c * court_count
+  let waiting_ratio = loc.number_waiting / (waiting_constant * loc.court_count);
+
+  // caps at 1
+  waiting_ratio = waiting_ratio > 1 ? 1 : waiting_ratio;
+
+  // ratio of # of courts occupied
+  let courts_occupied_ratio = loc.courts_occupied / loc.court_count;
+
+  // distribution of how much to take into account people waiting vs courts occupied
+  let percent_full = 0.4 * courts_occupied_ratio + 0.6 * waiting_ratio;
+  let scalar = Math.floor(percent_full * 511);
+  let r = (scalar < 255) ? scalar : 255;
+  let g = (scalar < 255) ? 255 : 511 - scalar;
+  let b = 0;
+
+  let darker_val = 0.95;
+  fill_el?.setAttribute("fill", `rgb(${r * darker_val}, ${g * darker_val}, ${b * darker_val})`);
 }
 
 // Update the info section with location data
@@ -74,21 +109,23 @@ const locForm = ref({
 function submitForm() {
   let c_o = locForm.value.courts_occupied
   // if(locForm.value.number_waiting < 30 && c_o <= (currSelection.value?.court_count ?? 0) && 0 <= c_o) {
-    axios.post(`${URL}/locations/${currSelection.value?.id}/report/`, { report: locForm.value })
-      .then(response => {
-        // Handle the response here. For example, logging the new location ID.
-        console.log('New event ID:', response.data);
-        axios.get(`${URL}/locations/`)
-          .then((response) => {
-            allLocations.value = response.data.locations
-          })
-          .catch((error) => console.log(error))
-          currSelection.value = response.data.location
-      })
-      .catch(error => {
-        // Handle errors here
-        console.error('Error:', error);
-      });
+  axios.post(`${URL}/locations/${currSelection.value?.id}/report/`, { report: locForm.value })
+    .then(response => {
+      // Handle the response here. For example, logging the new location ID.
+      console.log('New event ID:', response.data);
+      axios.get(`${URL}/locations/`)
+        .then((response) => { // todo update just current location?
+          allLocations.value = response.data.locations
+        })
+        .catch((error) => console.log(error))
+      currSelection.value = response.data.location
+      let svg_element = mapMarkers.value[currSelection.value!!.id].getElement().querySelector('path')
+      updateMarkerColor(currSelection.value!!, svg_element)
+    })
+    .catch(error => {
+      // Handle errors here
+      console.error('Error:', error);
+    });
   // } else {
 
   // }
@@ -128,9 +165,11 @@ onUnmounted(() => {
       <div class="padding-x">
         <form @submit.prevent="submitForm">
           <label for="courtsOccupied">Courts Occupied:</label><br>
-          <input type="number" id="courtsOccupied" name="courtsOccupied" min="0" :max="currSelection.court_count" v-model="locForm.courts_occupied" required><br><br>
+          <input type="number" id="courtsOccupied" name="courtsOccupied" min="0" :max="currSelection.court_count"
+            v-model="locForm.courts_occupied" required><br><br>
           <label for="numberWaiting">Number Waiting:</label><br>
-          <input type="number" id="numberWaiting" name="numberWaiting" min="0" max="30" v-model="locForm.number_waiting" required><br><br>
+          <input type="number" id="numberWaiting" name="numberWaiting" min="0" max="30" v-model="locForm.number_waiting"
+            required><br><br>
           <input type="submit" value="Update Status">
         </form>
       </div>
@@ -171,7 +210,7 @@ onUnmounted(() => {
   justify-content: center;
 }
 
-.info > p {
+.info>p {
   margin-top: 0.25em;
 }
 
