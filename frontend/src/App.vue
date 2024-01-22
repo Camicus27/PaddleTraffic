@@ -9,7 +9,7 @@ import CommonFooter from './components/CommonFooter.vue'
 <template>
   <CommonHeader />
   <div class="main-wrapper">
-    <CommonSidebar />
+    <!-- <CommonSidebar />   This is now going to be dynamically loaded as a popup menu so it isn't always visible   -->
     <!-- This allows us to keep all pages loaded, and avoids too many API calls -->
     <RouterView v-slot="{ Component }">
       <KeepAlive>
@@ -19,42 +19,3 @@ import CommonFooter from './components/CommonFooter.vue'
   </div>
   <CommonFooter />
 </template>
-
-<style scoped>
-  .main-wrapper {
-    display: flex;
-  }
-</style>
-
-<!-- A css reset stylesheet is included in the index.html file, so global styles can be placed here -->
-<style>
-  h1 {
-    font-size: 2em;
-    font-weight: bolder;
-  }
-
-  h2 {
-    font-size: 1.5em;
-    font-weight: bolder;
-  }
-
-  h3 {
-    font-size: 1.17em;
-    font-weight: bolder;
-  }
-
-  h4 {
-    font-size: 1em;
-    font-weight: bolder;
-  }
-  
-  h5 {
-    font-size: .83em;
-    font-weight: bolder;
-  }
-
-  h6 {
-    font-size: .67em;
-    font-weight: bolder;
-  }
-</style>

@@ -1,0 +1,12 @@
+#login-wrapper {
+    width: 80%;
+}
+    #login-wrapper main {
+        display: flex;
+        width: 100%;
+        justify-content: center;
+    }
+
+#button-ct {
+    width: 100%;
+}
