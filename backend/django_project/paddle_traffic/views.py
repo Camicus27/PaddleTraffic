@@ -32,6 +32,11 @@ def dataToReturn(request, custom_url_number): # custom_url_number, represents th
         ...
 """
 
+def index(request):
+    return render(request, "index.html")
+
+def index_redirect(request):
+    return redirect("/")
 
 def login(request):
     if request.method == "POST":

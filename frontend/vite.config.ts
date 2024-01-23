@@ -10,6 +10,7 @@ export default defineConfig({
     vue(),
     vueJsx(),
   ],
+  base: process.env.NODE_ENV === 'production' ? '/static/' : '/', // Set the base URL
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))
