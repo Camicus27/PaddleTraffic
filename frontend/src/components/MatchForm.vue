@@ -67,21 +67,21 @@ function submitForm() {
 </script>
 
 <template>
-    <div>
+    <div id="event-form-wrapper">
         <form @submit.prevent="submitForm">
             <div>
                 <label for="name">Event Name:</label>
-                <input type="text" id="name" v-model="eventForm.name">
+                <input type="text" id="name" v-model="eventForm.name" autofocus tabindex="1" placeholder="Awesome Event Name..." required>
             </div>
 
             <div>
                 <label for="description">Description:</label>
-                <textarea id="description" v-model="eventForm.description"></textarea>
+                <textarea id="description" v-model="eventForm.description" tabindex="2" placeholder="Description of your event..."></textarea>
             </div>
 
             <div>
                 <label for="location">Location:</label>
-                <select id="location" v-model="eventForm.location">
+                <select id="location" v-model="eventForm.location" tabindex="3" required>
                     <!-- Options should be populated dynamically -->
                     <option v-for="{ id, name } in allLocations" :key="id" :value="id">{{ name }}</option>
                 </select>
@@ -89,7 +89,7 @@ function submitForm() {
 
             <div>
                 <label for="host">Host:</label>
-                <select id="host" v-model="eventForm.host">
+                <select id="host" v-model="eventForm.host" tabindex="4" required>
                     <!-- Options should be populated dynamically -->
                     <option v-for="{ id, username } in allPlayers" :key="id" :value="id">{{ username }}</option>
                 </select>
@@ -97,25 +97,25 @@ function submitForm() {
             <div>
                 <div>
                     <label for="players">Players:</label>
-                    <select id="players" multiple v-model="eventForm.players"><!--@change="updatePlayers"-->
+                    <select id="players" multiple v-model="eventForm.players" tabindex="5"><!--@change="updatePlayers"-->
                         <option v-for="{ id, username } in allPlayers" :key="id" :value="id">{{ username }}</option>
                         <!-- Options should be populated dynamically -->
                     </select>
                 </div>
                 <div class="selected-players">
-                    <span v-for="player in eventForm.players" :key="player.toString()" class="selected-player">
+                    <span v-for="player in eventForm.players" :key="player.toString()" class="selected-player" tabindex="6">
                         {{ allPlayers.filter((p: any) => p.id === player)[0].username }}
                     </span>
                 </div>
             </div>
             <div>
                 <label for="date">Date:</label>
-                <input type="date" id="date" v-model="eventForm.date">
+                <input type="date" id="date" v-model="eventForm.date" tabindex="7" required>
             </div>
 
             <div>
                 <label for="time">Time:</label>
-                <input type="time" id="time" v-model="eventForm.time">
+                <input type="time" id="time" v-model="eventForm.time" tabindex="8" required>
             </div>
 
             <button type="submit">Submit</button>
@@ -128,113 +128,3 @@ function submitForm() {
         </div>
     </div>
 </template>
-
-<style scoped>
-/* General Form Styling */
-form {
-    max-width: 500px;
-    margin: 0 auto;
-    padding: 20px;
-    background-color: #f9f9f9;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-/* Form Elements Styling */
-form div {
-    margin-bottom: 15px;
-}
-
-label {
-    display: block;
-    margin-bottom: 5px;
-    font-weight: bold;
-}
-
-input[type="text"],
-input[type="date"],
-input[type="time"],
-textarea,
-select {
-    width: 100%;
-    padding: 8px;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    box-sizing: border-box;
-}
-
-textarea {
-    height: 100px;
-    resize: vertical;
-}
-
-select[multiple] {
-    height: auto;
-}
-
-/* Button Styling */
-button[type="submit"] {
-    padding: 10px 15px;
-    background-color: #4a5834;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-    transition: background-color 0.3s ease;
-}
-
-button[type="submit"]:hover {
-    background-color: #71864f;
-}
-
-.selected-players {
-    margin-top: 10px;
-}
-
-.selected-player {
-    display: inline-block;
-    margin-right: 5px;
-    padding: 5px 10px;
-    background-color: #f2f2f2;
-    border-radius: 4px;
-    border: 1px solid #ddd;
-}
-
-.alert-wrapper {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: 2em;
-    font-size: large;
-    font-family: 'Open Sans', sans-serif;
-}
-
-.alert-success {
-    padding: 20px;
-    padding-right: 40px;
-    background-color: #4b5320;
-    /* Olive green background */
-    color: white;
-    margin-bottom: 15px;
-    border-radius: 4px;
-    position: relative;
-}
-
-.alert-success strong {
-    margin-right: 10px;
-}
-
-.closebtn {
-    position: absolute;
-    top: 5px;
-    right: 15px;
-    color: white;
-    font-size: 20px;
-    cursor: pointer;
-}
-
-.closebtn:hover {
-    color: #6b8e23;
-    /* Lighter shade for hover */
-}
-</style>

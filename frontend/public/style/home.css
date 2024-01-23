@@ -1,0 +1,17 @@
+#home-wrapper main {
+    padding: 20px;
+    margin-bottom: 3.7em;
+    background-color: #f5f5f5;
+    border-radius: 8px;
+}
+    #home-wrapper main section {
+        margin-bottom: 20px;
+    }
+
+    #home-wrapper main h2 {
+        color: #4b5320;
+    }
+
+    #home-wrapper main p {
+        margin-bottom: 10px;
+    }
