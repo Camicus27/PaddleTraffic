@@ -80,7 +80,7 @@ function updateMarkerColor(loc: Location, fill_el: SVGPathElement | null) {
   let waiting_ratio = loc.number_waiting / (waiting_constant * loc.court_count);
 
   // caps at 1
-  waiting_ratio = waiting_ratio > 1 ? 1 : waiting_ratio;
+  waiting_ratio = waiting_ratio > 1 ? 1 : waiting_ratio; // ooga booga
 
   // ratio of # of courts occupied
   let courts_occupied_ratio = loc.courts_occupied / loc.court_count;
@@ -168,7 +168,7 @@ onUnmounted(() => {
           <input type="number" id="courtsOccupied" name="courtsOccupied" min="0" :max="currSelection.court_count"
             v-model="locForm.courts_occupied" required><br><br>
           <label for="numberWaiting">Number Waiting:</label><br>
-          <input type="number" id="numberWaiting" name="numberWaiting" min="0" max="30" v-model="locForm.number_waiting"
+          <input type="number" id="numberWaiting" name="numberWaiting" min="0" max="10" v-model="locForm.number_waiting"
             required><br><br>
           <input type="submit" value="Update Status">
         </form>
