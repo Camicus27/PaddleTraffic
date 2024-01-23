@@ -1,3 +1,4 @@
+New-Item "..\backend\django_project\django_project\static" -ItemType Directory -ea 0
 Remove-Item -Path "..\backend\django_project\django_project\static\*" -Force -Recurse
 Copy-Item -Path "dist\*" -Destination "..\backend\django_project\django_project\static" -Recurse
 Set-Location "..\backend\django_project\django_project"
