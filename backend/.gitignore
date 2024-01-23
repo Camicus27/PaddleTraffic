@@ -3,3 +3,5 @@ db.sqlite3
 *.pyc
 .DS_Store
 autotester
+django_project/django_project/static/*
+django_project/django_project/templates/index.html
