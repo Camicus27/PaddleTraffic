@@ -10,11 +10,11 @@ to all the Events being held at the location.
 '''
 class Location(models.Model):
     name = models.CharField(max_length=255)
-    latitude = models.DecimalField(max_digits=9, decimal_places=6) # max_digits can change but we can't not have them
+    latitude = models.DecimalField(max_digits=9, decimal_places=6)  # max_digits can change but we can't not have them
     longitude = models.DecimalField(max_digits=9, decimal_places=6)
     court_count = models.IntegerField()
-    courts_occupied = models.IntegerField()
-    number_waiting = models.IntegerField()
+    courts_occupied = models.IntegerField()  # current courts occupied
+    number_waiting = models.IntegerField()  # current number waiting
     estimated_wait_time = models.DurationField()
 
 '''
@@ -31,3 +31,9 @@ class Event(models.Model):
     players = models.ManyToManyField(User, related_name='attending_events', blank=True)
     date = models.DateField()
     time = models.TimeField()
+
+class Report(models.Model):
+    submission_time = models.TimeField()
+    location = models.ForeignKey(Location, on_delete=models.CASCADE)
+    number_waiting = models.IntegerField()  # number_waiting at time of report
+    courts_occupied = models.IntegerField()  # courts_occupied ^^

@@ -61,9 +61,8 @@ function addMarkers(mapVal: mapboxgl.Map) {
 
         mapMarkers.value[loc.id] = marker
 
-        let fill_el = marker.getElement().querySelector('path')
         // affects how much to take into account the court_count, greater means more tolerance, less means less tolerance
-        updateMarkerColor(loc, fill_el);
+        updateMarkerColor(loc);
 
         // Add an event listener to each marker
         marker.getElement().addEventListener('click', () => {
@@ -74,7 +73,8 @@ function addMarkers(mapVal: mapboxgl.Map) {
     .catch((error) => console.log(error))
 }
 
-function updateMarkerColor(loc: Location, fill_el: SVGPathElement | null) {
+function updateMarkerColor(loc: Location) {
+  let fill_el = mapMarkers.value[loc.id].getElement().querySelector('path')
   let waiting_constant = 1.2;
   // ratio for number waiting / c * court_count
   let waiting_ratio = loc.number_waiting / (waiting_constant * loc.court_count);
@@ -119,8 +119,7 @@ function submitForm() {
         })
         .catch((error) => console.log(error))
       currSelection.value = response.data.location
-      let svg_element = mapMarkers.value[currSelection.value!!.id].getElement().querySelector('path')
-      updateMarkerColor(currSelection.value!!, svg_element)
+      updateMarkerColor(currSelection.value!!)
     })
     .catch(error => {
       // Handle errors here
@@ -129,6 +128,17 @@ function submitForm() {
   // } else {
 
   // }
+}
+
+function updateLocations() {
+  axios.get(`${URL}/locations/`)
+    .then((response) => {
+      allLocations.value = response.data.locations
+      allLocations.value.forEach(loc => {
+        updateMarkerColor(loc)
+      });
+    })
+    .catch((error) => console.log(error))
 }
 
 onMounted(() => {
@@ -143,6 +153,8 @@ onMounted(() => {
     initGeoloc(map.value);
     addMarkers(map.value);
   }
+
+  setInterval(updateLocations, 30000)
 })
 
 onUnmounted(() => {
@@ -168,7 +180,8 @@ onUnmounted(() => {
           <input type="number" id="courtsOccupied" name="courtsOccupied" min="0" :max="currSelection.court_count"
             v-model="locForm.courts_occupied" required><br><br>
           <label for="numberWaiting">Number Waiting:</label><br>
-          <input type="number" id="numberWaiting" name="numberWaiting" min="0" :max="(locForm.courts_occupied < currSelection.court_count) ? 0 : 10" v-model="locForm.number_waiting"
+          <input type="number" id="numberWaiting" name="numberWaiting" min="0"
+            :max="(locForm.courts_occupied < currSelection.court_count) ? 0 : 10" v-model="locForm.number_waiting"
             required><br><br>
           <input type="submit" value="Update Status">
         </form>

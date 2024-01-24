@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from django.contrib.auth import authenticate
 from django.shortcuts import render, redirect
 from django.http import JsonResponse, Http404, HttpResponse
@@ -97,7 +99,6 @@ def users_id(request, id):
 @csrf_exempt
 def report(request, id):
     def post(all_data):
-        location: m.Location = try_get_instance(m.Location, id)
         data = all_data.get("report", None)
         if data is None:
             return HttpBadRequestJson()
@@ -105,11 +106,39 @@ def report(request, id):
         number_waiting = data.get("number_waiting", None)
         if courts_occupied is None or number_waiting is None:
             return HttpBadRequestJson()
-        location.courts_occupied = courts_occupied
+
+        location: m.Location = try_get_instance(m.Location, id)
+
+        if number_waiting > 10:
+            return HttpBadArgument("Reporting too many people waiting")
+
+        if number_waiting < 0:
+            return HttpBadArgument("Cannot report negative number of groups waiting")
+
+        if courts_occupied < 0:
+            return HttpBadArgument("Cannot report negative number of courts occupied")
+
+        if courts_occupied > location.court_count:
+            return HttpBadArgument("Cannot report more courts occupied than there are courts")
+
+        if courts_occupied < location.court_count and number_waiting > 0:
+            return HttpBadArgument("Cannot report groups waiting if there are courts unoccupied")
+
+        report: m.Report = m.Report(
+            submission_time=datetime.now(),
+            location=location,
+            number_waiting=number_waiting,
+            courts_occupied=courts_occupied
+        )
+        report.save()
+
+        # todo do calculations and set location occupied and waiting
+        location.courts_occupied = courts_occupied  # todo replace
         location.number_waiting = number_waiting
         location.save()
 
         serializer = ser.LocationSerializer(location)
+        print("!! I AM FOR USRE SAVING HERE")
         return JsonResponse({"location": serializer.data})
 
     funs = {"POST": post}
@@ -304,6 +333,8 @@ def HttpOK(msg):
 
 def HttpBadRequestJson():
     return HttpResponse("Invalid JSON data", status=400, content_type="text/plain")  # Bad Request
+def HttpBadArgument(msg):
+    return HttpResponse("Bad Argument: " + msg, status=400, content_type="text/plain")
 
 def HttpOKRequestJson():
     return HttpResponse("Received and processed JSON data", status=200, content_type="text/plain")  # OK
@@ -316,3 +347,7 @@ def HttpMethodNotAllowed():
 
 def HttpNotFound(msg):
     return HttpResponse(msg + "Not Found", status=404, content_type="text/plain")
+
+
+def HttpIAmATeapot(msg):
+    return HttpResponse("I am a teapot", status=418, content_type="text/plain")
