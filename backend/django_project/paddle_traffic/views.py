@@ -8,6 +8,7 @@ from paddle_traffic import models as m
 from django.contrib.auth.models import User
 from django.db import models as django_model
 from paddle_traffic import serializers as ser
+from django.db.models import F
 import json
 # Create your views here.
 
@@ -210,6 +211,36 @@ def locations_id(request, id):
         return HttpOK(f"Location {id} deleted")
 
     funs = {"PATCH": patch, "GET": get, "DELETE": delete}
+    return get_response(request, funs)
+
+
+@csrf_exempt
+def location_bounds(request):
+    """
+    GET /locations/bounds/
+    :param request:
+    :return: JsonResponse
+    """
+    def get():
+        lon_l = request.GET.get("lon_l", None)
+        lon_r = request.GET.get("lon_r", None)
+        lat_h = request.GET.get("lat_h", None)
+        lat_l = request.GET.get("lat_l", None)
+
+        if None in [lon_l, lon_r, lat_h, lat_l]:
+            return HttpBadArgument("OOGA BOOGA")
+
+        m_location = m.Location.objects\
+            .filter(latitude__lt=lat_h)\
+            .filter(latitude__gt=lat_l)\
+            .filter(longitude__lt=lon_r)\
+            .filter(longitude__gt=lon_l)
+
+        serializer = ser.LocationSerializer(m_location, many=True)
+        # return the json formatted as an HTTP response
+        return JsonResponse({"locations": serializer.data})
+
+    funs = {"GET": get}
     return get_response(request, funs)
 
 

@@ -32,6 +32,7 @@ urlpatterns = [
     path('locations/', views.locations),
     path('locations/<int:id>/', views.locations_id),
     path('locations/<int:id>/report/', views.report),
+    path('locations/bounds/', views.location_bounds),
     path('events/', views.events),
     path('events/<int:id>/', views.events_id),
     path('profile/login/', views.login)
