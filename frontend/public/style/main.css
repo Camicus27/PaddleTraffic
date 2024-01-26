@@ -29,6 +29,7 @@ body {
 
 .main-wrapper {
     display: flex;
+    flex-direction: column;
     justify-content: center;
     padding-inline: 3rem;
 }

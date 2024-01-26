@@ -4,9 +4,9 @@ import { RouterLink } from 'vue-router'
 
 <template>
     <div id="profile-login">
-        <RouterLink to="/login">
+        <a href="login/">
             <img src="@/assets/default_user.png" class="pfp" alt="User profile" width="32" height="32">
-        </RouterLink>
+        </a>
     </div>
     <header id="site-header">
         <div id="logo-title">

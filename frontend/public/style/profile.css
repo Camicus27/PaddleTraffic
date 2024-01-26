@@ -1,12 +1,71 @@
-#login-wrapper {
-    width: 80%;
+.form-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding-inline: 3rem;
 }
-    #login-wrapper main {
-        display: flex;
-        width: 100%;
-        justify-content: center;
+    .form-wrapper header {
+        font-family: 'Open Sans', sans-serif;
+        margin-bottom: .5em;
+        margin-top: 3rem;
+        color: #4b5320;
+        text-align: center;
     }
 
-#button-ct {
-    width: 100%;
+    .form-wrapper h1 {
+        margin: 0;
+        font-size: 2.75rem;
+        line-height: 2rem;
+        text-wrap: nowrap;
+    }
+
+    .form-wrapper header p {
+        font-size: 1.5rem;
+    }
+
+html {
+    background: linear-gradient(0deg, #9fb18400 0%, #9fb184 100%);
+}
+
+main {
+    display: flex;
+    flex-direction: column;
+    width: 50%;
+    align-items: center;
+}
+
+#required-warning {
+    margin-top: 0;
+    color: #d00000d0;
+    font-size: .75rem;
+}
+
+.submit-button {
+    align-items: center;
+}
+    .submit-button button {
+        width: 80%;
+    }
+
+.redirect-swap {
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+}
+    .redirect-swap p {
+        margin-block: .25rem;
+        margin-right: .5rem;
+    }
+
+output {
+    color: #d00000;
+    font-weight: bold;
+    text-align: center;
+    margin: .5rem;
+}
+
+.spacer {
+    margin-block: 6rem;
 }
