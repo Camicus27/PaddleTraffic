@@ -16,12 +16,12 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
-from django.views.generic import RedirectView
 from paddle_traffic import views
 
 urlpatterns = [
     path('', views.index),
     # Redirect these for now bc of Vue static file wierdness
+    # todo remove??
     path('map/', views.index_redirect),
     path('matchmaking/', views.index_redirect),
     path('about/', views.index_redirect),

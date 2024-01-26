@@ -1,14 +1,14 @@
 from datetime import datetime
 
 from django.contrib.auth import authenticate
+from django.http import JsonResponse
 from django.shortcuts import render, redirect
-from django.http import JsonResponse, Http404, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from paddle_traffic import models as m
 from django.contrib.auth.models import User
 from django.db import models as django_model
 from paddle_traffic import serializers as ser
-from django.db.models import F
+from paddle_traffic.ApiHttpResponses import *
 import json
 # Create your views here.
 
@@ -16,7 +16,6 @@ import json
 # no negative people etc, add data checking
 #   - clean() methods ... ? yeh... great
 # add join event URI endpoint?
-# where id is None potentially return something that is "none"?
 
 
 """
@@ -35,11 +34,14 @@ def dataToReturn(request, custom_url_number): # custom_url_number, represents th
         ...
 """
 
+
 def index(request):
     return render(request, "index.html")
 
+
 def index_redirect(request):
     return redirect("/")
+
 
 def login(request):
     if request.method == "POST":
@@ -88,7 +90,7 @@ def users_id(request, id):
         try:
             user = User.objects.get(pk=id)
         except User.DoesNotExist:
-            return HttpNotFound(f"User with ID {id} ")
+            return http_not_found(f"User with ID {id} ")
 
         serializer = ser.UserSerializer(user)
         return JsonResponse({"user": serializer.data})
@@ -102,28 +104,28 @@ def report(request, id):
     def post(all_data):
         data = all_data.get("report", None)
         if data is None:
-            return HttpBadRequestJson()
+            return http_bad_request_json()
         courts_occupied = data.get("courts_occupied", None)
         number_waiting = data.get("number_waiting", None)
         if courts_occupied is None or number_waiting is None:
-            return HttpBadRequestJson()
+            return http_bad_request_json()
 
         location: m.Location = try_get_instance(m.Location, id)
 
         if number_waiting > 10:
-            return HttpBadArgument("Reporting too many people waiting")
+            return http_bad_argument("Reporting too many people waiting")
 
         if number_waiting < 0:
-            return HttpBadArgument("Cannot report negative number of groups waiting")
+            return http_bad_argument("Cannot report negative number of groups waiting")
 
         if courts_occupied < 0:
-            return HttpBadArgument("Cannot report negative number of courts occupied")
+            return http_bad_argument("Cannot report negative number of courts occupied")
 
         if courts_occupied > location.court_count:
-            return HttpBadArgument("Cannot report more courts occupied than there are courts")
+            return http_bad_argument("Cannot report more courts occupied than there are courts")
 
         if courts_occupied < location.court_count and number_waiting > 0:
-            return HttpBadArgument("Cannot report groups waiting if there are courts unoccupied")
+            return http_bad_argument("Cannot report groups waiting if there are courts unoccupied")
 
         report: m.Report = m.Report(
             submission_time=datetime.now(),
@@ -139,7 +141,6 @@ def report(request, id):
         location.save()
 
         serializer = ser.LocationSerializer(location)
-        print("!! I AM FOR USRE SAVING HERE")
         return JsonResponse({"location": serializer.data})
 
     funs = {"POST": post}
@@ -158,12 +159,12 @@ def locations(request):
     def post(all_data):
         data = all_data.get("location", None)
         if data is None:
-            return HttpBadRequestJson()
+            return http_bad_request_json()
         serializer = ser.LocationSerializer(data=data)
         if not serializer.is_valid():
-            return HttpBadRequestJson()
+            return http_bad_request_json()
         new_location = serializer.save()
-        return HttpOKRequestJson()
+        return http_ok_request_json()
 
     def get():
         m_locations = m.Location.objects.all()
@@ -185,17 +186,17 @@ def locations_id(request, id):
     def patch(all_data):
         existing_location = try_get_instance(m.Location, id)
         if existing_location is None:
-            return HttpNotFound(str(id))
+            return http_not_found(str(id))
         data = all_data.get("location", None)
         if data is None:
-            return HttpBadRequestJson()
+            return http_bad_request_json()
 
         serializer = ser.LocationUpdateSerializer(instance=existing_location, data=data)
         if serializer.is_valid():
             updated_location = serializer.save()
         else:
-            return HttpBadRequestJson()
-        return HttpOKRequestJson()
+            return http_bad_request_json()
+        return http_ok_request_json()
 
     def get():
         m_location = try_get_instance(m.Location, id)
@@ -206,9 +207,9 @@ def locations_id(request, id):
     def delete():
         location = try_get_instance(m.Location, id)
         if location is None:
-            return HttpNotFound(str(id))
+            return http_not_found(str(id))
         location.delete()
-        return HttpOK(f"Location {id} deleted")
+        return http_ok(f"Location {id} deleted")
 
     funs = {"PATCH": patch, "GET": get, "DELETE": delete}
     return get_response(request, funs)
@@ -228,7 +229,7 @@ def location_bounds(request):
         lat_l = request.GET.get("lat_l", None)
 
         if None in [lon_l, lon_r, lat_h, lat_l]:
-            return HttpBadArgument("OOGA BOOGA")
+            return http_bad_argument("OOGA BOOGA")
 
         m_location = m.Location.objects\
             .filter(latitude__lt=lat_h)\
@@ -254,20 +255,20 @@ def events(request):
     def post(all_data):
         data = all_data.get("event", None)
         if data is None:
-            return HttpBadRequestJson()
+            return http_bad_request_json()
         serializer = ser.EventSerializer(data=data)
         if not serializer.is_valid():
-            return HttpBadRequestJson()
+            return http_bad_request_json()
         new_event = serializer.save()
-        return HttpOKRequestJson()
+        return http_ok_request_json()
 
     def patch(data):
         serializer = ser.EventSerializer(data=data)
         if not serializer.is_valid():
-            return HttpBadRequestJson()
+            return http_bad_request_json()
 
         new_event = serializer.save()
-        return HttpOKRequestJson()
+        return http_ok_request_json()
 
     funs = {"GET": get, "POST": post, "PATCH": patch}
     return get_response(request, funs)
@@ -278,18 +279,18 @@ def events_id(request, id):
     def patch(data):
         existing_event = try_get_instance(m.Event, id)
         if existing_event is None:
-            return HttpNotFound(str(id))
+            return http_not_found(str(id))
 
         serializer = ser.EventUpdateSerializer(instance=existing_event, data=data)
         if not serializer.is_valid():
             return HttpResponse("Invalid JSON data", status=400, content_type="text/plain")  # Bad Request
         updated_location = serializer.save()
-        return HttpOKRequestJson()
+        return http_ok_request_json()
 
     def get():
         m_event = try_get_instance(m.Event, id)
         if m_event is None:
-            return HttpNotFound(str(id))
+            return http_not_found(str(id))
         serializer = ser.EventSerializer(instance=m_event, many=False)
         # return the json formatted as an HTTP response
         return JsonResponse({"event": serializer.data})
@@ -297,50 +298,50 @@ def events_id(request, id):
     def delete():
         m_event = try_get_instance(m.Event, id)
         if m_event is None:
-            return HttpNotFound(str(id))
+            return http_not_found(str(id))
         m_event.delete()
-        return HttpOK(f"Event {id} deleted")
+        return http_ok(f"Event {id} deleted")
 
     funs = {"PATCH": patch, "GET": get, "DELETE": delete}
     return get_response(request, funs)
 
 
+"""
+--------------- Helper query functions ---------------------------------
+"""
+
+
 def get_response(request, funs) -> HttpResponse:
     if request.method not in funs.keys():
-        return HttpMethodNotAllowed()
+        return http_method_not_allowed()
 
     if request.method == "POST":
         if "application/json" not in request.content_type:
-            return HttpUnsupportedMedia()
+            return http_unsupported_media()
 
         try:
             data = json.loads(request.body.decode("utf-8"))
         except json.JSONDecodeError:
-            return HttpBadRequestJson()
+            return http_bad_request_json()
         return funs["POST"](data)
 
     elif request.method == "GET":
         return funs["GET"]()
 
     elif request.method == "PATCH":
-        if not "application/json" in request.content_type:
-            return HttpUnsupportedMedia()
+        if "application/json" not in request.content_type:
+            return http_unsupported_media()
         try:
             data = json.loads(request.body.decode("utf-8"))
         except json.JSONDecodeError:
-            return HttpBadRequestJson()
+            return http_bad_request_json()
         return funs["PATCH"](data)
 
     elif request.method == "DELETE":
         return funs["DELETE"]()
 
-    else:  # shouldn't ever get called...
-        return HttpMethodNotAllowed()
-
-
-"""
-Helper query stuff
-"""
+    else:
+        return http_method_not_allowed()
 
 
 def try_get_instance(model_class: django_model.Model, id):
@@ -349,36 +350,3 @@ def try_get_instance(model_class: django_model.Model, id):
         return existing_location
     except model_class.DoesNotExist:
         return None
-
-
-"""
-Status Codes
-200 OK: Successful request and processing of JSON data.
-400 Bad Request: Invalid JSON data.
-405 Method Not Allowed: Request method other than POST is not allowed.
-404 Not Found
-415 Unsupported Media Type: Requested content type (JSON) is not supported.
-"""
-def HttpOK(msg):
-    return HttpResponse(msg, status=200, content_type="text/plain")  # OK
-
-def HttpBadRequestJson():
-    return HttpResponse("Invalid JSON data", status=400, content_type="text/plain")  # Bad Request
-def HttpBadArgument(msg):
-    return HttpResponse("Bad Argument: " + msg, status=400, content_type="text/plain")
-
-def HttpOKRequestJson():
-    return HttpResponse("Received and processed JSON data", status=200, content_type="text/plain")  # OK
-
-def HttpUnsupportedMedia():
-    return HttpResponse("Unsupported Media Type", status=415, content_type="text/plain")  # Unsupported Media Type
-
-def HttpMethodNotAllowed():
-    return HttpResponse("Method Not Allowed", status=405, content_type="text/plain")  # Method Not Allowed
-
-def HttpNotFound(msg):
-    return HttpResponse(msg + "Not Found", status=404, content_type="text/plain")
-
-
-def HttpIAmATeapot(msg):
-    return HttpResponse("I am a teapot", status=418, content_type="text/plain")

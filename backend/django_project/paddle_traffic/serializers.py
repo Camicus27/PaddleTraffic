@@ -20,6 +20,7 @@ class UserSerializer(serializers.ModelSerializer):
             'date_joined'
         ]
 
+
 class UserUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
@@ -46,6 +47,7 @@ class UserUpdateSerializer(serializers.ModelSerializer):
             'is_superuser': {'required': False}
         }
 
+
 class GroupSerializer(serializers.ModelSerializer):
     class Meta:
         model = Group
@@ -54,6 +56,7 @@ class GroupSerializer(serializers.ModelSerializer):
             'name',
             'permissions'
         ]
+
 
 class GroupUpdateSerializer(serializers.ModelSerializer):
     class Meta:
@@ -66,6 +69,7 @@ class GroupUpdateSerializer(serializers.ModelSerializer):
             'name': {'required': False},
             'permissions': {'required': False}
         }
+
 
 class LocationSerializer(serializers.ModelSerializer):
     class Meta:  # Serializers just return a Meta class
@@ -80,6 +84,7 @@ class LocationSerializer(serializers.ModelSerializer):
             'number_waiting',
             'estimated_wait_time',
         ]
+
 
 class LocationUpdateSerializer(serializers.ModelSerializer):
     class Meta:
@@ -104,10 +109,13 @@ class LocationUpdateSerializer(serializers.ModelSerializer):
             'estimated_wait_time': {'required': False}
         }
 
+
 """
     date = serializers.DateField(input_formats=['%Y-%m-%d'])
     time = serializers.TimeField(input_formats=['%H:%M:%S'])
 """
+
+
 class EventSerializer(serializers.ModelSerializer):
     class Meta:
         model = Event
