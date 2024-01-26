@@ -33,7 +33,8 @@ urlpatterns = [
     path('locations/<int:id>/report/', views.report),
     path('events/', views.events),
     path('events/<int:id>/', views.events_id),
-    path('profile/login/', views.login)
+    path('login/', views.login),
+    path('register/', views.register)
     #  Add custom numbered, lettered, named, urls using the following
     #  path('<int:custom_url_number>/locations/')
 ]

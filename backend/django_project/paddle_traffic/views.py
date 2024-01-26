@@ -35,8 +35,18 @@ def dataToReturn(request, custom_url_number): # custom_url_number, represents th
 def index(request):
     return render(request, "index.html")
 
-def index_redirect(request):
-    return redirect("/")
+def register(request):
+    if request.method == "POST":
+        username = request.POST.get("username", "")
+        password = request.POST.get("password", "")
+        email = request.POST.get("email", "")
+        if "" in [username, email, password]:
+            pass
+        # organizer1 = User.objects.create_user("organizer1", "organizer1@paddletraffic.net", "a1")
+        pass
+    else:
+        #GET the register page
+        return render(request, "register.html")
 
 def login(request):
     if request.method == "POST":
