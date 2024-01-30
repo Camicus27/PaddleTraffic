@@ -44,6 +44,9 @@ def index_redirect(request):
 
 
 def login(request):
+    """
+    /profile/login
+    """
     if request.method == "POST":
 
         username = request.POST.get("username", "")
@@ -63,11 +66,7 @@ def login(request):
 @csrf_exempt
 def users(request):
     """
-    GET /users
-    POST /users
-
-    :param request:
-    :return: JsonResponse
+    /users
     """
     def get():
         all_users = User.objects.all()
@@ -81,10 +80,7 @@ def users(request):
 @csrf_exempt
 def users_id(request, id):
     """
-    GET /users/{id}
-    :param request:
-    :param id: id of the user
-    :return: JsonResponse
+    /users/{id}
     """
     def get():
         try:
@@ -101,6 +97,9 @@ def users_id(request, id):
 
 @csrf_exempt
 def report(request, id):
+    """
+    /locations/<int:id>/report/
+    """
     def post(all_data):
         data = all_data.get("report", None)
         if data is None:
@@ -150,11 +149,7 @@ def report(request, id):
 @csrf_exempt
 def locations(request):
     """
-    GET /locations
-    POST /locations
-
-    :param request:
-    :return: JsonResponse
+    /locations
     """
     def post(all_data):
         data = all_data.get("location", None)
@@ -178,10 +173,7 @@ def locations(request):
 @csrf_exempt
 def locations_id(request, id):
     """
-    GET /locations/{id}
-    :param request:
-    :param id: id of location
-    :return: JsonResponse
+    /locations/{id}
     """
     def patch(all_data):
         existing_location = try_get_instance(m.Location, id)
@@ -218,9 +210,7 @@ def locations_id(request, id):
 @csrf_exempt
 def location_bounds(request):
     """
-    GET /locations/bounds/
-    :param request:
-    :return: JsonResponse
+    /locations/bounds/
     """
     def get():
         lon_l = request.GET.get("lon_l", None)
@@ -247,6 +237,9 @@ def location_bounds(request):
 
 @csrf_exempt
 def events(request):
+    """
+    /events
+    """
     def get():
         m_events = m.Event.objects.all()
         serializer = ser.EventSerializer(m_events, many=True)

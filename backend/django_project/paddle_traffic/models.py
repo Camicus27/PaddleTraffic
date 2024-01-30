@@ -37,3 +37,6 @@ class Report(models.Model):
     location = models.ForeignKey(Location, on_delete=models.CASCADE)
     number_waiting = models.IntegerField()  # number_waiting at time of report
     courts_occupied = models.IntegerField()  # courts_occupied ^^
+
+
+# todo add a "proposal" model for people who are proposing to add a new court somewhere?

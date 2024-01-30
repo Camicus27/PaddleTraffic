@@ -18,9 +18,11 @@ from django.contrib import admin
 from django.urls import path
 from paddle_traffic import views
 
+#  Add custom numbered, lettered, named, urls using the following
+#  path('<int:custom_url_number>/locations/')
 urlpatterns = [
     path('', views.index),
-    # Redirect these for now bc of Vue static file wierdness
+    # Redirect these for now bc of Vue static file weirdness
     # todo remove??
     path('map/', views.index_redirect),
     path('matchmaking/', views.index_redirect),
@@ -36,6 +38,4 @@ urlpatterns = [
     path('events/', views.events),
     path('events/<int:id>/', views.events_id),
     path('profile/login/', views.login)
-    #  Add custom numbered, lettered, named, urls using the following
-    #  path('<int:custom_url_number>/locations/')
 ]
