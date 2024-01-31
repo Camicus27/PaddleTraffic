@@ -262,8 +262,8 @@ def location_bounds(request):
         if None in [lat, lon]:
             return http_bad_argument("OOGA BOOGA")
 
-        lat_dif = 0.2
-        lon_dif = 1
+        lat_dif = 0.24
+        lon_dif = 1.4
 
         lat_h = lat + (lat_dif / 2)
         lat_l = lat - (lat_dif / 2)

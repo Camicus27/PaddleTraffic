@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, type Ref } from 'vue'
-import mapboxgl from "mapbox-gl";
+import mapboxgl, { LngLat } from "mapbox-gl";
 import axios from 'axios'
 
 interface Location {
@@ -24,6 +24,8 @@ const currSelection = ref<Location | undefined>();
 const allLocations: Ref<Location[]> = ref([])
 const mapMarkers = ref<{ [key: number]: mapboxgl.Marker }>({});
 
+let mapCenter: LngLat;
+
 // Todo: improve token handling
 mapboxgl.accessToken = 'pk.eyJ1Ijoic3VudHp1Y2Fwc3RvbmUiLCJhIjoiY2xwOHl6MGZiMWQwcjJ2bzNpdTh3ZXZ5diJ9.2OxP9v87qKxpFmL7FFrD-g';
 const map: Ref<mapboxgl.Map | undefined> = ref();
@@ -45,15 +47,15 @@ function initGeoloc(mapVal: mapboxgl.Map) {
     showAccuracyCircle: false
   });
 
+  mapCenter = mapVal.getCenter();
   mapVal.addControl(geolocateControl);
   mapVal.on('load', () => geolocateControl.trigger());
 }
 
 // Add markers to map
 function addMarkers(mapVal: mapboxgl.Map) {
-  let LngLat = map.value?.getCenter()
-  let lat = LngLat?.lat
-  let lng = LngLat?.lng
+  let lat = mapCenter?.lat
+  let lng = mapCenter?.lng
   axios.get(`${URL}/locations/bounds?lat=${lat}&lon=${lng}`)
     .then((response) => {
       allLocations.value = response.data.locations
@@ -77,12 +79,20 @@ function addMarkers(mapVal: mapboxgl.Map) {
 }
 
 function updateMarkers() {
+  Object.entries(mapMarkers.value).forEach(marker => {
+    marker[1].remove()
+  });
+  mapMarkers.value = []
   allLocations.value = []
+  mapCenter = map.value!.getCenter()
   addMarkers(map.value!)
 }
 
 function updateMarkerColor(loc: Location) {
-  let fill_el = mapMarkers.value[loc.id].getElement().querySelector('path')
+  let fill_el = mapMarkers.value[loc.id]?.getElement().querySelector('path')
+  if(fill_el === undefined) {
+    return;
+  }
   let waiting_constant = 1.2;
   // ratio for number waiting / c * court_count
   let waiting_ratio = loc.number_waiting / (waiting_constant * loc.court_count);
@@ -133,13 +143,16 @@ function submitForm() {
       // Handle errors here
       console.error('Error:', error);
     });
-  // } else {
-
-  // }
 }
 
 function updateLocations() {
-  axios.get(`${URL}/locations/`)
+  let LngLat = map.value?.getCenter()
+  let lat = LngLat?.lat
+  let lng = LngLat?.lng
+  if(lat === undefined || lng === undefined) {
+    return;
+  }
+  axios.get(`${URL}/locations/bounds?lat=${lat}&lon=${lng}`)
     .then((response) => {
       allLocations.value = response.data.locations
       allLocations.value.forEach(loc => {
@@ -161,7 +174,7 @@ onMounted(() => {
   });
   initGeoloc(map.value);
   addMarkers(map.value)
-  setInterval(updateLocations, 30000)
+  setInterval(updateLocations, 1000)
 })
 
 onUnmounted(() => {
@@ -173,7 +186,7 @@ onUnmounted(() => {
 <template>
   <div class="container">
     <div ref="mapContainer" class="map-container">
-      <button onclick="updateMarkers">gg</button>
+      <button @click="updateMarkers">gg</button>
     </div>
     <div class="info-section flex-row" v-if="currSelection">
       <div class="info padding-x">
