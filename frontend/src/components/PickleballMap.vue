@@ -76,6 +76,11 @@ function addMarkers(mapVal: mapboxgl.Map) {
     .catch((error) => console.log(error))
 }
 
+function updateMarkers() {
+  allLocations.value = []
+  addMarkers(map.value!)
+}
+
 function updateMarkerColor(loc: Location) {
   let fill_el = mapMarkers.value[loc.id].getElement().querySelector('path')
   let waiting_constant = 1.2;
@@ -155,7 +160,6 @@ onMounted(() => {
     zoom: 11
   });
   initGeoloc(map.value);
-  
   addMarkers(map.value)
   setInterval(updateLocations, 30000)
 })
@@ -169,7 +173,7 @@ onUnmounted(() => {
 <template>
   <div class="container">
     <div ref="mapContainer" class="map-container">
-      <!-- add button here? -->
+      <button onclick="updateMarkers">gg</button>
     </div>
     <div class="info-section flex-row" v-if="currSelection">
       <div class="info padding-x">
@@ -195,3 +199,13 @@ onUnmounted(() => {
     <div class="info-section" v-else>Select a court for more information</div>
   </div>
 </template>
+
+<style>
+    button {
+      background-color: white;
+      border-color: lightgrey;
+      color : lightskyblue;
+      z-index: 1;
+      position: relative;
+    }
+</style>
