@@ -174,7 +174,7 @@ onMounted(() => {
   });
   initGeoloc(map.value);
   addMarkers(map.value)
-  setInterval(updateLocations, 30000)
+  setInterval(updateLocations, 3000)
 })
 
 onUnmounted(() => {
@@ -186,7 +186,7 @@ onUnmounted(() => {
 <template>
   <div class="container">
     <div ref="mapContainer" class="map-container">
-      <button @click="updateMarkers">gg</button>
+      <button id="our_bouutonnnn" @click="updateMarkers">Search This Area</button>
     </div>
     <div class="info-section flex-row" v-if="currSelection">
       <div class="info padding-x">
@@ -214,11 +214,12 @@ onUnmounted(() => {
 </template>
 
 <style>
-    button {
+    #our_bouutonnnn {
       background-color: white;
       border-color: lightgrey;
       color : lightskyblue;
       z-index: 1;
       position: relative;
+      margin-left: 1rem;
     }
 </style>

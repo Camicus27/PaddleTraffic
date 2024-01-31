@@ -16,7 +16,7 @@ class Location(models.Model):
     courts_occupied = models.IntegerField()  # current courts occupied
     number_waiting = models.IntegerField()  # current number waiting
     estimated_wait_time = models.DurationField()
-
+    # TODO: calculated_time = models.DateTimeField()
 '''
 Represents a match or larger scale event/tournament that can be held at a location.
 Must have a location and host, and many players can sign up to attend.
@@ -33,7 +33,7 @@ class Event(models.Model):
     time = models.TimeField()
 
 class Report(models.Model):
-    submission_time = models.TimeField()
+    submission_time = models.DateTimeField()
     location = models.ForeignKey(Location, on_delete=models.CASCADE)
     number_waiting = models.IntegerField()  # number_waiting at time of report
     courts_occupied = models.IntegerField()  # courts_occupied ^^

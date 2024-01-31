@@ -1,4 +1,4 @@
-from datetime import datetime
+from datetime import datetime, timedelta, timezone
 
 from django.contrib.auth import authenticate, login, logout
 from django.http import JsonResponse
@@ -36,6 +36,7 @@ def dataToReturn(request, custom_url_number): # custom_url_number, represents th
         ...
 """
 
+EXPIRATION_THRESHOLD = timedelta(seconds=5)
 
 def index(request):
     return render(request, "index.html")
@@ -166,7 +167,7 @@ def report(request, id):
             return http_bad_argument("Cannot report groups waiting if there are courts unoccupied")
 
         report: m.Report = m.Report(
-            submission_time=datetime.now(),
+            submission_time=datetime.now(timezone.utc),
             location=location,
             number_waiting=number_waiting,
             courts_occupied=courts_occupied
@@ -275,6 +276,21 @@ def location_bounds(request):
             .filter(latitude__gt=lat_l)\
             .filter(longitude__lt=lon_r)\
             .filter(longitude__gt=lon_l)
+
+        for loc in m_location:
+            latest_report = m.Report.objects.filter(location=loc).order_by('-submission_time').first()
+            if latest_report is None or latest_report.submission_time is None:
+                continue
+            # TODO: Make decay vary with how long since calculation stored in locations model
+            if datetime.now(timezone.utc) - latest_report.submission_time > EXPIRATION_THRESHOLD:
+                if loc.number_waiting > 0:
+                    loc.number_waiting -= 1
+                    loc.save()
+                elif loc.courts_occupied > 0:
+                    loc.courts_occupied -= 1
+                    loc.save()
+            # if it's been a certain amount of time based on latest report
+            # then update the location, save it, and then return it!
 
         serializer = ser.LocationSerializer(m_location, many=True)
         # return the json formatted as an HTTP response
