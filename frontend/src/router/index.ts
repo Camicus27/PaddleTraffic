@@ -5,7 +5,7 @@ import MapView from '../views/MapView.vue'
 import MatchView from '../views/MatchView.vue'
 
 const router = createRouter({
-    history: createWebHistory(process.env.BASE_URL),
+    history: createWebHistory(),
     routes: [
         {
             path: '/',
