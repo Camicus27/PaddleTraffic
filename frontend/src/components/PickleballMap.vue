@@ -174,7 +174,7 @@ onMounted(() => {
   });
   initGeoloc(map.value);
   addMarkers(map.value)
-  setInterval(updateLocations, 1000)
+  setInterval(updateLocations, 30000)
 })
 
 onUnmounted(() => {
