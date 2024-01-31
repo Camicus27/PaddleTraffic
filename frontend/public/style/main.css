@@ -17,8 +17,25 @@ strong {
     font-weight: bold;
 }
 
+html {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
 body {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    overflow-y: scroll;
     margin: 0;
+}
+
+#app {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    justify-content: space-between;
 }
 
 #home-main-content, #map-main-content, #match-main-content, #about-main-content {
@@ -95,7 +112,7 @@ form {
     padding: 1.75rem;
     background-color: #f9f9f9;
     border-radius: 8px;
-    box-shadow: 0 2px 4px #ffffff10;
+    box-shadow: 0 2px 4px #ffffff40;
 }
     form div {
         display: flex;
@@ -186,9 +203,6 @@ form {
 
 /* Site footer styles */
 footer {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
     position: relative;
     bottom: 0;
     left: 0;
@@ -198,6 +212,12 @@ footer {
     background: linear-gradient(0deg, #67784c 0%, #9fb184e0 100%);
     font-weight: bold;
 }
+    footer > div {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        position: relative;
+    }
 
 #extra-info {
     display: flex;

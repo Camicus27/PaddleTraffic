@@ -188,16 +188,15 @@ onUnmounted(() => {
     <div ref="mapContainer" class="map-container">
       <button id="our_bouutonnnn" @click="updateMarkers">Search This Area</button>
     </div>
-    <div class="info-section flex-row" v-if="currSelection">
-      <div class="info padding-x">
+    <div class="info-section" v-if="currSelection">
+      <div class="info">
         <h3>{{ currSelection.name }}</h3>
         <p>Number of Courts: {{ currSelection.court_count }}</p>
         <p>Courts Occupied: {{ currSelection.courts_occupied }}</p>
         <p>Number Waiting: {{ currSelection.number_waiting }}</p>
         <p>Estimated Wait Time: {{ currSelection.estimated_wait_time }}</p>
       </div>
-      <div class="padding-x">
-        <form @submit.prevent="submitForm">
+      <form @submit.prevent="submitForm">
           <label for="courtsOccupied">Courts Occupied:</label><br>
           <input type="number" id="courtsOccupied" name="courtsOccupied" min="0" :max="currSelection.court_count"
             v-model="locForm.courts_occupied" required><br><br>
@@ -205,9 +204,10 @@ onUnmounted(() => {
           <input type="number" id="numberWaiting" name="numberWaiting" min="0"
             :max="(locForm.courts_occupied < currSelection.court_count) ? 0 : 10" v-model="locForm.number_waiting"
             required><br><br>
-          <input type="submit" value="Update Status">
+          <button>
+            Update Status
+          </button>
         </form>
-      </div>
     </div>
     <div class="info-section" v-else>Select a court for more information</div>
   </div>
