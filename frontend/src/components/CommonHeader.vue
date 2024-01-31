@@ -38,11 +38,15 @@ function getCurrentUser() {
 
 <template>
   <div id="profile-login">
-    <a href="logout/" v-if="myUser" class="logout-btn">Logout</a>
-    <a href="login/" v-else class="login-btn">Login</a>
-    <a href="login/">
+    <!-- <a href="logout/" v-if="myUser" class="logout-btn">Logout</a>
+    <a href="login/" v-else class="login-btn">Login</a> -->
+    <a v-if="myUser" href="/login/">
       <img src="@/assets/default_user.png" class="pfp" alt="User profile" width="32" height="32">
     </a>
+    <a v-else href="/register/">
+      <img src="@/assets/default_user.png" class="pfp" alt="User profile" width="32" height="32">
+    </a>
+
   </div>
   <header id="site-header">
     <div id="logo-title">
