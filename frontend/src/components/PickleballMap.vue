@@ -136,6 +136,9 @@ function updateLocations() {
       allLocations.value = response.data.locations
       allLocations.value.forEach(loc => {
         updateMarkerColor(loc)
+        if (loc.id === currSelection.value?.id) {
+          currSelection.value = loc
+        }
       });
     })
     .catch((error) => console.log(error))

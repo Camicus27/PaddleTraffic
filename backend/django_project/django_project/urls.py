@@ -25,9 +25,6 @@ urlpatterns = [
     path('', views.index),
     # Redirect these for now bc of Vue static file weirdness
     # todo remove??
-    path('map/', views.index_redirect),
-    path('matchmaking/', views.index_redirect),
-    path('about/', views.index_redirect),
     path('map/', views.index),
     path('matchmaking/', views.index),
     path('about/', views.index),
