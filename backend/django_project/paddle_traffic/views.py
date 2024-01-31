@@ -1,15 +1,17 @@
 from datetime import datetime
 
-from django.contrib.auth import authenticate
+from django.contrib.auth import authenticate, login, logout
 from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_exempt
 from paddle_traffic import models as m
 from django.contrib.auth.models import User
+from django.contrib.auth.decorators import login_required
 from django.db import models as django_model
 from paddle_traffic import serializers as ser
 from paddle_traffic.ApiHttpResponses import *
 import json
+import re
 # Create your views here.
 
 # todo
@@ -38,30 +40,67 @@ def dataToReturn(request, custom_url_number): # custom_url_number, represents th
 def index(request):
     return render(request, "index.html")
 
+def register_view(request):
+    if request.method == "POST":
+        firstname = request.POST.get("firstname", None)
+        lastname = request.POST.get("lastname", None)
+        username = request.POST.get("username", "")
+        password = request.POST.get("password", "")
+        email = request.POST.get("email", "")
+        # Check if user entered valid username, email, password
+        if not username:
+            return render(request, "register.html", {"error": "Please enter a valid username"})
+        if not password:
+            return render(request, "register.html", {"error": "Please enter a valid password"})
+        if not email or not re.fullmatch(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b', email):
+            return render(request, "register.html", {"error": "Please enter a valid"})
+        # Check if the email is unique
+        if email and User.objects.filter(email=email).exists():
+            return render(request, "register.html", {"error": "A user with that email already exists"})
 
-def index_redirect(request):
-    return redirect("/")
+        user = User.objects.create_user(username=username, email=email, password=password, first_name=firstname, last_name=lastname)
+        login(request, user)
+        return redirect("/")
+    else:
+        #GET the register page
+        return render(request, "register.html")
 
-
-def login(request):
-    """
-    /profile/login
-    """
+def login_view(request):
     if request.method == "POST":
 
         username = request.POST.get("username", "")
         password = request.POST.get("password", "")
 
-        user = authenticate(username=username, password=password)
+        if "" in [username, password]:
+            return render(request, "login.html", {"error": "Invalid username and password"})
+
+        user = authenticate(request, username=username, password=password)
         if user is not None:  # Success
             login(request, user)
             return redirect("/")
         else:  # Failure
             return render(request, "login.html", {"error": "Username and password do not match"})
     else:
+        if request.user.is_authenticated:
+            return redirect("/")
+
         # GET the login page
         return render(request, "login.html")
 
+def logout_view(request):
+    logout(request)
+    return redirect("/")
+
+# Authentication required
+def current_user(request):
+    def get():
+        if not request.user.is_authenticated:
+            return HttpUnauthorized()
+        serializer = ser.UserSerializer(request.user)
+        return JsonResponse({"user": serializer.data})
+
+    funs = {"GET": get}
+    return get_response(request, funs)
 
 @csrf_exempt
 def users(request):

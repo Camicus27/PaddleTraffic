@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="/static/style/main.css">
+        <link rel="stylesheet" href="/static/style/profile.css">
+        <link rel="icon" href="/static/favicon.ico">
+        <title>Register for PaddleTraffic</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script type="module" crossorigin src="/static/assets/index-060c99cf.js"></script>
+    </head>
+    <body>
+        <div class="form-wrapper">
+            <header>
+                <h1>Create your PaddleTraffic Account</h1>
+                <p>Host events, join private games, and contribute to the map with a free account!</p>
+            </header>
+            <main>
+                <form action="/register/" method="POST" id="register-form">
+                    {% csrf_token %}
+                    <p id="required-warning">* Field is required</p>
+                    <div id="email">
+                        <label for="email">*Email:</label>
+                        <input type="text" name="email" id="email" autofocus tabindex="1" placeholder="example@PaddleTraffic.net" required/>
+                    </div>
+                    <div id="usrname">
+                        <label for="username">*Username:</label>
+                        <input type="text" name="username" id="username" tabindex="2" placeholder="John_Smith" required/>
+                    </div>
+                    <div id="pssword">
+                        <label for="password">*Password:</label>
+                        <input type="password" name="password" id="password" tabindex="3" placeholder="john1p@ssword!$" required/>
+                    </div>
+                    <div id="fstname">
+                        <label for="firstname">First Name:</label>
+                        <input type="text" name="firstname" id="firstname" tabindex="4" placeholder="John"/>
+                    </div>
+                    <div id="lstname">
+                        <label for="lastname">Last Name:</label>
+                        <input type="text" name="lastname" id="lastname" tabindex="5" placeholder="Smith"/>
+                    </div>
+                    <output>
+                        {{error}}
+                    </output>
+                    <div class="submit-button">
+                        <button type="submit">Register</button>
+                    </div>
+                    <div class="redirect-swap">
+                        <p>Already have an account?</p>
+                        <a href="../login/">Log in</a>
+                    </div>
+                </form>
+                <div class="spacer">
+                    &nbsp;
+                </div>
+            </main>
+        </div>
+    </body>
+</html>

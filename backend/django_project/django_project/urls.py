@@ -21,12 +21,16 @@ from paddle_traffic import views
 #  Add custom numbered, lettered, named, urls using the following
 #  path('<int:custom_url_number>/locations/')
 urlpatterns = [
+    # Routes from Vue router
     path('', views.index),
     # Redirect these for now bc of Vue static file weirdness
     # todo remove??
     path('map/', views.index_redirect),
     path('matchmaking/', views.index_redirect),
     path('about/', views.index_redirect),
+    path('map/', views.index),
+    path('matchmaking/', views.index),
+    path('about/', views.index),
 
     path('admin/', admin.site.urls),
     path('users/', views.users),
@@ -37,5 +41,11 @@ urlpatterns = [
     path('locations/bounds/', views.location_bounds),
     path('events/', views.events),
     path('events/<int:id>/', views.events_id),
-    path('profile/login/', views.login)
+
+    path('login/', views.login_view),
+    path('register/', views.register_view),
+    path('logout/', views.logout_view),
+    path('current-user/', views.current_user)
+    #  Add custom numbered, lettered, named, urls using the following
+    #  path('<int:custom_url_number>/locations/')
 ]

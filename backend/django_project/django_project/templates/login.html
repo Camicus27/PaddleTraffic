@@ -1,21 +1,46 @@
-<!doctype html>
-<meta charset="utf-8">
-<title>Login To PickleCoin</title>
-
-<form action="/profile/login/" method="POST" id="login_form">
-    {% csrf_token %}
-    <div id="username_ct">
-        <label for="username">Username: </label>
-        <input type="text" name="username" id="username" autofocus tabindex="1" required/>
-    </div>
-    <div id="password_ct">
-        <label for="password">Enter your password: </label>
-        <input type="password" name="password" id="password" tabindex="1" required/>
-    </div>
-    <div id="button_ct">
-        <button type="submit">Log in</button>
-    </div>
-</form>
-<output>
-    {{error}}
-</output>
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <link rel="stylesheet" href="/static/style/main.css">
+        <link rel="stylesheet" href="/static/style/profile.css">
+        <link rel="icon" href="/static/favicon.ico">
+        <title>Login To PaddleTraffic</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <script type="module" crossorigin src="/static/assets/index-060c99cf.js"></script>
+    </head>
+    <body>
+        <div class="form-wrapper">
+            <header>
+                <h1>Welcome Back!</h1>
+                <p>Please enter your details</p>
+            </header>
+            <main>
+                <form action="/login/" method="POST" id="login-form">
+                    {% csrf_token %}
+                    <div id="usrname">
+                        <label for="username">Username:</label>
+                        <input type="text" name="username" id="username" autofocus tabindex="1" placeholder="Your Username..." required/>
+                    </div>
+                    <div id="pssword">
+                        <label for="password">Password:</label>
+                        <input type="password" name="password" id="password" tabindex="2" placeholder="Your Password..." required/>
+                    </div>
+                    <output>
+                        {{error}}
+                    </output>
+                    <div class="submit-button">
+                        <button type="submit">Log in</button>
+                    </div>
+                    <div class="redirect-swap">
+                        <p>Don't have an account yet?</p>
+                        <a href="../register/">Sign Up!</a>
+                    </div>
+                </form>
+                <div class="spacer">
+                    &nbsp;
+                </div>
+            </main>
+        </div>
+    </body>
+</html>
