@@ -38,5 +38,8 @@ def http_not_found(msg):
     return HttpResponse(msg + "Not Found", status=404, content_type="text/plain")
 
 
+def http_unauthorized():
+    return HttpResponse(status=401)
+
 def HttpIAmATeapot(msg):
     return HttpResponse("I am a teapot", status=418, content_type="text/plain")

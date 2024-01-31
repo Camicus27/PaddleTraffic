@@ -95,7 +95,7 @@ def logout_view(request):
 def current_user(request):
     def get():
         if not request.user.is_authenticated:
-            return HttpUnauthorized()
+            return http_unauthorized()
         serializer = ser.UserSerializer(request.user)
         return JsonResponse({"user": serializer.data})
 
