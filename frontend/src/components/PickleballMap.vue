@@ -50,8 +50,8 @@ function initGeoloc(mapVal: mapboxgl.Map) {
 }
 
 // Add markers to map
-function addMarkers(mapVal: mapboxgl.Map) {
-  axios.get(`${URL}/locations/`)
+function addMarkers(mapVal: mapboxgl.Map, coord: idk) {
+  axios.get(`${URL}/locations/bounds/${coord}`)
     .then((response) => {
       allLocations.value = response.data.locations
       allLocations.value.forEach(loc => {
@@ -151,12 +151,8 @@ onMounted(() => {
     center: [-111.876183, 40.758701], // Default to SLC
     zoom: 11
   });
-
-  if (map.value) {
-    initGeoloc(map.value);
-    addMarkers(map.value);
-  }
-
+  initGeoloc(map.value);
+  addMarkers(map.value);
   setInterval(updateLocations, 30000)
 })
 

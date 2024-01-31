@@ -252,13 +252,19 @@ def location_bounds(request):
     /locations/bounds/
     """
     def get():
-        lon_l = request.GET.get("lon_l", None)
-        lon_r = request.GET.get("lon_r", None)
-        lat_h = request.GET.get("lat_h", None)
-        lat_l = request.GET.get("lat_l", None)
+        lat = request.GET.get("lat", None)
+        lon = request.GET.get("lon", None)
 
-        if None in [lon_l, lon_r, lat_h, lat_l]:
+        if None in [lat, lon]:
             return http_bad_argument("OOGA BOOGA")
+
+        lat_dif = 0.2
+        lon_dif = 1
+
+        lat_h = lat + (lat_dif / 2)
+        lat_l = lat - (lat_dif / 2)
+        lon_l = lon - (lon_dif / 2)
+        lon_r = lon + (lon_dif / 2)
 
         m_location = m.Location.objects\
             .filter(latitude__lt=lat_h)\
