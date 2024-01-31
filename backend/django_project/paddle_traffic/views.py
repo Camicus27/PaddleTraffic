@@ -252,8 +252,12 @@ def location_bounds(request):
     /locations/bounds/
     """
     def get():
-        lat = request.GET.get("lat", None)
-        lon = request.GET.get("lon", None)
+
+        try:
+            lat = float(request.GET.get("lat", None))
+            lon = float(request.GET.get("lon", None))
+        except ValueError:
+            return http_bad_argument("OOGA BOOOOOGA")
 
         if None in [lat, lon]:
             return http_bad_argument("OOGA BOOGA")

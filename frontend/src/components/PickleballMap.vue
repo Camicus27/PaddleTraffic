@@ -50,8 +50,11 @@ function initGeoloc(mapVal: mapboxgl.Map) {
 }
 
 // Add markers to map
-function addMarkers(mapVal: mapboxgl.Map, coord: idk) {
-  axios.get(`${URL}/locations/bounds/${coord}`)
+function addMarkers(mapVal: mapboxgl.Map) {
+  let LngLat = map.value?.getCenter()
+  let lat = LngLat?.lat
+  let lng = LngLat?.lng
+  axios.get(`${URL}/locations/bounds?lat=${lat}&lon=${lng}`)
     .then((response) => {
       allLocations.value = response.data.locations
       allLocations.value.forEach(loc => {
@@ -152,7 +155,8 @@ onMounted(() => {
     zoom: 11
   });
   initGeoloc(map.value);
-  addMarkers(map.value);
+  
+  addMarkers(map.value)
   setInterval(updateLocations, 30000)
 })
 
@@ -164,7 +168,9 @@ onUnmounted(() => {
 
 <template>
   <div class="container">
-    <div ref="mapContainer" class="map-container"></div>
+    <div ref="mapContainer" class="map-container">
+      <!-- add button here? -->
+    </div>
     <div class="info-section flex-row" v-if="currSelection">
       <div class="info padding-x">
         <h3>{{ currSelection.name }}</h3>
