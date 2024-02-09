@@ -308,8 +308,6 @@ def events(request):
     def get():
         m_events = m.Event.objects.all()
         serializer = ser.EventSerializer(m_events, many=True)
-        for match in serializer.data:
-            match['location'] = ser.LocationSerializer(m.Location.objects.get(pk=match['location'])).data
         return JsonResponse({"events": serializer.data})
     
     def post(all_data):

@@ -48,7 +48,7 @@ function getAllPlayers() {
     <button @click="getEvents">Reload Events</button>
   </div>
   <template v-if="!isFetching">
-    <div class="matches" v-for="{ id, name, location, host, players, date, time } in matches" :key="id">
+    <div class="matches" v-for="{ id, name, location, host, players, description, date, time } in matches" :key="id">
       <h2>{{ name }}</h2>
       <h3>Host:</h3>
       <p>{{ allPlayers.filter((p: any) => p.id === host)[0].username }}</p>
@@ -59,12 +59,18 @@ function getAllPlayers() {
           <li v-for="player in players" :key="player">{{ allPlayers.filter((p: any) => p.id === player)[0].username }}</li>
         </ul>
       </div>
-      
-      <h3>Match being held at {{ location }}, {{ date }} {{ time.split('') }}</h3>
+      <h3>Details:</h3>
+      <div class="match-details">
+        <p>
+          {{ description }}
+        </p>
+        <p>
+          Being held at <strong>{{ location.name }}</strong>
+        </p>
+        <p>
+          &nbsp;&nbsp; on {{ date }} at {{ time }}
+        </p>
+      </div>
     </div>
-
-
-
-    
   </template>
 </template>

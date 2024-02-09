@@ -1,5 +1,6 @@
 from .models import *
 from rest_framework import serializers
+from time import strftime
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -117,6 +118,10 @@ class LocationUpdateSerializer(serializers.ModelSerializer):
 
 
 class EventSerializer(serializers.ModelSerializer):
+    location = LocationSerializer()
+    date = serializers.DateField(format='%A, %B %d, %Y', input_formats=['%A, %B %d, %Y'])   
+    time = serializers.TimeField(format='%I:%M%p', input_formats=['%I:%M%p'])
+
     class Meta:
         model = Event
         fields = [
