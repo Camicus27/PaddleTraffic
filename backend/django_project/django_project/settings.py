@@ -27,6 +27,8 @@ DEBUG = True
 
 ALLOWED_HOSTS = []
 
+# Set custom user model for authentication
+AUTH_USER_MODEL = "paddle_traffic.PickleUser"
 
 # Application definition
 

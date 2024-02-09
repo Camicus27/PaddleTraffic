@@ -4,7 +4,7 @@ from rest_framework import serializers
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = User
+        model = PickleUser
         fields = [
             'id',
             'username',
@@ -17,13 +17,24 @@ class UserSerializer(serializers.ModelSerializer):
             'is_active',
             'is_superuser',
             'last_login',
-            'date_joined'
+            'date_joined',
+            'friends',
+            'matches_attended',
+            'matches_created',
+            'win_count',
+            'loss_count',
+            'skill_level',
+            'bio',
+            'profile_picture',
+            'is_member',
+            'latitude',
+            'longitude',
         ]
 
 
 class UserUpdateSerializer(serializers.ModelSerializer):
     class Meta:
-        model = User
+        model = PickleUser
         fields = [
             'username',
             'first_name',
@@ -33,7 +44,18 @@ class UserUpdateSerializer(serializers.ModelSerializer):
             'user_permissions',
             'is_staff',
             'is_active',
-            'is_superuser'
+            'is_superuser',
+            'friends',
+            'matches_attended',
+            'matches_created',
+            'win_count',
+            'loss_count',
+            'skill_level',
+            'bio',
+            'profile_picture',
+            'is_member',
+            'latitude',
+            'longitude',
         ]
         extra_kwargs = {
             'username': {'required': False},
@@ -44,7 +66,18 @@ class UserUpdateSerializer(serializers.ModelSerializer):
             'user_permissions': {'required': False},
             'is_staff': {'required': False},
             'is_active': {'required': False},
-            'is_superuser': {'required': False}
+            'is_superuser': {'required': False},
+            'friends': {'required': False},
+            'matches_attended': {'required': False},
+            'matches_created': {'required': False},
+            'win_count': {'required': False},
+            'loss_count': {'required': False},
+            'skill_level': {'required': False},
+            'bio': {'required': False},
+            'profile_picture': {'required': False},
+            'is_member': {'required': False},
+            'latitude': {'required': False},
+            'longitude': {'required': False},
         }
 
 

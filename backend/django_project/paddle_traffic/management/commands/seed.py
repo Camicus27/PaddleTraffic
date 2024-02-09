@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from paddle_traffic.models import User, Group, Location, Event
+from paddle_traffic.models import PickleUser, Group, Location, Event
 from django.utils import timezone
 
 
@@ -8,7 +8,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **kwargs):
         Location.objects.all().delete()
-        User.objects.all().delete()
+        PickleUser.objects.all().delete()
         Event.objects.all().delete()
         Group.objects.all().delete()
 
@@ -16,14 +16,14 @@ class Command(BaseCommand):
         event_organizers, _ = Group.objects.get_or_create(name='Event Organizers')
         players, _ = Group.objects.get_or_create(name='Players')
 
-        administrator = User.objects.create_superuser("PickleCoinCEO", "pickle.coin.ceo@paddletraffic.net", "picklers4life")
-        organizer1 = User.objects.create_user("organizer1", "organizer1@paddletraffic.net", "a1")
-        organizer2 = User.objects.create_user("organizer2", "organizer2@paddletraffic.net", "a2")
+        administrator = PickleUser.objects.create_superuser("PickleCoinCEO", "pickle.coin.ceo@paddletraffic.net", "picklers4life")
+        organizer1 = PickleUser.objects.create_user("organizer1", "organizer1@paddletraffic.net", "a1")
+        organizer2 = PickleUser.objects.create_user("organizer2", "organizer2@paddletraffic.net", "a2")
         event_organizers.user_set.add(organizer1, organizer2)
 
-        p1 = User.objects.create_user("p1", "p1@paddletraffic.net", "p1")
-        p2 = User.objects.create_user("p2", "p2@paddletraffic.net", "p2")
-        p3 = User.objects.create_user("p3", "p3@paddletraffic.net", "p3")
+        p1 = PickleUser.objects.create_user("p1", "p1@paddletraffic.net", "p1")
+        p2 = PickleUser.objects.create_user("p2", "p2@paddletraffic.net", "p2")
+        p3 = PickleUser.objects.create_user("p3", "p3@paddletraffic.net", "p3")
         players.user_set.add(p1, p2, p3)
 
         the_park = Location.objects.create(

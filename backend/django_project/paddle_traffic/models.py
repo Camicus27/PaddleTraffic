@@ -1,5 +1,38 @@
 from django.db import models
-from django.contrib.auth.models import User, Group
+from django.contrib.auth.models import User, Group, AbstractUser
+
+
+
+class PickleUser(AbstractUser):
+    SKILL_LEVELS = (
+        'Beginner',
+        'Advanced Beginner',
+        'Intermediate Beginner',
+        'Intermediate',
+        'Advanced Intermediate',
+        'Expert',
+        'Advanced Expert',
+        'Professional',
+    )
+
+    friends = models.ManyToManyField('self', symmetrical=True, blank=True)
+    matches_attended = models.IntegerField(default=0)
+    matches_created = models.IntegerField(default=0)
+    win_count = models.IntegerField(default=0)
+    loss_count = models.IntegerField(default=0)
+    skill_level = models.CharField(
+        max_length=21,
+        choices=[(level, level) for level in SKILL_LEVELS],
+        default='Beginner',
+        help_text='Pickleball Skill Level'
+    )
+    bio = models.TextField(blank=True)
+    profile_picture = models.ImageField(upload_to='profile_pictures/', blank=True, null=True)
+    is_member = models.BooleanField(default=False)
+    latitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
+    longitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
+    
+
 
 '''
 Represents a location on the map that has courts, like a park or rec center.
@@ -17,6 +50,7 @@ class Location(models.Model):
     number_waiting = models.IntegerField()  # current number waiting
     estimated_wait_time = models.DurationField()
     # TODO: calculated_time = models.DateTimeField()
+
 '''
 Represents a match or larger scale event/tournament that can be held at a location.
 Must have a location and host, and many players can sign up to attend.
@@ -27,8 +61,8 @@ class Event(models.Model):
     name = models.CharField(max_length=255)
     description = models.CharField(max_length=2047)
     location = models.ForeignKey(Location, on_delete=models.CASCADE, related_name='scheduled_events', null=False)
-    host = models.ForeignKey(User, on_delete=models.CASCADE, related_name='hosted_events', null=False)
-    players = models.ManyToManyField(User, related_name='attending_events', blank=True)
+    host = models.ForeignKey(PickleUser, on_delete=models.CASCADE, related_name='hosted_events', null=False)
+    players = models.ManyToManyField(PickleUser, related_name='attending_events', blank=True)
     date = models.DateField()
     time = models.TimeField()
 
