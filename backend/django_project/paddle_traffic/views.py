@@ -5,7 +5,7 @@ from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_exempt
 from paddle_traffic import models as m
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.db import models as django_model
 from paddle_traffic import serializers as ser
@@ -56,10 +56,10 @@ def register_view(request):
         if not email or not re.fullmatch(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b', email):
             return render(request, "register.html", {"error": "Please enter a valid"})
         # Check if the email is unique
-        if email and User.objects.filter(email=email).exists():
+        if email and get_user_model().objects.filter(email=email).exists():
             return render(request, "register.html", {"error": "A user with that email already exists"})
 
-        user = User.objects.create_user(username=username, email=email, password=password, first_name=firstname, last_name=lastname)
+        user = get_user_model().objects.create_user(username=username, email=email, password=password, first_name=firstname, last_name=lastname)
         login(request, user)
         return redirect("/")
     else:
@@ -109,7 +109,7 @@ def users(request):
     /users
     """
     def get():
-        all_users = User.objects.all()
+        all_users = get_user_model().objects.all()
         serializer = ser.UserSerializer(all_users, many=True)
         return JsonResponse({"users": serializer.data})
 
@@ -124,8 +124,8 @@ def users_id(request, id):
     """
     def get():
         try:
-            user = User.objects.get(pk=id)
-        except User.DoesNotExist:
+            user = get_user_model().objects.get(pk=id)
+        except get_user_model().DoesNotExist:
             return http_not_found(f"User with ID {id} ")
 
         serializer = ser.UserSerializer(user)
