@@ -16,7 +16,6 @@ else
   URL = env.VITE_DEV_URL
 
 
-
 onMounted(() => {
   getCurrentUser()
 })
@@ -48,7 +47,7 @@ function getCurrentUser() {
       <a href="login/" class="login-btn">Login</a>
       <a href="register/" class="login-btn">Register</a>
     </template>
-    
+
 
   </div>
   <header id="site-header">
