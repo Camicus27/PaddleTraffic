@@ -208,8 +208,9 @@ footer {
     left: 0;
     right: 0;
     margin-top: 3rem;
-    padding: .5rem;
-    background: linear-gradient(0deg, #67784c 0%, #9fb184e0 100%);
+    padding-inline: .5rem;
+    padding-block: 3rem;
+    background-color: #67784c;
     font-weight: bold;
 }
     footer > div {
