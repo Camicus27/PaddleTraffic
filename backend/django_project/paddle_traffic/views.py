@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta, timezone
+import math
 
 from django.contrib.auth import authenticate, login, logout
 from django.http import JsonResponse
@@ -38,8 +39,10 @@ def dataToReturn(request, custom_url_number): # custom_url_number, represents th
 
 EXPIRATION_THRESHOLD = timedelta(seconds=5)
 
+
 def index(request):
     return render(request, "index.html")
+
 
 def register_view(request):
     if request.method == "POST":
@@ -59,12 +62,14 @@ def register_view(request):
         if email and User.objects.filter(email=email).exists():
             return render(request, "register.html", {"error": "A user with that email already exists"})
 
-        user = User.objects.create_user(username=username, email=email, password=password, first_name=firstname, last_name=lastname)
+        user = User.objects.create_user(
+            username=username, email=email, password=password, first_name=firstname, last_name=lastname)
         login(request, user)
         return redirect("/")
     else:
-        #GET the register page
+        # GET the register page
         return render(request, "register.html")
+
 
 def login_view(request):
     if request.method == "POST":
@@ -88,11 +93,14 @@ def login_view(request):
         # GET the login page
         return render(request, "login.html")
 
+
 def logout_view(request):
     logout(request)
     return redirect("/")
 
 # Authentication required
+
+
 def current_user(request):
     def get():
         if not request.user.is_authenticated:
@@ -102,6 +110,7 @@ def current_user(request):
 
     funs = {"GET": get}
     return get_response(request, funs)
+
 
 @csrf_exempt
 def users(request):
@@ -174,8 +183,8 @@ def report(request, id):
         )
         report.save()
 
-        # todo do calculations and set location occupied and waiting
-        location.courts_occupied = courts_occupied  # todo replace
+        # TODO: do calculations and set location occupied and waiting
+        location.courts_occupied = courts_occupied
         location.number_waiting = number_waiting
         location.save()
 
@@ -223,7 +232,8 @@ def locations_id(request, id):
         if data is None:
             return http_bad_request_json()
 
-        serializer = ser.LocationUpdateSerializer(instance=existing_location, data=data)
+        serializer = ser.LocationUpdateSerializer(
+            instance=existing_location, data=data)
         if serializer.is_valid():
             updated_location = serializer.save()
         else:
@@ -278,17 +288,27 @@ def location_bounds(request):
             .filter(longitude__gt=lon_l)
 
         for loc in m_location:
-            latest_report = m.Report.objects.filter(location=loc).order_by('-submission_time').first()
-            if latest_report is None or latest_report.submission_time is None:
+            current_time = datetime.now(timezone.utc)
+            time_passed = current_time - loc.calculated_time
+            stay_time = 3600  # 1 hour in seconds, for equal groups waiting to number of courts, gg L + bozo + ratio + balding + malding + ur_mom
+
+            # account for groups there - if busier stay less if empty stay longer => ratio between total groups there and number of courts
+            total_groups = loc.number_waiting + loc.courts_occupied
+            busyness_ratio = (total_groups / loc.court_count)
+            SOFTEN_CONSTANT = 4
+            softened_busyness_ratio = (busyness_ratio + SOFTEN_CONSTANT - 1) / SOFTEN_CONSTANT
+            stay_time /= softened_busyness_ratio
+            groups_leaving = math.floor(time_passed.seconds / stay_time)
+            if groups_leaving <= 0:
                 continue
-            # TODO: Make decay vary with how long since calculation stored in locations model
-            if datetime.now(timezone.utc) - latest_report.submission_time > EXPIRATION_THRESHOLD:
-                if loc.number_waiting > 0:
-                    loc.number_waiting -= 1
-                    loc.save()
-                elif loc.courts_occupied > 0:
-                    loc.courts_occupied -= 1
-                    loc.save()
+            if loc.number_waiting > 0:
+                loc.number_waiting = max(loc.number_waiting - groups_leaving, 0)
+                loc.save()
+                loc.calculated_time = current_time
+            elif loc.courts_occupied > 0:
+                loc.courts_occupied = max(loc.courts_occupied - groups_leaving, 0)
+                loc.save()
+                loc.calculated_time = current_time
             # if it's been a certain amount of time based on latest report
             # then update the location, save it, and then return it!
 
@@ -309,7 +329,7 @@ def events(request):
         m_events = m.Event.objects.all()
         serializer = ser.EventSerializer(m_events, many=True)
         return JsonResponse({"events": serializer.data})
-    
+
     def post(all_data):
         data = all_data.get("event", None)
         if data is None:
@@ -339,9 +359,11 @@ def events_id(request, id):
         if existing_event is None:
             return http_not_found(str(id))
 
-        serializer = ser.EventUpdateSerializer(instance=existing_event, data=data)
+        serializer = ser.EventUpdateSerializer(
+            instance=existing_event, data=data)
         if not serializer.is_valid():
-            return HttpResponse("Invalid JSON data", status=400, content_type="text/plain")  # Bad Request
+            # Bad Request
+            return HttpResponse("Invalid JSON data", status=400, content_type="text/plain")
         updated_location = serializer.save()
         return http_ok_request_json()
 

@@ -16,7 +16,7 @@ class Location(models.Model):
     courts_occupied = models.IntegerField()  # current courts occupied
     number_waiting = models.IntegerField()  # current number waiting
     estimated_wait_time = models.DurationField()
-    # TODO: calculated_time = models.DateTimeField()
+    calculated_time = models.DateTimeField()
 '''
 Represents a match or larger scale event/tournament that can be held at a location.
 Must have a location and host, and many players can sign up to attend.
@@ -39,4 +39,4 @@ class Report(models.Model):
     courts_occupied = models.IntegerField()  # courts_occupied ^^
 
 
-# todo add a "proposal" model for people who are proposing to add a new court somewhere?
+# TODO: add a "proposal" model for people who are proposing to add a new court somewhere?

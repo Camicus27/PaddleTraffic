@@ -33,7 +33,8 @@ class Command(BaseCommand):
             court_count=4,
             courts_occupied=2,
             number_waiting=0,
-            estimated_wait_time=timezone.timedelta(minutes=0)
+            estimated_wait_time=timezone.timedelta(minutes=0),
+            calculated_time = timezone.now()
         )
         picklecoin_hq = Location.objects.create(
             name="Picklecoin HQ",
@@ -42,7 +43,8 @@ class Command(BaseCommand):
             court_count=24,
             courts_occupied=24,
             number_waiting=15,
-            estimated_wait_time=timezone.timedelta(hours=2)
+            estimated_wait_time=timezone.timedelta(hours=2),
+            calculated_time = timezone.now()
         )
         the_moon = Location.objects.create(
             name="The Moon",
@@ -51,7 +53,8 @@ class Command(BaseCommand):
             court_count=2,
             courts_occupied=2,
             number_waiting=3,
-            estimated_wait_time=timezone.timedelta(minutes=15)
+            estimated_wait_time=timezone.timedelta(minutes=15),
+            calculated_time = timezone.now()
         )
         hogan_park = Location.objects.create(
             name="Hogan Park",
@@ -60,7 +63,8 @@ class Command(BaseCommand):
             court_count=6,
             courts_occupied=6,
             number_waiting=2,
-            estimated_wait_time=timezone.timedelta(minutes=10)
+            estimated_wait_time=timezone.timedelta(minutes=10),
+            calculated_time = timezone.now()
         )
         avenue_park = Location.objects.create(
             name="11th Avenue Park",
@@ -69,7 +73,8 @@ class Command(BaseCommand):
             court_count=6,
             courts_occupied=2,
             number_waiting=0,
-            estimated_wait_time=timezone.timedelta(minutes=0)
+            estimated_wait_time=timezone.timedelta(minutes=0),
+            calculated_time = timezone.now()
         )
         ave_and_c = Location.objects.create(
             name="5th Ave & C Street",
@@ -78,7 +83,8 @@ class Command(BaseCommand):
             court_count=2,
             courts_occupied=0,
             number_waiting=0,
-            estimated_wait_time=timezone.timedelta(minutes=0)
+            estimated_wait_time=timezone.timedelta(minutes=0),
+            calculated_time = timezone.now()
         )
         fairont = Location.objects.create(
             name="Fairont Park-West",
@@ -87,7 +93,8 @@ class Command(BaseCommand):
             court_count=6,
             courts_occupied=6,
             number_waiting=10,
-            estimated_wait_time=timezone.timedelta(minutes=25)
+            estimated_wait_time=timezone.timedelta(minutes=25),
+            calculated_time = timezone.now()
         )
         bickley = Location.objects.create(
             name="Bickley",
@@ -96,7 +103,8 @@ class Command(BaseCommand):
             court_count=1,
             courts_occupied=1,
             number_waiting=4,
-            estimated_wait_time=timezone.timedelta(minutes=20)
+            estimated_wait_time=timezone.timedelta(minutes=20),
+            calculated_time = timezone.now()
         )
         west_bountiful = Location.objects.create(
             name="West Bountiful",
@@ -105,7 +113,8 @@ class Command(BaseCommand):
             court_count=4,
             courts_occupied=4,
             number_waiting=1,
-            estimated_wait_time=timezone.timedelta(minutes=10)
+            estimated_wait_time=timezone.timedelta(minutes=10),
+            calculated_time = timezone.now()
         )
         twin_hollow = Location.objects.create(
             name="Twin Hollow",
@@ -114,7 +123,8 @@ class Command(BaseCommand):
             court_count=6,
             courts_occupied=5,
             number_waiting=0,
-            estimated_wait_time=timezone.timedelta(minutes=0)
+            estimated_wait_time=timezone.timedelta(minutes=0),
+            calculated_time = timezone.now()
         )
         murray = Location.objects.create(
             name="Murray City Park",
@@ -123,7 +133,8 @@ class Command(BaseCommand):
             court_count=6,
             courts_occupied=6,
             number_waiting=5,
-            estimated_wait_time=timezone.timedelta(minutes=25)
+            estimated_wait_time=timezone.timedelta(minutes=25),
+            calculated_time = timezone.now()
         )
         cottonwood = Location.objects.create(
             name="Cottonwood",
@@ -132,7 +143,8 @@ class Command(BaseCommand):
             court_count=3,
             courts_occupied=2,
             number_waiting=1,
-            estimated_wait_time=timezone.timedelta(minutes=10)
+            estimated_wait_time=timezone.timedelta(minutes=10),
+            calculated_time = timezone.now()
         )
         butler = Location.objects.create(
             name="Butler Park",
@@ -141,7 +153,8 @@ class Command(BaseCommand):
             court_count=6,
             courts_occupied=6,
             number_waiting=7,
-            estimated_wait_time=timezone.timedelta(minutes=20)
+            estimated_wait_time=timezone.timedelta(minutes=20),
+            calculated_time = timezone.now()
         )
         centennial = Location.objects.create(
             name="Centennial Park",
@@ -150,7 +163,8 @@ class Command(BaseCommand):
             court_count=12,
             courts_occupied=9,
             number_waiting=0,
-            estimated_wait_time=timezone.timedelta(minutes=0)
+            estimated_wait_time=timezone.timedelta(minutes=0),
+            calculated_time = timezone.now()
         )
         alta_canyon = Location.objects.create(
             name="Alta Canyon",
@@ -159,7 +173,8 @@ class Command(BaseCommand):
             court_count=4,
             courts_occupied=4,
             number_waiting=13,
-            estimated_wait_time=timezone.timedelta(hours=1)
+            estimated_wait_time=timezone.timedelta(hours=1),
+            calculated_time = timezone.now()
         )
         flatiron_mesa = Location.objects.create(
             name="Flatiron Mesa Park",
@@ -168,7 +183,8 @@ class Command(BaseCommand):
             court_count=5,
             courts_occupied=0,
             number_waiting=0,
-            estimated_wait_time=timezone.timedelta(minutes=0)
+            estimated_wait_time=timezone.timedelta(minutes=0),
+            calculated_time = timezone.now()
         )
         crescent_community = Location.objects.create(
             name="Crescent Community Park",
@@ -177,7 +193,8 @@ class Command(BaseCommand):
             court_count=4,
             courts_occupied=1,
             number_waiting=0,
-            estimated_wait_time=timezone.timedelta(minutes=0)
+            estimated_wait_time=timezone.timedelta(minutes=0),
+            calculated_time = timezone.now()
         )
 
         match0 = Event.objects.create(
