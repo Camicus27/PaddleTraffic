@@ -54,10 +54,14 @@ def register_view(request):
         if not password:
             return render(request, "register.html", {"error": "Please enter a valid password"})
         if not email or not re.fullmatch(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b', email):
-            return render(request, "register.html", {"error": "Please enter a valid"})
+            return render(request, "register.html", {"error": "Please enter a valid email"})
         # Check if the email is unique
         if email and get_user_model().objects.filter(email=email).exists():
             return render(request, "register.html", {"error": "A user with that email already exists"})
+
+        # Check if the username is unique
+        if username and get_user_model().objects.filter(username=username).exists():
+            return render(request, "register.html", {"error": "A user with that username already exists"})
 
         user = get_user_model().objects.create_user(username=username, email=email, password=password, first_name=firstname, last_name=lastname)
         login(request, user)
