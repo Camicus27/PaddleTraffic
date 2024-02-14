@@ -28,6 +28,7 @@ urlpatterns = [
     path('map/', views.index),
     path('matchmaking/', views.index),
     path('about/', views.index),
+    path('profile/', views.index),
 
     path('admin/', admin.site.urls),
     path('users/', views.users),

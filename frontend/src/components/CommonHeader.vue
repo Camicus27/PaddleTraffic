@@ -16,7 +16,6 @@ else
   URL = env.VITE_DEV_URL
 
 
-
 onMounted(() => {
   getCurrentUser()
 })
@@ -38,11 +37,17 @@ function getCurrentUser() {
 
 <template>
   <div id="profile-login">
-    <!-- <a href="logout/" v-if="myUser" class="logout-btn">Logout</a>
-    <a href="login/" v-else class="login-btn">Login</a> -->
-    <a href="/login/">
-      <img src="@/assets/default_user.png" class="pfp" alt="User profile" width="32" height="32">
-    </a>
+    <template v-if="myUser">
+      <a href="logout/" class="logout-btn">Logout</a>
+      <RouterLink to="/profile">
+        <img src="@/assets/default_user.png" class="pfp" alt="User profile" width="32" height="32">
+      </RouterLink>
+    </template>
+    <template v-else>
+      <a href="login/" class="login-btn">Login</a>
+      <a href="register/" class="login-btn">Register</a>
+    </template>
+
 
   </div>
   <header id="site-header">
