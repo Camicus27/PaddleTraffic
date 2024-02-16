@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User, Group, AbstractUser
-import datetime
+from datetime import datetime
 
 
 class PickleUser(AbstractUser):
