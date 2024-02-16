@@ -33,7 +33,7 @@ class UserSerializer(serializers.ModelSerializer):
         ]
 
 
-class RestricedUserSerializer(serializers.ModelSerializer):
+class RestrictedUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = PickleUser
         fields = [
