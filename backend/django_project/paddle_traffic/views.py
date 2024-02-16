@@ -148,11 +148,10 @@ def users_id(request, id):
 def calculate_exponential(reports, percentage, time_passed):
     # Calculate weights using exponential decay
     values = [r.number_waiting + r.courts_occupied for r in reports]
-    times = [r.submission_time for r in reports]
+    times = [((datetime.now(timezone.utc) - r.submission_time).total_seconds() / 3600) for r in reports]
 
-    lambda_value = math.log(percentage) / time_passed  # Decay rate for 0.1=e^lambda*6 ln(0.1)/6 = lambda
-    print("CONSTANT:", lambda_value)
-    weights_exp = [math.exp(lambda_value * t) for t in times]
+    lambda_value = -math.log(percentage) / time_passed  # Decay rate for 0.1=e^lambda*6 ln(0.1)/6 = lambda
+    weights_exp = [math.exp(-lambda_value * t) for t in times]
     
     weighted_values_exp = [w * v for w, v in zip(weights_exp, values)]
     
@@ -202,7 +201,12 @@ def report(request, id):
         # todo do calculations and set location occupied and waiting
         four_hours_ago = datetime.now() - timedelta(hours=4)
         reports_for_calculation = m.Report.objects.filter(location=location).filter(submission_time__gt=four_hours_ago)
-        
+        for r in reports_for_calculation:
+            print("!!", r.number_waiting)
+            print("!!", r.courts_occupied)
+            print("!!", r.submission_time)
+
+
         percentage = 0.25
         time_passed = 4 # IN HOURS IT'S SIMPLE WHOOOOOOOOOOOOOO
         new_total_groups = calculate_exponential(reports_for_calculation, percentage, time_passed)
@@ -213,7 +217,7 @@ def report(request, id):
         else:
             location.courts_occupied = location.court_count
             location.number_waiting = new_total_groups - location.court_count
-            
+
         location.save()
 
         serializer = ser.LocationSerializer(location)
