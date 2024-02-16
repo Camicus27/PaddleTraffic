@@ -213,6 +213,7 @@ def report(request, id):
         else:
             location.courts_occupied = location.court_count
             location.number_waiting = new_total_groups - location.court_count
+            
         location.save()
 
         serializer = ser.LocationSerializer(location)
