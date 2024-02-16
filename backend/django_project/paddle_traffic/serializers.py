@@ -190,3 +190,14 @@ class EventUpdateSerializer(serializers.ModelSerializer):
             'date': {'required': False},
             'time': {'required': False}
         }
+
+
+class FriendRequestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FriendRequest
+        fields = [
+            'requester',
+            'receiver',
+            'date_created',
+            'accepted'
+        ]
