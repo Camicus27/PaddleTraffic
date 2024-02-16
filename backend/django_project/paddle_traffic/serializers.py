@@ -211,6 +211,8 @@ class EventUpdateSerializer(serializers.ModelSerializer):
 
 
 class FriendRequestSerializer(serializers.ModelSerializer):
+    requester = RestrictedUserSerializer()
+    receiver = RestrictedUserSerializer()
 
     class Meta:
         model = FriendRequest

@@ -114,7 +114,7 @@ def users(request):
     """
     def get():
         all_users = get_user_model().objects.all()
-        serializer = ser.UserSerializer(all_users, many=True)
+        serializer = ser.RestrictedUserSerializer(all_users, many=True)
         return JsonResponse({"users": serializer.data})
 
     funs = {"GET": get}
@@ -303,6 +303,63 @@ def location_bounds(request):
     funs = {"GET": get}
     return get_response(request, funs)
 
+
+@csrf_exempt
+def friend_requests(request):
+    """
+    /friend-requests/
+    These all require that the user is signed in, and are in the context of a user's friend requests.
+    """
+
+    def get():
+        pass
+
+    funs = {"GET": get}
+    return get_response(request, funs)
+
+@csrf_exempt
+def friend_request_id(request, id):
+    """
+    /friend-requests/{id}
+    These all require that the user is signed in, and are in the context of a user's friend requests.
+    """
+
+    """
+    In this case, {id} represents the id of the friend request
+    """
+    def get():
+        pass
+
+    """
+    In this case, {id} represents the id of the receiving user.
+    A user is required to 
+    """
+    def post():
+        pass
+
+    """
+    In this case, {id} represents the id of the friend request
+    """
+    def delete():
+        pass
+
+    funs = {"GET": get, "POST": post, "DELETE": delete}
+    return get_response(request, funs)
+
+@csrf_exempt
+def accept_friend_request(request):
+    """
+    /friend-requests/accept/{id}
+    """
+
+    """
+    In this case, {id} represents the id of the friend request
+    """
+    def post():
+        pass
+
+    funs = {"POST": post}
+    return get_response(request, funs)
 
 @csrf_exempt
 def events(request):
