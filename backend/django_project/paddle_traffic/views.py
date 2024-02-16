@@ -13,6 +13,7 @@ from paddle_traffic import serializers as ser
 from paddle_traffic.ApiHttpResponses import *
 import json
 import re
+import math
 # Create your views here.
 
 # todo
@@ -144,6 +145,21 @@ def users_id(request, id):
     return get_response(request, funs)
 
 
+def calculate_exponential(reports, percentage, time_passed):
+    # Calculate weights using exponential decay
+    values = [r.number_waiting + r.courts_occupied for r in reports]
+    times = [r.submission_time for r in reports]
+
+    lambda_value = math.log(percentage) / time_passed  # Decay rate for 0.1=e^lambda*6 ln(0.1)/6 = lambda
+    print("CONSTANT:", lambda_value)
+    weights_exp = [math.exp(lambda_value * t) for t in times]
+    
+    weighted_values_exp = [w * v for w, v in zip(weights_exp, values)]
+    
+    weighted_average_exp = sum(weighted_values_exp) / sum(weights_exp)
+    return weighted_average_exp
+
+
 @csrf_exempt
 def report(request, id):
     """
@@ -183,9 +199,20 @@ def report(request, id):
         )
         report.save()
 
-        # TODO: do calculations and set location occupied and waiting
-        location.courts_occupied = courts_occupied
-        location.number_waiting = number_waiting
+        # todo do calculations and set location occupied and waiting
+        four_hours_ago = datetime.now() - timedelta(hours=4)
+        reports_for_calculation = m.Report.objects.filter(location=location).filter(submission_time__gt=four_hours_ago)
+        
+        percentage = 0.25
+        time_passed = 4 # IN HOURS IT'S SIMPLE WHOOOOOOOOOOOOOO
+        new_total_groups = calculate_exponential(reports_for_calculation, percentage, time_passed)
+
+        if new_total_groups <= location.court_count:
+            location.courts_occupied = new_total_groups
+            location.number_waiting = 0
+        else:
+            location.courts_occupied = location.court_count
+            location.number_waiting = new_total_groups - location.court_count
         location.save()
 
         serializer = ser.LocationSerializer(location)
