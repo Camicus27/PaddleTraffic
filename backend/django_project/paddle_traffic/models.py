@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User, Group, AbstractUser
-
+import datetime
 
 
 class PickleUser(AbstractUser):
@@ -72,5 +72,12 @@ class Report(models.Model):
     number_waiting = models.IntegerField()  # number_waiting at time of report
     courts_occupied = models.IntegerField()  # courts_occupied ^^
 
+class FriendRequest(models.Model):
+    requester = models.ForeignKey(PickleUser, on_delete=models.CASCADE, related_name='outgoing_requests', null=False)
+    receiver = models.ForeignKey(PickleUser, on_delete=models.CASCADE, related_name='incoming_requests', null=False)
+    date_created = models.DateTimeField(default=datetime.now, blank=True)
+    accepted = models.BooleanField(default=False)
 
+    class Meta:
+        unique_together = ["requester", "receiver"]
 # todo add a "proposal" model for people who are proposing to add a new court somewhere?
