@@ -33,6 +33,24 @@ class UserSerializer(serializers.ModelSerializer):
         ]
 
 
+class RestricedUserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PickleUser
+        fields = [
+            'id',
+            'username',
+            'first_name',
+            'last_name',
+            'matches_attended',
+            'matches_created',
+            'win_count',
+            'loss_count',
+            'skill_level',
+            'bio',
+            'profile_picture',
+        ]
+
+
 class UserUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = PickleUser
@@ -193,6 +211,7 @@ class EventUpdateSerializer(serializers.ModelSerializer):
 
 
 class FriendRequestSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = FriendRequest
         fields = [
