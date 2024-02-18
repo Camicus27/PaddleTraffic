@@ -23,6 +23,8 @@ const mapContainer = ref();
 const currSelection = ref<Location | undefined>();
 const allLocations: Ref<Location[]> = ref([])
 const mapMarkers = ref<{ [key: number]: mapboxgl.Marker }>({});
+const props = defineProps(['lat', 'lon'])
+console.log(`Latitude: ${props.lat}, Longitude: ${props.lon}`)
 
 let mapCenter: LngLat;
 
@@ -165,6 +167,16 @@ function updateLocations() {
     .catch((error) => console.log(error))
 }
 
+function updateCurrSelection() {
+  if (!props?.lat || !props?.lon) return;
+
+  axios.get(`${URL}/location/latlon?lat=${props.lat}&lon=${props.lon}`)
+    .then((response) => {
+      currSelection.value = response.data.location;
+    })
+    .catch((error) => console.log(error))
+}
+
 onMounted(() => {
   map.value = new mapboxgl.Map({
     container: mapContainer.value,
@@ -174,6 +186,7 @@ onMounted(() => {
   });
   initGeoloc(map.value);
   addMarkers(map.value)
+  updateCurrSelection();
   setInterval(updateLocations, 3000)
 })
 

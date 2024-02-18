@@ -36,6 +36,7 @@ urlpatterns = [
     path('locations/<int:id>/', views.locations_id),
     path('locations/<int:id>/report/', views.report),
     path('locations/bounds/', views.location_bounds),
+    path('location/latlon/', views.location_latlon),
     path('events/', views.events),
     path('events/<int:id>/', views.events_id),
 

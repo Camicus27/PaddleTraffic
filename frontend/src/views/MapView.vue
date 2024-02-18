@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import PickleballMap from '@/components/PickleballMap.vue';
+import {useRoute} from "vue-router";
 </script>
 
 <template>
@@ -7,6 +8,6 @@ import PickleballMap from '@/components/PickleballMap.vue';
         <header>
             <h1>Pickleball Court Map</h1>
         </header>
-        <PickleballMap/>
+        <PickleballMap :lat=useRoute().query.lat :lon=useRoute().query.lon />
     </div>
 </template>

@@ -11,6 +11,7 @@ from django.contrib.auth.decorators import login_required
 from django.db import models as django_model
 from paddle_traffic import serializers as ser
 from paddle_traffic.ApiHttpResponses import *
+from django.db.models import ExpressionWrapper, FloatField, F
 import json
 import re
 import math
@@ -287,6 +288,50 @@ def locations_id(request, id):
 
     funs = {"PATCH": patch, "GET": get, "DELETE": delete}
     return get_response(request, funs)
+
+@csrf_exempt
+def location_latlon(request):
+    def get():
+
+        try:
+            lat = float(request.GET.get("lat", None))
+            lon = float(request.GET.get("lon", None))
+        except ValueError:
+            return http_bad_argument("OOoooooOOOGA BOOOooOOooOooooOOoooOOGA")
+
+        if None in [lat, lon]:
+            return http_bad_argument("OOoooooOOOGA BOOOooOOooOooooOOoooOOGA")
+
+        lat_dif = 0.24
+        lon_dif = 1.4
+
+        lat_h = lat + (lat_dif / 2)
+        lat_l = lat - (lat_dif / 2)
+        lon_l = lon - (lon_dif / 2)
+        lon_r = lon + (lon_dif / 2)
+
+        m_location = m.Location.objects\
+            .filter(latitude__lt=lat_h)\
+            .filter(latitude__gt=lat_l)\
+            .filter(longitude__lt=lon_r)\
+            .filter(longitude__gt=lon_l)\
+            .annotate(
+                distance=ExpressionWrapper(
+                    (F('latitude') - lat) ** 2 +
+                    (F('longitude') - lon) ** 2,
+                    output_field=FloatField()
+                )
+            ) \
+            .order_by('distance').first()
+    
+
+        serializer = ser.LocationSerializer(m_location, many=False)
+        # return the json formatted as an HTTP response
+        return JsonResponse({"location": serializer.data})
+
+    funs = {"GET": get}
+    return get_response(request, funs)
+    
 
 
 @csrf_exempt
