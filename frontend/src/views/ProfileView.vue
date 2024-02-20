@@ -5,6 +5,12 @@ import axios from 'axios'
 
 // This should be undefined when there is no user currently logged in.
 const myUser: Ref<any> = ref(undefined);
+const incomingRequests: Ref<any> = ref([]);
+const outgoingRequests: Ref<any> = ref([]);
+const searchQuery: Ref<string> = ref('');
+const searchResults: Ref<any> = ref([]);
+
+
 
 let URL: string
 // This is the collection of environment variables.
@@ -17,6 +23,7 @@ else
 
 onMounted(() => {
   getCurrentUser()
+  getFriendRequests()
 })
 
 function getCurrentUser() {
@@ -33,6 +40,47 @@ function getCurrentUser() {
       window.location.href = '/login';
     })
 }
+
+function getFriendRequests() {
+  if (!myUser.value) return;
+
+  axios.get(`${URL}/friend-requests/`, { withCredentials: true })
+    .then((response) => {
+      incomingRequests.value = response.data.incoming;
+      outgoingRequests.value = response.data.outgoing;
+    })
+    .catch((error) => console.error("Failed to fetch friend requests:", error));
+}
+
+function acceptFriendRequest(requestId: number) {
+  axios.post(`${URL}/friend-requests/accept/${requestId}`, {}, { withCredentials: true })
+    .then(() => {
+      getFriendRequests(); // Refresh the list of friend requests
+    })
+    .catch((error) => console.error("Failed to accept friend request:", error));
+}
+
+function createFriendRequest(receiverId: number) {
+  axios.post(`${URL}/friend-requests/${receiverId}`, {}, { withCredentials: true })
+    .then(() => {
+      getFriendRequests(); // Refresh the list of friend requests
+    })
+    .catch((error) => console.error("Failed to create friend request:", error));
+}
+
+function searchUsers() {
+  if (searchQuery.value.trim() === '') {
+    searchResults.value = [];
+    return;
+  }
+
+  axios.get(`${URL}/users/?search=${searchQuery.value}`, { withCredentials: true })
+    .then(response => {
+      searchResults.value = response.data.users.filter((user: { id: any; }) => user.id !== myUser.value.id); // Filter out the current user from search results
+    })
+    .catch(error => console.error('Failed to search users:', error));
+}
+
 
 </script>
 
@@ -67,6 +115,38 @@ function getCurrentUser() {
   <div v-else>
     <h1>User not found or not logged in.</h1>
   </div>
+  <div class="card friend-requests" v-if="incomingRequests.length || outgoingRequests.length">
+    <h2>Pending Friend Requests</h2>
+    <div>
+      <h3>Incoming</h3>
+      <ul>
+        <li v-for="request in incomingRequests" :key="request.id">
+          {{ request.requester.username }}
+          <button @click="acceptFriendRequest(request.id)">Accept</button>
+        </li>
+      </ul>
+    </div>
+    <div>
+      <h3>Outgoing</h3>
+      <ul>
+        <li v-for="request in outgoingRequests" :key="request.id">
+          {{ request.receiver.username }}
+          <!-- Optionally, add a cancel button here -->
+        </li>
+      </ul>
+    </div>
+  </div>
+  <div class="search-section">
+    <input type="text" v-model="searchQuery" @input="searchUsers" placeholder="Search Users...">
+    <div class="search-results" v-if="searchResults.length > 0">
+      <ul>
+        <li v-for="user in searchResults" :key="user.id">
+          {{ user.username }}
+          <button @click="createFriendRequest(user.id)">Add Friend</button>
+        </li>
+      </ul>
+    </div>
+  </div>
 </template>
 
 <style scoped>
@@ -78,7 +158,8 @@ function getCurrentUser() {
 }
 
 .header h1 {
-  color: #71864f; /* Green accent */
+  color: #71864f;
+  /* Green accent */
   text-align: center;
   font-size: 2rem;
   margin-bottom: 10px;
@@ -124,7 +205,8 @@ function getCurrentUser() {
 }
 
 h2 {
-  color: #71864f; /* Green accent */
+  color: #71864f;
+  /* Green accent */
   text-align: center;
   margin-bottom: 15px;
 }
@@ -142,5 +224,56 @@ li {
 
 li:last-child {
   border-bottom: none;
+}
+
+.friend-requests h3 {
+  color: #71864f;
+  /* Darker green for subheadings */
+  margin-top: 10px;
+}
+
+.friend-requests button {
+  margin-left: 10px;
+  background-color: #71864f;
+  /* Green accent */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.friend-requests button:hover {
+  background-color: #5a6e3f;
+}
+
+.search-section {
+  margin-top: 20px;
+}
+
+.search-results ul {
+  list-style: none;
+  padding: 0;
+}
+
+.search-results li {
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.search-results button {
+  background-color: #71864f;
+  /* Green accent */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 5px 10px;
+  cursor: pointer;
+}
+
+.search-results button:hover {
+  background-color: #5a6e3f;
 }
 </style>
