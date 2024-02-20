@@ -4,14 +4,14 @@
 <template>
     <div id="home-wrapper">
         <header>
-            <h1>Welcome to PaddleTraffic</h1>
-            <p>Find and join Pickleball courts with ease</p>
+            <h1>Welcome to PaddleTraffic!</h1>
+            <p>View live Pickleball court activity with ease</p>
         </header>
 
         <main>
             <section>
                 <h2>Find a Court Near You</h2>
-                <p>Discover nearby Pickleball courts with real-time updates and availability.</p>
+                <p>Discover nearby Pickleball courts with <strong>real-time updates and availability.</strong></p>
                 <a href="/map">Explore Courts</a>
             </section>
 

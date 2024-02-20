@@ -16,16 +16,16 @@
     .form-wrapper h1 {
         margin: 0;
         font-size: 2.75rem;
-        line-height: 2rem;
-        text-wrap: nowrap;
+        line-height: 3rem;
     }
 
     .form-wrapper header p {
         font-size: 1.5rem;
+        line-height: 2rem;
     }
 
 html {
-    background: linear-gradient(0deg, #9fb18400 0%, #9fb184 100%);
+    background-color: #e9f5db;
 }
 
 main {
@@ -64,4 +64,12 @@ output {
     font-weight: bold;
     text-align: center;
     margin: .5rem;
+}
+
+
+/* Media query for narrower screens */
+@media only screen and (max-width: 1300px) {
+    main {
+        width: 90%;
+    }
 }

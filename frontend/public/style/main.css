@@ -46,6 +46,7 @@ body {
 
 .main-wrapper {
     display: flex;
+    flex-grow: 1;
     flex-direction: column;
     justify-content: center;
     padding-inline: 3rem;
@@ -73,13 +74,15 @@ body {
         color: #4b5320;
         text-align: center;
         font-size: 2rem;
-        margin-block: .5rem;
+        line-height: 2.5rem;
+        margin-block: .33rem;
     }
 
 #profile-login {
     position: fixed;
     top: 1rem;
     right: 1rem;
+    display: flex;
 }
 
 /* Buttons and Links */
@@ -156,9 +159,9 @@ form {
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding-bottom: 1rem;
-    margin-bottom: 2rem;
-    background: linear-gradient(0deg, #9fb18401 0%, #9fb184 100%);
+    padding-bottom: 3rem;
+    margin-bottom: .5rem;
+    background: linear-gradient(0deg, #ffffff08 0%, #9fb184 100%);
 }
     #site-header #logo-title a {
         display: flex;
@@ -209,7 +212,7 @@ footer {
     right: 0;
     margin-top: 3rem;
     padding-inline: .5rem;
-    padding-block: 3rem;
+    padding-block: 2.75rem;
     background-color: #67784c;
     font-weight: bold;
 }
