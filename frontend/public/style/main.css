@@ -184,22 +184,31 @@ form {
         margin-top: .25rem;
         justify-content: center;
         font-size: 1.25rem;
-        font-weight: bold;
     }
 
-    #site-header nav a:any-link {
+    #site-header nav a,
+    #login,
+    #logout,
+    #register {
         padding: 5px;
         margin-inline: 1rem;
         border-radius: 2px;
+        font-weight: bold;
         text-shadow: 0px 0px 1px #080f01a0;
         text-decoration: none;
         color: #234a00;
         transition: background-color 0.3s, color 0.3s;
     }
-        #site-header nav a:active {
+        #site-header nav a:active,
+        #login:active,
+        #logout:active,
+        #register:active {
             color: #ffffff;
         }
-        #site-header nav a:hover {
+        #site-header nav a:hover,
+        #login:hover,
+        #logout:hover,
+        #register:hover {
             color: #142b00;
             background-color: #83b325;
         }
