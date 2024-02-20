@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta, timezone
 
 from django.contrib.auth import authenticate, login, logout
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpRequest
 from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_exempt
 from paddle_traffic import models as m
@@ -312,13 +312,28 @@ def friend_requests(request):
     """
 
     def get():
-        pass
+        if not request.user.is_authenticated:
+            return http_unauthorized()
+        
+        # Fetch incoming friend requests where the current user is the receiver
+        incoming_requests = m.FriendRequest.objects.filter(receiver=request.user, accepted=False)
+        incoming_serializer = ser.FriendRequestSerializer(incoming_requests, many=True)
+
+        # Fetch outgoing friend requests where the current user is the requester
+        outgoing_requests = m.FriendRequest.objects.filter(requester=request.user, accepted=False)
+        outgoing_serializer = ser.FriendRequestSerializer(outgoing_requests, many=True)
+
+        # Return both lists as JSON
+        return JsonResponse({
+            "incoming_requests": incoming_serializer.data,
+            "outgoing_requests": outgoing_serializer.data
+        })
 
     funs = {"GET": get}
     return get_response(request, funs)
 
 @csrf_exempt
-def friend_request_id(request, id):
+def friend_request_id(request: HttpRequest, id):
     """
     /friend-requests/{id}
     These all require that the user is signed in, and are in the context of a user's friend requests.
@@ -328,20 +343,48 @@ def friend_request_id(request, id):
     In this case, {id} represents the id of the friend request
     """
     def get():
-        pass
+        if not request.user.is_authenticated:
+            return http_unauthorized()
+        friend_request: m.FriendRequest = try_get_instance(m.FriendRequest, id)
+        if not friend_request:
+            return http_not_found(str(id))
+        if not (friend_request.requester == request.user or friend_request.receiver == request.user): # A user should not be able to get a friend request that does not belong to them
+            return http_unauthorized()
+        serializer = ser.LocationSerializer(friend_request, many=False)
+        # return the json formatted as an HTTP response
+        return JsonResponse({"friend_request": serializer.data})
 
     """
     In this case, {id} represents the id of the receiving user.
-    A user is required to 
+    This is the endpoint to create a new friend request.
     """
     def post():
-        pass
+        if not request.user.is_authenticated:
+            return http_unauthorized()
+        other_user = try_get_instance(m.PickleUser, id)
+        if not other_user:
+            return http_not_found(str(id))
+        if other_user == request.user:
+            return http_bad_argument(f"id: {id} cannot be the same as current user")
+        m.FriendRequest(
+            requester = request.user,
+            receiver = other_user,
+        ).save()
+        
 
     """
     In this case, {id} represents the id of the friend request
     """
     def delete():
-        pass
+        if not request.user.is_authenticated:
+            return http_unauthorized()
+        friend_request: m.FriendRequest = try_get_instance(m.FriendRequest, id)
+        if not friend_request:
+            return http_not_found(str(id))
+        if not (friend_request.requester == request.user or friend_request.receiver == request.user): # A user should not be able to get a friend request that does not belong to them
+            return http_unauthorized()
+        friend_request.delete()
+        return http_ok(f"Friend Request {id} deleted")
 
     funs = {"GET": get, "POST": post, "DELETE": delete}
     return get_response(request, funs)
@@ -356,7 +399,17 @@ def accept_friend_request(request):
     In this case, {id} represents the id of the friend request
     """
     def post():
-        pass
+        if not request.user.is_authenticated:
+            return http_unauthorized()
+        friend_request: m.FriendRequest = try_get_instance(m.FriendRequest, id)
+        if not friend_request:
+            return http_not_found(str(id))
+        if friend_request.receiver != request.user: # A user should not be able to accept a friend request if they are not the receiver
+            return http_unauthorized()
+        friend_request.accepted = True
+        friend_request.save()
+        friend_request.receiver.friends.add(friend_request.requester) # Since this field is symmetric, this also adds the receiver as a friend of the requester
+        return http_ok(f"Friends {friend_request.receiver} and {friend_request.requester} are now friends")
 
     funs = {"POST": post}
     return get_response(request, funs)
