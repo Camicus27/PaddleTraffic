@@ -38,17 +38,15 @@ function getCurrentUser() {
 <template>
   <div id="profile-login">
     <template v-if="myUser">
-      <a href="/logout/" class="logout-btn">Logout</a>
+      <a href="/logout/" id="logout">Logout</a>
       <RouterLink to="/profile">
         <img src="@/assets/default_user.png" class="pfp" alt="User profile" width="32" height="32">
       </RouterLink>
     </template>
     <template v-else>
-      <a href="/login/" class="login-btn">Login</a>
-      <a href="/register/" class="login-btn">Register</a>
+      <a href="/login/" id="login">Login</a>
+      <a href="/register/" id="register">Register</a>
     </template>
-
-
   </div>
   <header id="site-header">
     <div id="logo-title">
@@ -65,29 +63,3 @@ function getCurrentUser() {
     </nav>
   </header>
 </template>
-
-<style scoped>
-.logout-btn,
-.login-btn {
-  padding: 5px;
-  margin-inline: 1rem;
-  border-radius: 2px;
-  text-shadow: 0px 0px 1px #080f01a0;
-  text-decoration: none;
-  color: #234a00;
-  transition: background-color 0.3s, color 0.3s;
-  font-size: large;
-  font-weight: bolder;
-}
-
-.logout-btn:active,
-.login-btn:active {
-  color: #ffffff;
-}
-
-.logout-btn:hover,
-.login-btn:hover {
-  color: #142b00;
-  background-color: #83b325;
-}
-</style>

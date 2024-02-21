@@ -4,27 +4,27 @@
 <template>
     <div id="home-wrapper">
         <header>
-            <h1>Welcome to PaddleTraffic</h1>
-            <p>Find and join Pickleball courts with ease</p>
+            <h1>Welcome to PaddleTraffic!</h1>
+            <p>View live Pickleball court activity with ease</p>
         </header>
 
         <main>
             <section>
                 <h2>Find a Court Near You</h2>
-                <p>Discover nearby Pickleball courts with real-time updates and availability.</p>
-                <a href="/map">Explore Courts</a>
+                <p>Discover nearby Pickleball courts with <strong>real-time updates and availability.</strong></p>
+                <RouterLink to="/map">Explore Courts</RouterLink>
             </section>
 
             <section>
                 <h2>Join a Game</h2>
-                <p>Connect with other players and form teams using our matchmaking feature.</p>
-                <a href="/matchmaking">Find Players</a>
+                <p>Connect with <strong>other players and form teams</strong> using our matchmaking feature.</p>
+                <RouterLink to="/matchmaking">Find Players</RouterLink>
             </section>
 
             <section>
                 <h2>Learn More About Us</h2>
-                <p>Find out more about PaddleTraffic and our mission to enhance your Pickleball experience.</p>
-                <a href="/about">About PaddleTraffic</a>
+                <p>Find out more about <strong>PaddleTraffic</strong> and our mission to enhance your Pickleball experience.</p>
+                <RouterLink to="/about">About PaddleTraffic</RouterLink>
             </section>
         </main>
     </div>

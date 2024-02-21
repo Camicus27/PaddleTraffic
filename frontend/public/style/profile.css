@@ -6,6 +6,8 @@
     padding-inline: 3rem;
 }
     .form-wrapper header {
+        display: flex;
+        flex-direction: column;
         font-family: 'Open Sans', sans-serif;
         margin-bottom: .5em;
         margin-top: 3rem;
@@ -13,20 +15,30 @@
         text-align: center;
     }
 
-    .form-wrapper h1 {
+    .form-wrapper #logo-title {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+    }
+        .form-wrapper #logo-title h1 {
+            padding-left: .5rem;
+            font-size: 3rem;
+            font-weight: bold;
+            text-shadow: 0px 0px 1px #080f0180;
+        }
+
+    .form-wrapper h2 {
         margin: 0;
-        font-size: 2.75rem;
-        line-height: 2rem;
-        text-wrap: nowrap;
+        font-size: 2rem;
+        line-height: 3rem;
     }
 
     .form-wrapper header p {
         font-size: 1.5rem;
+        line-height: 2rem;
+        margin-top: .33rem;
     }
-
-html {
-    background: linear-gradient(0deg, #9fb18400 0%, #9fb184 100%);
-}
 
 main {
     display: flex;
@@ -64,4 +76,12 @@ output {
     font-weight: bold;
     text-align: center;
     margin: .5rem;
+}
+
+
+/* Media query for narrower screens */
+@media only screen and (max-width: 1300px) {
+    main {
+        width: 90%;
+    }
 }

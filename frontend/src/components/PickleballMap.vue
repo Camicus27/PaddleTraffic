@@ -186,7 +186,7 @@ onUnmounted(() => {
 <template>
   <div class="container">
     <div ref="mapContainer" class="map-container">
-      <button id="our_bouutonnnn" @click="updateMarkers">Search This Area</button>
+      <button id="search-button" @click="updateMarkers">Search This Area</button>
     </div>
     <div class="info-section" v-if="currSelection">
       <div class="info">
@@ -212,14 +212,3 @@ onUnmounted(() => {
     <div class="info-section" v-else>Select a court for more information</div>
   </div>
 </template>
-
-<style>
-    #our_bouutonnnn {
-      background-color: white;
-      border-color: lightgrey;
-      color : lightskyblue;
-      z-index: 1;
-      position: relative;
-      margin-left: 1rem;
-    }
-</style>
