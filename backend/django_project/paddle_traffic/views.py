@@ -358,7 +358,7 @@ def friend_request_id(request: HttpRequest, id):
     In this case, {id} represents the id of the receiving user.
     This is the endpoint to create a new friend request.
     """
-    def post():
+    def post(data):
         if not request.user.is_authenticated:
             return http_unauthorized()
         other_user = try_get_instance(m.PickleUser, id)
@@ -370,6 +370,7 @@ def friend_request_id(request: HttpRequest, id):
             requester = request.user,
             receiver = other_user,
         ).save()
+        return http_ok(f"Friend Request for users {request.user.id} and {id} was created.")
         
 
     """
@@ -390,7 +391,7 @@ def friend_request_id(request: HttpRequest, id):
     return get_response(request, funs)
 
 @csrf_exempt
-def accept_friend_request(request):
+def accept_friend_request(request, id):
     """
     /friend-requests/accept/{id}
     """
@@ -398,7 +399,7 @@ def accept_friend_request(request):
     """
     In this case, {id} represents the id of the friend request
     """
-    def post():
+    def post(data):
         if not request.user.is_authenticated:
             return http_unauthorized()
         friend_request: m.FriendRequest = try_get_instance(m.FriendRequest, id)
