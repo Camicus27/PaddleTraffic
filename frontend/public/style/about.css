@@ -4,8 +4,19 @@
 
 #about-wrapper p {
     font-size: 1.2rem;
-    line-height: 1.6;
+    line-height: 1.5rem;
     color: #333;
     text-align: justify;
     margin-bottom: 1rem;
+}
+
+@media screen and (max-width: 800px) {
+    #about-wrapper {
+        margin-inline: .5rem;
+    }
+    
+    #about-wrapper p {
+        font-size: 1rem;
+        line-height: 1.25rem;
+    }
 }
