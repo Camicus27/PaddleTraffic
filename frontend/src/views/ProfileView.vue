@@ -28,7 +28,6 @@ async function getCurrentUser() {
     const response = await axios.get(`${URL}/current-user/`)
     if (response.data.user) {
       myUser.value = response.data.user
-      console.log(myUser.value)
     } else myUser.value = undefined
   } catch {
     myUser.value = undefined
