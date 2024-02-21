@@ -38,10 +38,10 @@ function getCurrentUser() {
 <template>
   <div id="profile-login">
     <template v-if="myUser">
-      <a href="/logout/" id="logout">Logout</a>
       <RouterLink to="/profile">
         <img src="@/assets/default_user.png" class="pfp" alt="User profile" width="32" height="32">
       </RouterLink>
+      <a href="logout/" id="logout">Logout</a>
     </template>
     <template v-else>
       <a href="/login/" id="login">Login</a>
