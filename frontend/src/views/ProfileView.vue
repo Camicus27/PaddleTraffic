@@ -1,15 +1,35 @@
 <script setup lang="ts">
 import { ref, onMounted, watch, type Ref } from 'vue'
+import { useRoute } from 'vue-router'
 
 import axios from 'axios'
 
+const route = useRoute()
 // This should be undefined when there is no user currently logged in.
-const myUser: Ref<any> = ref(undefined)
+
 const incomingRequests: Ref<any> = ref([])
 const outgoingRequests: Ref<any> = ref([])
 const searchQuery: Ref<string> = ref('')
 const users: Ref<any> = ref([])
 const searchResults: Ref<any> = ref([])
+
+const pageUser: Ref<any> = ref(undefined)
+
+const username: Ref<string> = ref(route.params.username as string)
+const routeUser: Ref<any> = ref(undefined)
+const myUser: Ref<any> = ref(undefined)
+
+enum Relationship {
+  Same,
+  Friends,
+  Requested,
+  NotFriends,
+  Invalid
+}
+
+const usersAreFriends: Ref<Relationship> = ref(Relationship.Invalid)
+
+const doneLoading: Ref<boolean> = ref(false)
 
 let URL: string
 // This is the collection of environment variables.
@@ -19,9 +39,30 @@ else URL = env.VITE_DEV_URL
 
 onMounted(async () => {
   await getCurrentUser()
-  await getFriendRequests()
-  await fetchUsers()
+  if (myUser.value) {
+    await getFriendRequests()
+    await fetchUsers()
+  }
+  await handleRouteChange()
 })
+
+function redirect(path: string) {
+  window.location.href = path
+}
+
+async function handleRouteChange() {
+  // Perform actions based on the route change
+  username.value = route.params.username as string
+  if (username.value) {
+    await fetchUser(username.value)
+    pageUser.value = routeUser.value
+  } else {
+    routeUser.value = undefined
+    pageUser.value = myUser.value
+  }
+  usersAreFriends.value = checkFriendshipStatus()
+  doneLoading.value = true
+}
 
 async function getCurrentUser() {
   try {
@@ -32,7 +73,7 @@ async function getCurrentUser() {
   } catch {
     myUser.value = undefined
     // Redirect to login page if the user is not logged in
-    window.location.href = '/login'
+    if (!username.value) redirect('/login')
   }
 }
 
@@ -63,6 +104,7 @@ async function createFriendRequest(receiverId: number) {
     await axios.post(`${URL}/friend-requests/${receiverId}/`, {}, { withCredentials: true })
     await getFriendRequests() // Refresh the list of friend requests
     runFilter()
+    usersAreFriends.value = checkFriendshipStatus()
   } catch (error) {
     return console.error('Failed to create friend request:', error)
   }
@@ -87,130 +129,209 @@ async function fetchUsers() {
   }
 }
 
+async function fetchUser(username: string) {
+  try {
+    const response = await axios.get(`${URL}/users/${username}`, { withCredentials: true })
+    routeUser.value = response.data.user
+  } catch (error) {
+    return console.error('Failed to fetch users:', error)
+  }
+}
+
 watch(searchQuery, () => {
   runFilter()
+})
+
+watch(route, () => {
+  handleRouteChange()
 })
 
 function runFilter() {
   if (searchQuery.value.trim() === '') {
     searchResults.value = []
   } else {
-    const requestedUserIds = new Set([
+    const excludedUserIds = new Set([
       ...incomingRequests.value.map((request: { requester: { id: any } }) => request.requester.id),
-      ...outgoingRequests.value.map((request: { receiver: { id: any } }) => request.receiver.id)
+      ...outgoingRequests.value.map((request: { receiver: { id: any } }) => request.receiver.id),
+      // Add the current user's ID to exclude them from the results
+      myUser.value.id,
+      // Add all of the current user's friends' IDs to exclude them as well
+      ...myUser.value.friends.map((friend: { id: any }) => friend.id)
     ])
-    console.log('Outgoing requests:')
-    console.log(outgoingRequests.value)
 
     searchResults.value = users.value.filter(
       (user: { username: string; id: any }) =>
         user.username.toLowerCase().includes(searchQuery.value.toLowerCase()) &&
-        user.id !== myUser.value.id && // Exclude the current user
-        !requestedUserIds.has(user.id) // Exclude users with pending friend requests
+        !excludedUserIds.has(user.id) // Exclude users based on the updated set
     )
   }
 }
+
+function checkFriendshipStatus() {
+  // Ensure both users are defined before proceeding
+  if (!myUser.value || !routeUser.value) return Relationship.Invalid
+
+  const currentUserId = myUser.value.id
+  const routeUserId = routeUser.value.id
+
+  if (currentUserId === routeUserId) return Relationship.Same
+
+  // Check if they are already friends
+  const isAlreadyFriends = myUser.value.friends.some((friend: any) => friend.id === routeUserId)
+
+  if (isAlreadyFriends) return Relationship.Friends
+
+  // Check for pending friend requests from the current user to the route user
+  const hasOutgoingRequest = outgoingRequests.value.some(
+    (request: any) => request.receiver.id === routeUserId
+  )
+
+  // Check for pending friend requests from the route user to the current user
+  const hasIncomingRequest = incomingRequests.value.some(
+    (request: any) => request.requester.id === routeUserId
+  )
+
+  if (hasOutgoingRequest || hasIncomingRequest) return Relationship.Requested
+
+  return Relationship.NotFriends
+}
+
+// Call this function at the appropriate place in your component, for example, after both users' data has been fetched
 </script>
 
 <template>
-  <div class="profile-page" v-if="myUser">
-    <!-- Player Stats and Bio -->
+  <div v-if="pageUser && (!username || routeUser)" class="profile-page">
     <div class="header">
-      <h1>{{ myUser.username }}</h1>
+      <h1>{{ pageUser.username }}</h1>
       <h3>
-        <span v-if="myUser.first_name">{{ myUser.first_name }}</span
-        >&nbsp;<span v-if="myUser.last_name">{{ myUser.last_name }}</span>
+        <span v-if="pageUser.first_name">{{ pageUser.first_name }}</span
+        >&nbsp;<span v-if="pageUser.last_name">{{ pageUser.last_name }}</span>
       </h3>
-      <p class="bio">{{ myUser.bio }}</p>
+      <p class="bio">{{ pageUser.bio }}</p>
     </div>
-    <div class="player-info">
-      <div class="info">
-        <div class="card skill-level">
-          <h2>Skill Level</h2>
-          <p>{{ myUser.skill_level }}</p>
+    <div class="columns">
+      <!-- Player Stats and Bio -->
+      <div class="column">
+        <div v-if="usersAreFriends === Relationship.NotFriends">
+          <button class="friend-button" @click="createFriendRequest(routeUser.id)">
+            Add Friend
+          </button>
         </div>
-        <div class="card matches">
-          <h2>Match Statistics</h2>
-          <div class="statistics">
-            <div>
-              Matches Attended: <span>{{ myUser.matches_attended }}</span>
+        <div v-else-if="usersAreFriends === Relationship.Friends">
+          You are friends with {{ pageUser.username }}.
+        </div>
+        <div v-else-if="usersAreFriends === Relationship.Requested">
+          You have a pending friend request with {{ pageUser.username }}.
+        </div>
+        <div v-else-if="!myUser && usersAreFriends === Relationship.Invalid">
+          Please <a href="/login/">sign in</a> to send a friend request to {{ pageUser.username }}.
+        </div>
+        <div class="player-info">
+          <div class="info">
+            <div class="card skill-level">
+              <h2>Skill Level</h2>
+              <p>{{ pageUser.skill_level }}</p>
             </div>
-            <div>
-              Matches Created: <span>{{ myUser.matches_created }}</span>
+            <div class="card matches">
+              <h2>Match Statistics</h2>
+              <div class="statistics">
+                <div>
+                  Matches Attended: <span>{{ pageUser.matches_attended }}</span>
+                </div>
+                <div>
+                  Matches Created: <span>{{ pageUser.matches_created }}</span>
+                </div>
+                <div>
+                  Wins: <span>{{ pageUser.win_count }}</span>
+                </div>
+                <div>
+                  Losses: <span>{{ pageUser.loss_count }}</span>
+                </div>
+              </div>
             </div>
-            <div>
-              Wins: <span>{{ myUser.win_count }}</span>
-            </div>
-            <div>
-              Losses: <span>{{ myUser.loss_count }}</span>
+            <div v-if="pageUser.friends" class="card friends-list">
+              <h2>Friends</h2>
+              <ul>
+                <li v-for="friend in pageUser.friends" :key="friend.id">
+                  <a class="profile-link" :href="`/profile/${friend.username}`">{{
+                    friend.username
+                  }}</a>
+                </li>
+              </ul>
             </div>
           </div>
         </div>
-        <div class="card friends-list">
-          <h2>Friends</h2>
-          <ul>
-            <li v-for="friend in myUser.friends" :key="friend.id">{{ friend.username }}</li>
-          </ul>
-        </div>
       </div>
-    </div>
-    <!-- Two Column Layout for Friend Requests and Search -->
-    <div class="columns">
-      <!-- Friend Requests Column -->
-      <div class="column friend-requests">
-        <h2>Friend Requests</h2>
-        <div>
-          <h3>Incoming</h3>
-          <ul>
-            <li v-for="request in incomingRequests" :key="request.id">
-              {{ request.requester.username }}
-              <button @click="acceptFriendRequest(request.id)" class="button accept">Accept</button>
-              <button @click="deleteFriendRequest(request.id)" class="button delete">Delete</button>
-            </li>
-          </ul>
-        </div>
-        <div>
-          <h3>Outgoing</h3>
-          <ul>
-            <li v-for="request in outgoingRequests" :key="request.id">
-              {{ request.receiver.username }}
-              <button @click="deleteFriendRequest(request.id)" class="button delete">Delete</button>
-            </li>
-          </ul>
-        </div>
-      </div>
-
-      <!-- Search and Add Friends Column -->
-      <div class="column search-add-friends">
-        <h2>Add Friends</h2>
-        <div class="search-section">
-          <input
-            type="text"
-            v-model="searchQuery"
-            placeholder="Search Users..."
-            class="search-box"
-          />
-          <div class="search-results" v-if="searchResults.length">
+      <!-- Two Column Layout for Friend Requests and Search -->
+      <div class="column" v-if="!routeUser">
+        <!-- Friend Requests Column -->
+        <div class="friend-requests card">
+          <h2>Friend Requests</h2>
+          <div>
+            <h3>Incoming</h3>
             <ul>
-              <li v-for="user in searchResults" :key="user.id">
-                {{ user.username }}
-                <button @click="createFriendRequest(user.id)">Add Friend</button>
+              <li v-for="request in incomingRequests" :key="request.id">
+                <a class="profile-link" :href="`/profile/${request.requester.username}`">{{
+                  request.requester.username
+                }}</a>
+                <button @click="acceptFriendRequest(request.id)" class="button accept">
+                  Accept
+                </button>
+                <button @click="deleteFriendRequest(request.id)" class="button delete">
+                  Delete
+                </button>
               </li>
             </ul>
+          </div>
+          <div>
+            <h3>Outgoing</h3>
+            <ul>
+              <li v-for="request in outgoingRequests" :key="request.id">
+                <a class="profile-link" :href="`/profile/${request.receiver.username}`">{{
+                  request.receiver.username
+                }}</a>
+                <button @click="deleteFriendRequest(request.id)" class="button delete">
+                  Delete
+                </button>
+              </li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- Search and Add Friends Column -->
+        <div class="search-add-friends card">
+          <h2>Add Friends</h2>
+          <div class="search-section">
+            <input
+              type="text"
+              v-model="searchQuery"
+              placeholder="Search Users..."
+              class="search-box"
+            />
+            <div class="search-results" v-if="searchResults.length">
+              <ul>
+                <li v-for="user in searchResults" :key="user.id">
+                  <a class="profile-link" :href="`/profile/${user.username}`">{{
+                    user.username
+                  }}</a>
+                  <button @click="createFriendRequest(user.id)">Add Friend</button>
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
       </div>
     </div>
   </div>
-
-  <div v-else>
-    <h1>User not found or not logged in.</h1>
+  <div v-else-if="doneLoading" class="error-template">
+    <h2>User Not Found</h2>
+    <p>We're sorry, but the user you are looking for does not exist or may have been removed.</p>
+    <button @click="redirect('/')" class="button">Go to Home</button>
   </div>
 </template>
 
 <style scoped>
 .profile-page {
-  max-width: 1600px;
   margin: 20px auto;
   padding: 20px;
   color: #333;
@@ -247,25 +368,25 @@ function runFilter() {
 }
 
 .info {
-  display: block;
-  /* grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); */
-  /* gap: 20px; */
-  margin: 20px auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 20px;
   text-align: center;
+  margin: 0px auto;
 }
 
 .card {
   background-color: #fff;
   border: 1px solid #ddd;
   border-radius: 10px;
-  padding: 15px;
+  padding: 25px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   transition: transform 0.3s ease-in-out;
   margin-top: 15px;
 }
 
 .card:hover {
-  transform: translateY(-5px);
+  transform: translateY(-2px);
 }
 
 .statistics {
@@ -302,6 +423,32 @@ li {
 
 li:last-child {
   border-bottom: none;
+}
+
+.friend-button {
+  background-color: #71864f; /* Green accent */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 5px 10px;
+  margin: 10px auto;
+  font-size: x-large;
+  transition:
+    background-color 0.3s,
+    transform 0.1s;
+  cursor: pointer;
+}
+
+.friend-button:hover {
+  background-color: #5a6e3f;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.friend-button:active {
+  background-color: #4d5a33;
+  transform: translateY(1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 .friend-requests h3 {
@@ -394,6 +541,13 @@ li:last-child {
   margin: 5px 15px;
 }
 
+@media (max-width: 768px) {
+  .columns {
+    flex-direction: column;
+    align-items: center;
+  }
+}
+
 .friend-requests,
 .search-add-friends {
   background-color: #fff;
@@ -449,5 +603,66 @@ li:last-child {
 
 .delete:hover {
   background-color: #c9302c; /* A darker shade of red for hover */
+}
+
+.error-template {
+  text-align: center;
+  padding: 50px;
+  margin: 50px auto;
+  background-color: #fff3f3; /* Light red background for error indication */
+  border: 1px solid #ffcccc; /* Slightly darker border for depth */
+  border-radius: 10px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.error-template h2 {
+  color: #d9534f; /* Red color for the error title */
+  margin-bottom: 20px;
+}
+
+.error-template p {
+  color: #666; /* Grey color for the message */
+  margin-bottom: 30px;
+}
+
+.error-template .button {
+  background-color: #d9534f; /* Red button to match the error theme */
+  color: white;
+  border: none;
+  border-radius: 5px;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition:
+    background-color 0.3s,
+    transform 0.1s;
+}
+
+.error-template .button:hover {
+  background-color: #c9302c; /* Darker shade for hover */
+  transform: translateY(-2px);
+}
+
+.profile-link {
+  display: inline-block;
+  color: #4b5320; /* Green accent to match the current theme */
+  text-decoration: none; /* Remove underline from links */
+  transition:
+    color 0.3s,
+    text-decoration 0.3s; /* Smooth transition for hover effects */
+  font-weight: normal; /* Keep the text weight normal, less button-like */
+}
+
+.profile-link:hover,
+.profile-link:focus {
+  color: #71864f; /* Darker green for hover and focus to indicate interactivity */
+  text-decoration: underline; /* Add underline on hover/focus for clarity */
+  text-decoration-color: rgba(113, 134, 79, 0.5); /* Subtle underline color */
+  text-decoration-thickness: 2px; /* Make the underline a bit thicker */
+  text-underline-offset: 3px; /* Slightly offset the underline from the text */
+}
+
+/* Optional: Slight text shadow on hover for depth (subtle effect) */
+.profile-link:hover {
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
 }
 </style>

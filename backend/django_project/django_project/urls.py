@@ -29,10 +29,12 @@ urlpatterns = [
     path('matchmaking/', views.index),
     path('about/', views.index),
     path('profile/', views.index),
+    path('profile/<str:username>', views.index),
 
     path('admin/', admin.site.urls),
     path('users/', views.users),
     path('users/<int:id>/', views.users_id),
+    path('users/<str:username>', views.users_username),
     path('locations/', views.locations),
     path('locations/<int:id>/', views.locations_id),
     path('locations/<int:id>/report/', views.report),
