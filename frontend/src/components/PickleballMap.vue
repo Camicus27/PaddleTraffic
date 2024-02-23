@@ -92,7 +92,7 @@ function updateMarkers() {
 
 function updateMarkerColor(loc: Location) {
   let fill_el = mapMarkers.value[loc.id]?.getElement().querySelector('path')
-  if(fill_el === undefined) {
+  if (fill_el === undefined) {
     return;
   }
   let waiting_constant = 1.2;
@@ -151,7 +151,7 @@ function updateLocations() {
   let LngLat = map.value?.getCenter()
   let lat = LngLat?.lat
   let lng = LngLat?.lng
-  if(lat === undefined || lng === undefined) {
+  if (lat === undefined || lng === undefined) {
     return;
   }
   axios.get(`${URL}/locations/bounds?lat=${lat}&lon=${lng}`)
@@ -194,6 +194,26 @@ onUnmounted(() => {
   map.value?.remove();
   map.value = undefined;
 })
+
+function pluralizeOOOGA(booga : string, ooga: number) : string {
+  if(ooga == 1) {
+    booga += " ";
+  } else {
+    booga += "s "
+  }
+  return booga
+}
+
+function oogaBooga(appearently: number) : string {
+  let ooga = String(appearently).split(":");
+
+  let oooga = " Hour"
+  oooga = pluralizeOOOGA(oooga, Number(ooga[0]))
+  let boooga = " Minute";
+  boooga = pluralizeOOOGA(boooga, Number(ooga[1]))
+  let booga = ooga[0] + oooga + ooga[1] + boooga;
+  return booga
+}
 </script>
 
 <template>
@@ -207,32 +227,32 @@ onUnmounted(() => {
         <p>Number of Courts: {{ currSelection.court_count }}</p>
         <p>Courts Occupied: {{ currSelection.courts_occupied }}</p>
         <p>Number Waiting: {{ currSelection.number_waiting }}</p>
-        <p>Estimated Wait Time: {{ currSelection.estimated_wait_time }}</p>
+        <p>Estimated Wait Time: {{oogaBooga(currSelection.estimated_wait_time)}}</p>
       </div>
       <form @submit.prevent="submitForm">
-          <label for="courtsOccupied">Courts Occupied:</label><br>
-          <input type="number" id="courtsOccupied" name="courtsOccupied" min="0" :max="currSelection.court_count"
-            v-model="locForm.courts_occupied" required><br><br>
-          <label for="numberWaiting">Number Waiting:</label><br>
-          <input type="number" id="numberWaiting" name="numberWaiting" min="0"
-            :max="(locForm.courts_occupied < currSelection.court_count) ? 0 : 10" v-model="locForm.number_waiting"
-            required><br><br>
-          <button>
-            Update Status
-          </button>
-        </form>
+        <label for="courtsOccupied">Courts Occupied:</label><br>
+        <input type="number" id="courtsOccupied" name="courtsOccupied" min="0" :max="currSelection.court_count"
+          v-model="locForm.courts_occupied" required><br><br>
+        <label for="numberWaiting">Number Waiting:</label><br>
+        <input type="number" id="numberWaiting" name="numberWaiting" min="0"
+          :max="(locForm.courts_occupied < currSelection.court_count) ? 0 : 10" v-model="locForm.number_waiting"
+          required><br><br>
+        <button>
+          Update Status
+        </button>
+      </form>
     </div>
     <div class="info-section" v-else>Select a court for more information</div>
   </div>
 </template>
 
 <style>
-    #our_bouutonnnn {
-      background-color: white;
-      border-color: lightgrey;
-      color : lightskyblue;
-      z-index: 1;
-      position: relative;
-      margin-left: 1rem;
-    }
+#our_bouutonnnn {
+  background-color: white;
+  border-color: lightgrey;
+  color: lightskyblue;
+  z-index: 1;
+  position: relative;
+  margin-left: 1rem;
+}
 </style>
