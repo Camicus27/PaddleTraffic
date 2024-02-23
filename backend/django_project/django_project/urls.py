@@ -29,10 +29,12 @@ urlpatterns = [
     path('matchmaking/', views.index),
     path('about/', views.index),
     path('profile/', views.index),
+    path('profile/<str:username>', views.index),
 
     path('admin/', admin.site.urls),
     path('users/', views.users),
     path('users/<int:id>/', views.users_id),
+    path('users/<str:username>', views.users_username),
     path('locations/', views.locations),
     path('locations/<int:id>/', views.locations_id),
     path('locations/<int:id>/report/', views.report),
@@ -43,7 +45,12 @@ urlpatterns = [
     path('login/', views.login_view),
     path('register/', views.register_view),
     path('logout/', views.logout_view),
-    path('current-user/', views.current_user)
+    path('current-user/', views.current_user),
+
+    # Friend Requests
+    path('friend-requests/', views.friend_requests, name='friend_requests'),  # List all friend requests for the logged-in user
+    path('friend-requests/<int:id>/', views.friend_request_id, name='friend_request_detail'),  # Get, delete a specific friend request, or create a new one with the receiver's ID
+    path('friend-requests/accept/<int:id>/', views.accept_friend_request, name='accept_friend_request'),  # Accept a friend request
     #  Add custom numbered, lettered, named, urls using the following
     #  path('<int:custom_url_number>/locations/')
 ]

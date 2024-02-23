@@ -44,8 +44,8 @@ function getCurrentUser() {
       <a href="logout/" id="logout">Logout</a>
     </template>
     <template v-else>
-      <a href="login/" id="login">Login</a>
-      <a href="register/" id="register">Register</a>
+      <a href="/login/" id="login">Login</a>
+      <a href="/register/" id="register">Register</a>
     </template>
   </div>
   <header id="site-header">
