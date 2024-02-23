@@ -157,7 +157,7 @@ def calculate_exponential(reports, percentage, time_passed):
     weighted_values_exp = [w * v for w, v in zip(weights_exp, values)]
     
     weighted_average_exp = sum(weighted_values_exp) / sum(weights_exp)
-    return weighted_average_exp
+    return round(weighted_average_exp)
 
 
 @csrf_exempt
@@ -200,12 +200,8 @@ def report(request, id):
         report.save()
 
         # todo do calculations and set location occupied and waiting
-        four_hours_ago = datetime.now() - timedelta(hours=4)
+        four_hours_ago = datetime.now(timezone.utc) - timedelta(hours=4)
         reports_for_calculation = m.Report.objects.filter(location=location).filter(submission_time__gt=four_hours_ago)
-        for r in reports_for_calculation:
-            print("!!", r.number_waiting)
-            print("!!", r.courts_occupied)
-            print("!!", r.submission_time)
 
 
         percentage = 0.25
@@ -218,7 +214,8 @@ def report(request, id):
         else:
             location.courts_occupied = location.court_count
             location.number_waiting = new_total_groups - location.court_count
-
+        location.calculated_time = datetime.now(timezone.utc)
+        calculate_wait_time(location)
         location.save()
 
         serializer = ser.LocationSerializer(location)
@@ -289,6 +286,71 @@ def locations_id(request, id):
     funs = {"PATCH": patch, "GET": get, "DELETE": delete}
     return get_response(request, funs)
 
+def lazy_decay(lat, lon):
+    LAT_DIF = 0.24
+    LON_DIF = 1.4
+
+    lat_h = lat + (LAT_DIF / 2)
+    lat_l = lat - (LAT_DIF / 2)
+    lon_l = lon - (LON_DIF / 2)
+    lon_r = lon + (LON_DIF / 2)
+
+    m_location = m.Location.objects\
+        .filter(latitude__lt=lat_h)\
+        .filter(latitude__gt=lat_l)\
+        .filter(longitude__lt=lon_r)\
+        .filter(longitude__gt=lon_l)
+
+    for loc in m_location:
+        current_time = datetime.now(timezone.utc)
+        time_passed = current_time - loc.calculated_time
+        stay_time = 3600  # 1 hour in seconds, for equal groups waiting to number of courts, gg L + bozo + ratio + balding + malding + ur_mom
+
+        # account for groups there - if busier stay less if empty stay longer => ratio between total groups there and number of courts
+        total_groups = loc.number_waiting + loc.courts_occupied
+        busyness_ratio = (total_groups / loc.court_count)
+        SOFTEN_CONSTANT = 4
+        softened_busyness_ratio = (busyness_ratio + SOFTEN_CONSTANT - 1) / SOFTEN_CONSTANT
+        stay_time /= softened_busyness_ratio
+
+        groups_leaving = math.floor(time_passed.seconds / stay_time)
+        if groups_leaving <= 0:
+            continue
+        
+        if loc.number_waiting > 0:
+            leftover = groups_leaving - loc.number_waiting
+
+            loc.number_waiting = max(loc.number_waiting - groups_leaving, 0)
+
+            if(leftover > 0):
+                loc.courts_occupied = max(loc.courts_occupied - leftover, 0)
+            # loc = calculate_wait_time(loc)
+            loc.calculated_time = current_time
+            loc.save()
+        elif loc.courts_occupied > 0:
+            loc.courts_occupied = max(loc.courts_occupied - groups_leaving, 0)
+            # loc = calculate_wait_time(loc)
+            loc.calculated_time = current_time        
+            loc.save()
+    return m_location
+
+def calculate_wait_time(location : m.Location):
+    # Using
+    # court_count 
+    # courts_occupied
+    # number_waiting 
+    # (AVG_GAME_TIME / court_count) * (number_waiting + 1)
+    # if total < court_count => 0
+    if(location.number_waiting + location.courts_occupied < location.court_count):
+        location.estimated_wait_time = timedelta(minutes=0)
+        return location
+
+    AVG_GAME_TIME = 20
+    est_wait_time = (AVG_GAME_TIME / location.court_count) * (location.number_waiting + 1)
+    t_delta = timedelta(minutes=est_wait_time)
+    location.estimated_wait_time = t_delta
+    return location
+
 @csrf_exempt
 def location_latlon(request):
     def get():
@@ -297,25 +359,13 @@ def location_latlon(request):
             lat = float(request.GET.get("lat", None))
             lon = float(request.GET.get("lon", None))
         except ValueError:
-            return http_bad_argument("OOoooooOOOGA BOOOooOOooOooooOOoooOOGA")
+            return http_bad_argument("OOoooooOOOGA BOOOooOOooOooooOoooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooOoooOOGA")
 
         if None in [lat, lon]:
             return http_bad_argument("OOoooooOOOGA BOOOooOOooOooooOOoooOOGA")
 
-        lat_dif = 0.24
-        lon_dif = 1.4
-
-        lat_h = lat + (lat_dif / 2)
-        lat_l = lat - (lat_dif / 2)
-        lon_l = lon - (lon_dif / 2)
-        lon_r = lon + (lon_dif / 2)
-
-        m_location = m.Location.objects\
-            .filter(latitude__lt=lat_h)\
-            .filter(latitude__gt=lat_l)\
-            .filter(longitude__lt=lon_r)\
-            .filter(longitude__gt=lon_l)\
-            .annotate(
+        m_locations = lazy_decay(lat, lon)
+        m_location = m_locations.annotate(
                 distance=ExpressionWrapper(
                     (F('latitude') - lat) ** 2 +
                     (F('longitude') - lon) ** 2,
@@ -323,7 +373,6 @@ def location_latlon(request):
                 )
             ) \
             .order_by('distance').first()
-    
 
         serializer = ser.LocationSerializer(m_location, many=False)
         # return the json formatted as an HTTP response
@@ -350,44 +399,7 @@ def location_bounds(request):
         if None in [lat, lon]:
             return http_bad_argument("OOGA BOOGA")
 
-        lat_dif = 0.24
-        lon_dif = 1.4
-
-        lat_h = lat + (lat_dif / 2)
-        lat_l = lat - (lat_dif / 2)
-        lon_l = lon - (lon_dif / 2)
-        lon_r = lon + (lon_dif / 2)
-
-        m_location = m.Location.objects\
-            .filter(latitude__lt=lat_h)\
-            .filter(latitude__gt=lat_l)\
-            .filter(longitude__lt=lon_r)\
-            .filter(longitude__gt=lon_l)
-
-        for loc in m_location:
-            current_time = datetime.now(timezone.utc)
-            time_passed = current_time - loc.calculated_time
-            stay_time = 3600  # 1 hour in seconds, for equal groups waiting to number of courts, gg L + bozo + ratio + balding + malding + ur_mom
-
-            # account for groups there - if busier stay less if empty stay longer => ratio between total groups there and number of courts
-            total_groups = loc.number_waiting + loc.courts_occupied
-            busyness_ratio = (total_groups / loc.court_count)
-            SOFTEN_CONSTANT = 4
-            softened_busyness_ratio = (busyness_ratio + SOFTEN_CONSTANT - 1) / SOFTEN_CONSTANT
-            stay_time /= softened_busyness_ratio
-            groups_leaving = math.floor(time_passed.seconds / stay_time)
-            if groups_leaving <= 0:
-                continue
-            if loc.number_waiting > 0:
-                loc.number_waiting = max(loc.number_waiting - groups_leaving, 0)
-                loc.save()
-                loc.calculated_time = current_time
-            elif loc.courts_occupied > 0:
-                loc.courts_occupied = max(loc.courts_occupied - groups_leaving, 0)
-                loc.save()
-                loc.calculated_time = current_time
-            # if it's been a certain amount of time based on latest report
-            # then update the location, save it, and then return it!
+        m_location = lazy_decay(lat, lon)
 
         serializer = ser.LocationSerializer(m_location, many=True)
         # return the json formatted as an HTTP response
