@@ -58,6 +58,11 @@ function initGeoloc(mapVal: mapboxgl.Map) {
     showAccuracyCircle: false
   })
 
+  let lonLatLike = new mapboxgl.LngLat(props?.lon, props?.lat)
+  if (props?.lat && props?.lon) {
+    map.value?.setCenter(lonLatLike)
+  }
+
   mapSearchedCenter = mapVal.getCenter()
   mapVal.addControl(geolocateControl)
   mapVal.on('load', () => geolocateControl.trigger())
@@ -67,7 +72,7 @@ function initGeoloc(mapVal: mapboxgl.Map) {
 /**
  * GET latest info about markers at center of map
  */
-function addMarkersQuery(mapVal: mapboxgl.Map) { // => addMarkersQuery ?
+function addMarkersQuery(mapVal: mapboxgl.Map, selectLatLonProps : boolean = false) {
   // TODO why not use mapVal.getCenter()??
   let lat = mapSearchedCenter?.lat
   let lng = mapSearchedCenter?.lng
@@ -87,9 +92,11 @@ function addMarkersQuery(mapVal: mapboxgl.Map) { // => addMarkersQuery ?
 
         // Add an event listener to each marker
         marker.getElement().addEventListener('click', () => {
-          markerCallback(loc.id)
+          selectMarker(loc.id)
         })
       })
+      if(selectLatLonProps) 
+        selectLatLonMarker()
     })
     .catch((error) => console.log(error))
 }
@@ -101,6 +108,7 @@ function updateMarkersOnSearch() {
   mapMarkers.value = []
   allLocations.value = []
   mapSearchedCenter = map.value!.getCenter()
+  currSelection.value = undefined
   addMarkersQuery(map.value!)
 }
 
@@ -130,7 +138,7 @@ function updateMarkerColor(loc: Location) {
 }
 
 // Update the info section with location data
-function markerCallback(locId: number) {
+function selectMarker(locId: number) {
   let selectedClassName = 'selected'
   if (currSelection.value) { // if a marker is selected
     let old_marker = mapMarkers.value[currSelection.value.id].getElement()
@@ -165,7 +173,7 @@ function submitForm() {
       //   axios.get(`${URL}/locations/`) // todo just GET current location to get updated date
       //     .then((response) => { 
       //       allLocations.value = response.data.locations
-      //     })
+      //     }) ooga
       //     .catch((error) => console.log(error))
       currSelection.value = response.data.location
       updateMarkerColor(currSelection.value!!)
@@ -179,7 +187,7 @@ function submitForm() {
 
 /**
  * Makes a request for the most recent data about the locations
- * Each of those locations are updated in the Map, 
+ * Each of those locations are updated in the Map, booga
  * and the current selected location attributes are selected
  */
 function updateLocationsInterval() {
@@ -201,12 +209,12 @@ function updateLocationsInterval() {
     .catch((error) => console.log(error))
 }
 
-function updateOnLonLatURL() {
+function selectLatLonMarker() {
   if (!props?.lat || !props?.lon) return
-
+  
   axios.get(`${URL}/location/latlon?lat=${props.lat}&lon=${props.lon}`)
     .then((response) => {
-      currSelection.value = response.data.location
+      selectMarker(response.data.location.id)
     })
     .catch((error) => console.log(error))
 }
@@ -218,12 +226,11 @@ onMounted(() => {
   map.value = new mapboxgl.Map({
     container: mapContainer.value,
     style: 'mapbox://styles/mapbox/streets-v12',
-    center: [-111.876183, 40.758701], // Default to SLC
+    center: [-111.876183, 40.758701], // Default to SLC booga
     zoom: 11
   })
   initGeoloc(map.value)
-  addMarkersQuery(map.value)
-  updateOnLonLatURL()
+  addMarkersQuery(map.value, true)
   interval = setInterval(updateLocationsInterval, 3000)
 })
 
