@@ -535,10 +535,11 @@ def events(request):
         data = all_data.get("event", None)
         if data is None:
             return http_bad_request_json()
-        serializer = ser.EventSerializer(data=data)
+        print(data)
+        serializer = ser.EventUpdateSerializer(data=data)
         if not serializer.is_valid():
             return http_bad_request_json()
-        new_event = serializer.save()
+        serializer.save()
         return http_ok_request_json()
 
     def patch(data):
