@@ -142,6 +142,7 @@ function submitForm() {
     .then(response => {
       // Handle the response here. For example, logging the new location ID.
       console.log('New event ID:', response.data)
+      // console.log('New event ID:', response.data);
       axios.get(`${URL}/locations/`)
         .then((response) => { // todo update just current location?
           allLocations.value = response.data.locations
