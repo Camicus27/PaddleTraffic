@@ -72,3 +72,16 @@
     .closebtn:hover {
         color: #71864f;
     }
+
+
+/* Media query for narrower screens */
+@media only screen and (max-width: 850px) {
+    #match-wrapper #event-form-wrapper {
+        width: 100%;
+    }
+
+    #match-wrapper .matches {
+        margin: .75rem;
+        width: 85%;
+    }
+}

@@ -2,11 +2,11 @@ from datetime import datetime, timedelta, timezone
 import math
 
 from django.contrib.auth import authenticate, login, logout
-from django.http import JsonResponse
+from django.http import JsonResponse, HttpRequest
 from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_exempt
 from paddle_traffic import models as m
-from django.contrib.auth.models import User
+from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
 from django.db import models as django_model
 from paddle_traffic import serializers as ser
@@ -42,7 +42,7 @@ def dataToReturn(request, custom_url_number): # custom_url_number, represents th
 EXPIRATION_THRESHOLD = timedelta(seconds=5)
 
 
-def index(request):
+def index(request, username=None):
     return render(request, "index.html")
 
 
@@ -55,17 +55,50 @@ def register_view(request):
         email = request.POST.get("email", "")
         # Check if user entered valid username, email, password
         if not username:
-            return render(request, "register.html", {"error": "Please enter a valid username"})
+            return render(
+                request, "register.html", {"error": "Please enter a valid username"}
+            )
+        if not re.search("[a-zA-Z]", username):
+            return render(
+                request,
+                "register.html",
+                {
+                    "error": "Please enter a username with at least one alphabetic character"
+                },
+            )
         if not password:
-            return render(request, "register.html", {"error": "Please enter a valid password"})
-        if not email or not re.fullmatch(r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b', email):
-            return render(request, "register.html", {"error": "Please enter a valid"})
+            return render(
+                request, "register.html", {"error": "Please enter a valid password"}
+            )
+        if not email or not re.fullmatch(
+            r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b", email
+        ):
+            return render(
+                request, "register.html", {"error": "Please enter a valid email"}
+            )
         # Check if the email is unique
-        if email and User.objects.filter(email=email).exists():
-            return render(request, "register.html", {"error": "A user with that email already exists"})
+        if email and get_user_model().objects.filter(email=email).exists():
+            return render(
+                request,
+                "register.html",
+                {"error": "A user with that email already exists"},
+            )
 
-        user = User.objects.create_user(
-            username=username, email=email, password=password, first_name=firstname, last_name=lastname)
+        # Check if the username is unique
+        if username and get_user_model().objects.filter(username=username).exists():
+            return render(
+                request,
+                "register.html",
+                {"error": "A user with that username already exists"},
+            )
+
+        user = get_user_model().objects.create_user(
+            username=username,
+            email=email,
+            password=password,
+            first_name=firstname,
+            last_name=lastname,
+        )
         login(request, user)
         return redirect("/")
     else:
@@ -80,14 +113,18 @@ def login_view(request):
         password = request.POST.get("password", "")
 
         if "" in [username, password]:
-            return render(request, "login.html", {"error": "Invalid username and password"})
+            return render(
+                request, "login.html", {"error": "Invalid username and password"}
+            )
 
         user = authenticate(request, username=username, password=password)
         if user is not None:  # Success
             login(request, user)
             return redirect("/")
         else:  # Failure
-            return render(request, "login.html", {"error": "Username and password do not match"})
+            return render(
+                request, "login.html", {"error": "Username and password do not match"}
+            )
     else:
         if request.user.is_authenticated:
             return redirect("/")
@@ -99,6 +136,7 @@ def login_view(request):
 def logout_view(request):
     logout(request)
     return redirect("/")
+
 
 # Authentication required
 
@@ -119,9 +157,10 @@ def users(request):
     """
     /users
     """
+
     def get():
-        all_users = User.objects.all()
-        serializer = ser.UserSerializer(all_users, many=True)
+        all_users = get_user_model().objects.all()
+        serializer = ser.RestrictedUserSerializer(all_users, many=True)
         return JsonResponse({"users": serializer.data})
 
     funs = {"GET": get}
@@ -133,13 +172,34 @@ def users_id(request, id):
     """
     /users/{id}
     """
+
     def get():
         try:
-            user = User.objects.get(pk=id)
-        except User.DoesNotExist:
+            user = get_user_model().objects.get(pk=id)
+        except get_user_model().DoesNotExist:
             return http_not_found(f"User with ID {id} ")
 
-        serializer = ser.UserSerializer(user)
+        serializer = ser.RestrictedUserSerializer(user)
+        return JsonResponse({"user": serializer.data})
+
+    funs = {"GET": get}
+    return get_response(request, funs)
+
+
+@csrf_exempt
+def users_username(request, username):
+    """
+    /users/{username}
+    """
+
+    def get():
+        try:
+            # Change from .get(pk=id) to .get(username=username)
+            user = get_user_model().objects.get(username=username)
+        except get_user_model().DoesNotExist:
+            return http_not_found(f"User with username '{username}' not found.")
+
+        serializer = ser.RestrictedUserSerializer(user)
         return JsonResponse({"user": serializer.data})
 
     funs = {"GET": get}
@@ -165,6 +225,7 @@ def report(request, id):
     """
     /locations/<int:id>/report/
     """
+
     def post(all_data):
         data = all_data.get("report", None)
         if data is None:
@@ -186,16 +247,20 @@ def report(request, id):
             return http_bad_argument("Cannot report negative number of courts occupied")
 
         if courts_occupied > location.court_count:
-            return http_bad_argument("Cannot report more courts occupied than there are courts")
+            return http_bad_argument(
+                "Cannot report more courts occupied than there are courts"
+            )
 
         if courts_occupied < location.court_count and number_waiting > 0:
-            return http_bad_argument("Cannot report groups waiting if there are courts unoccupied")
+            return http_bad_argument(
+                "Cannot report groups waiting if there are courts unoccupied"
+            )
 
         report: m.Report = m.Report(
             submission_time=datetime.now(timezone.utc),
             location=location,
             number_waiting=number_waiting,
-            courts_occupied=courts_occupied
+            courts_occupied=courts_occupied,
         )
         report.save()
 
@@ -230,6 +295,7 @@ def locations(request):
     """
     /locations
     """
+
     def post(all_data):
         data = all_data.get("location", None)
         if data is None:
@@ -254,6 +320,7 @@ def locations_id(request, id):
     """
     /locations/{id}
     """
+
     def patch(all_data):
         existing_location = try_get_instance(m.Location, id)
         if existing_location is None:
@@ -388,6 +455,7 @@ def location_bounds(request):
     """
     /locations/bounds/
     """
+
     def get():
 
         try:
@@ -410,10 +478,148 @@ def location_bounds(request):
 
 
 @csrf_exempt
+def friend_requests(request):
+    """
+    /friend-requests/
+    These all require that the user is signed in, and are in the context of a user's friend requests.
+    """
+
+    def get():
+        if not request.user.is_authenticated:
+            return http_unauthorized()
+
+        # Fetch incoming friend requests where the current user is the receiver
+        incoming_requests = m.FriendRequest.objects.filter(
+            receiver=request.user, accepted=False
+        )
+        incoming_serializer = ser.FriendRequestSerializer(incoming_requests, many=True)
+
+        # Fetch outgoing friend requests where the current user is the requester
+        outgoing_requests = m.FriendRequest.objects.filter(
+            requester=request.user, accepted=False
+        )
+        outgoing_serializer = ser.FriendRequestSerializer(outgoing_requests, many=True)
+
+        # Return both lists as JSON
+        return JsonResponse(
+            {
+                "incoming_requests": incoming_serializer.data,
+                "outgoing_requests": outgoing_serializer.data,
+            }
+        )
+
+    funs = {"GET": get}
+    return get_response(request, funs)
+
+
+@csrf_exempt
+def friend_request_id(request: HttpRequest, id):
+    """
+    /friend-requests/{id}
+    These all require that the user is signed in, and are in the context of a user's friend requests.
+    """
+
+    """
+    In this case, {id} represents the id of the friend request
+    """
+
+    def get():
+        if not request.user.is_authenticated:
+            return http_unauthorized()
+        friend_request: m.FriendRequest = try_get_instance(m.FriendRequest, id)
+        if not friend_request:
+            return http_not_found(str(id))
+        if not (
+            friend_request.requester == request.user
+            or friend_request.receiver == request.user
+        ):  # A user should not be able to get a friend request that does not belong to them
+            return http_unauthorized()
+        serializer = ser.LocationSerializer(friend_request, many=False)
+        # return the json formatted as an HTTP response
+        return JsonResponse({"friend_request": serializer.data})
+
+    """
+    In this case, {id} represents the id of the receiving user.
+    This is the endpoint to create a new friend request.
+    """
+
+    def post(data):
+        if not request.user.is_authenticated:
+            return http_unauthorized()
+        other_user = try_get_instance(m.PickleUser, id)
+        if not other_user:
+            return http_not_found(str(id))
+        if other_user == request.user:
+            return http_bad_argument(f"id: {id} cannot be the same as current user")
+        m.FriendRequest(
+            requester=request.user,
+            receiver=other_user,
+        ).save()
+        return http_ok(
+            f"Friend Request for users {request.user.id} and {id} was created."
+        )
+
+    """
+    In this case, {id} represents the id of the friend request
+    """
+
+    def delete():
+        if not request.user.is_authenticated:
+            return http_unauthorized()
+        friend_request: m.FriendRequest = try_get_instance(m.FriendRequest, id)
+        if not friend_request:
+            return http_not_found(str(id))
+        if not (
+            friend_request.requester == request.user
+            or friend_request.receiver == request.user
+        ):  # A user should not be able to get a friend request that does not belong to them
+            return http_unauthorized()
+        friend_request.delete()
+        return http_ok(f"Friend Request {id} deleted")
+
+    funs = {"GET": get, "POST": post, "DELETE": delete}
+    return get_response(request, funs)
+
+
+@csrf_exempt
+def accept_friend_request(request, id):
+    """
+    /friend-requests/accept/{id}
+    """
+
+    """
+    In this case, {id} represents the id of the friend request
+    """
+
+    def post(data):
+        if not request.user.is_authenticated:
+            return http_unauthorized()
+        friend_request: m.FriendRequest = try_get_instance(m.FriendRequest, id)
+        if not friend_request:
+            return http_not_found(str(id))
+        if (
+            friend_request.receiver != request.user
+        ):  # A user should not be able to accept a friend request if they are not the receiver
+            return http_unauthorized()
+        friend_request.accepted = True
+        friend_request.save()
+        friend_request.receiver.friends.add(
+            friend_request.requester
+        )  # Since this field is symmetric, this also adds the receiver as a friend of the requester
+        return http_ok(
+            f"Friends {friend_request.receiver} and {friend_request.requester} are now friends"
+        )
+
+    funs = {"POST": post}
+    return get_response(request, funs)
+
+
+@csrf_exempt
 def events(request):
     """
     /events
     """
+
     def get():
         m_events = m.Event.objects.all()
         serializer = ser.EventSerializer(m_events, many=True)
@@ -423,10 +629,11 @@ def events(request):
         data = all_data.get("event", None)
         if data is None:
             return http_bad_request_json()
-        serializer = ser.EventSerializer(data=data)
+        print(data)
+        serializer = ser.EventUpdateSerializer(data=data)
         if not serializer.is_valid():
             return http_bad_request_json()
-        new_event = serializer.save()
+        serializer.save()
         return http_ok_request_json()
 
     def patch(data):
@@ -451,8 +658,9 @@ def events_id(request, id):
         serializer = ser.EventUpdateSerializer(
             instance=existing_event, data=data)
         if not serializer.is_valid():
-            # Bad Request
-            return HttpResponse("Invalid JSON data", status=400, content_type="text/plain")
+            return HttpResponse(
+                "Invalid JSON data", status=400, content_type="text/plain"
+            )  # Bad Request
         updated_location = serializer.save()
         return http_ok_request_json()
 
