@@ -264,31 +264,50 @@ function formatTime(timeNum: number): string {
       <button id="search-bt" @click="updateMarkersOnSearch">Search This Area</button>
     </div>
 
-    <div class="info-section" v-if="currSelection">
-      <div class="info">
-        <h3>{{ currSelection.name }}</h3>
-        <sub>Courts: {{ currSelection.court_count }}</sub>
-        <p>Estimated Courts Occupied: {{ currSelection.courts_occupied }}</p>
-        <p>Estimated Groups Waiting: {{ currSelection.number_waiting }}</p>
-        <p>Estimated Wait Time: {{ formatTime(currSelection.estimated_wait_time) }}</p>
-      </div>
-      <form @submit.prevent="submitForm">
-        <label for="courtsOccupied">Courts Occupied:</label><br>
-        <input type="number" id="courtsOccupied" name="courtsOccupied" min="0" :max="currSelection.court_count"
+    <Transition name="info-transition">
+      <div class="info-section" v-if="currSelection">
+        <div class="info">
+          <h3>{{ currSelection.name }}</h3>
+          <sub>Courts: {{ currSelection.court_count }}</sub>
+          <p>Estimated Courts Occupied: {{ currSelection.courts_occupied }}</p>
+          <p>Estimated Groups Waiting: {{ currSelection.number_waiting }}</p>
+          <p>Estimated Wait Time: {{ formatTime(currSelection.estimated_wait_time) }}</p>
+        </div>
+        <form @submit.prevent="submitForm">
+          <label for="courtsOccupied">Courts Occupied:</label><br>
+          <input type="number" id="courtsOccupied" name="courtsOccupied" min="0" :max="currSelection.court_count"
           v-model="locForm.courts_occupied" required><br><br>
-        <label for="numberWaiting">Number Waiting:</label><br>
-        <input type="number" id="numberWaiting" name="numberWaiting" min="0"
+          <label for="numberWaiting">Number Waiting:</label><br>
+          <input type="number" id="numberWaiting" name="numberWaiting" min="0"
           :max="(locForm.courts_occupied < currSelection.court_count) ? 0 : 10" v-model="locForm.number_waiting"
           required><br><br>
-        <button :disabled="submitDataDisabled">
-          Update Status
-        </button>
-      </form>
+          <button :disabled="submitDataDisabled">
+            Update Status
+          </button>
+        </form>
+      </div>
+    </Transition>
+
     </div>
-  </div>
 </template>
 
 <style>
+.info-transition-enter-from, .info-transition-leave-to {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+}
+
+.info-transition-enter-to, .info-transition-leave-from {
+  max-height: 500px;
+  opacity: 1;
+}
+
+.info-transition-enter-active, .info-transition-leave-active {
+  transition: max-height 0.5s ease-in-out, opacity 0.5s ease-in-out;
+  overflow: hidden;
+}
+
 h3 {
   margin-bottom: 0;
 }
@@ -315,7 +334,7 @@ p {
 
 .mapbox-container {
   min-height: 45em;
-}
+  }
 
 .info-section {
   display: flex;
