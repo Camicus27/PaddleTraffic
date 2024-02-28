@@ -58,8 +58,8 @@ function initGeoloc(mapVal: mapboxgl.Map) {
     showAccuracyCircle: false
   })
 
-  let lonLatLike = new mapboxgl.LngLat(props?.lon, props?.lat)
   if (props?.lat && props?.lon) {
+    let lonLatLike = new mapboxgl.LngLat(props.lon, props.lat)
     map.value?.setCenter(lonLatLike)
   }
 
@@ -79,6 +79,8 @@ function addMarkersQuery(mapVal: mapboxgl.Map, selectLatLonProps : boolean = fal
   axios.get(`${URL}/locations/bounds?lat=${lat}&lon=${lng}`)
     .then((response) => {
       allLocations.value = response.data.locations
+      console.log(`We got a response! ${typeof(response.data)}`);
+      
       allLocations.value.forEach(loc => {
         const marker = new mapboxgl.Marker()
           .setLngLat([loc.longitude, loc.latitude])
@@ -345,6 +347,7 @@ p {
 
 .info-section {
   display: flex;
+  flex-direction: row;
   justify-content: space-between;
   margin-top: 1rem;
   padding: 1rem;
