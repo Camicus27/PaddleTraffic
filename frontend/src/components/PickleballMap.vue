@@ -22,13 +22,13 @@ interface Location {
 
 // const mapItems: Ref<MapItem[]> = ref([])
 
-// TODO: needs type?
 const mapContainer = ref<HTMLElement | undefined>() // reference to the <div> mapContainer
 const currSelection = ref<Location | undefined>() // can be none
 
 const allLocations: Ref<Location[]> = ref([]) // all locations currently on the map, coincides with mapMarkers
 const mapMarkers = ref<{ [key: number]: mapboxgl.Marker }>({}) // dictionary of locationID -> mapMarkers, right now coincides with allLocations
 const props = defineProps(['lat', 'lon']) // for the URL ?lat=:number&lon=:number
+const submitDataDisabled = ref<boolean>(false)
 
 // => let mapCenterAtTimeOfSearchArea: LngLat
 let mapSearchedCenter: LngLat // TODO why are we using this instead of just like, map.getCenter() ?
@@ -153,20 +153,23 @@ const locForm = ref({
 })
 
 function submitForm() {
-  let c_o = locForm.value.courts_occupied
-  // if(locForm.value.number_waiting < 30 && c_o <= (currSelection.value?.court_count ?? 0) && 0 <= c_o) {
+  submitDataDisabled.value = true // disable THE BUTTON
+  setTimeout(() => {
+    submitDataDisabled.value = false
+  }, 3000)
+
   axios.post(`${URL}/locations/${currSelection.value?.id}/report/`, { report: locForm.value })
     .then(response => {
       // Handle the response here. For example, logging the new location ID.
       console.log('New event ID:', response.data)
-      // console.log('New event ID:', response.data);
-      axios.get(`${URL}/locations/`) 
-        .then((response) => { // todo update just current location?
-          allLocations.value = response.data.locations
-        })
-        .catch((error) => console.log(error))
+      //   axios.get(`${URL}/locations/`) // todo just GET current location to get updated date
+      //     .then((response) => { 
+      //       allLocations.value = response.data.locations
+      //     })
+      //     .catch((error) => console.log(error))
       currSelection.value = response.data.location
       updateMarkerColor(currSelection.value!!)
+      // })
     })
     .catch(error => {
       // Handle errors here
@@ -244,9 +247,12 @@ function formatTime(timeNum: number): string {
   let timeNumArr = String(timeNum).split(":")
 
   let formattedString = ""
-  formattedString += timeNumArr[0] + " "
+  let hours = timeNumArr[0].startsWith("0") ? timeNumArr[0].substring(1) : timeNumArr[0]
+  let minutes = timeNumArr[1].startsWith("0") ? timeNumArr[1].substring(1) : timeNumArr[1]
+  
+  formattedString += hours + " "
   formattedString += pluralize("Hour", Number(timeNumArr[0])) + " "
-  formattedString += timeNumArr[1] + " "
+  formattedString += minutes + " "
   formattedString += pluralize("Minute", Number(timeNumArr[1]))
   return formattedString
 }
@@ -261,9 +267,9 @@ function formatTime(timeNum: number): string {
     <div class="info-section" v-if="currSelection">
       <div class="info">
         <h3>{{ currSelection.name }}</h3>
-        <p>Number of Courts: {{ currSelection.court_count }}</p>
-        <p>Courts Occupied: {{ currSelection.courts_occupied }}</p>
-        <p>Number Waiting: {{ currSelection.number_waiting }}</p>
+        <sub>Courts: {{ currSelection.court_count }}</sub>
+        <p>Estimated Courts Occupied: {{ currSelection.courts_occupied }}</p>
+        <p>Estimated Groups Waiting: {{ currSelection.number_waiting }}</p>
         <p>Estimated Wait Time: {{ formatTime(currSelection.estimated_wait_time) }}</p>
       </div>
       <form @submit.prevent="submitForm">
@@ -274,7 +280,7 @@ function formatTime(timeNum: number): string {
         <input type="number" id="numberWaiting" name="numberWaiting" min="0"
           :max="(locForm.courts_occupied < currSelection.court_count) ? 0 : 10" v-model="locForm.number_waiting"
           required><br><br>
-        <button>
+        <button :disabled="submitDataDisabled">
           Update Status
         </button>
       </form>
@@ -283,6 +289,17 @@ function formatTime(timeNum: number): string {
 </template>
 
 <style>
+h3 {
+  margin-bottom: 0;
+}
+sub {
+  margin-bottom: 1rem;
+}
+
+p {
+  margin: 0.5rem 0;
+}
+
 #search-bt {
   background-color: white;
   border-color: lightgrey;
@@ -315,10 +332,6 @@ function formatTime(timeNum: number): string {
   justify-content: center;
   width: 55%;
   font-size: larger;
-
-  p {
-    margin-top: 0.25em;
-  }
 }
 
 form {
@@ -329,6 +342,7 @@ form {
   from {
     transform: rotate(0deg);
   }
+
   to {
     transform: rotate(360deg);
   }
@@ -339,9 +353,10 @@ svg {
   overflow: visible;
   transform-origin: 50% 100%;
   transition: transform 0.3s ease, filter 0.3s ease;
+
   &:hover {
-    /* animation: spin 2s linear infinite; */
-    transform: scale(1.1); /* Enlarge the SVG on hover */
+    /* animation: spin 1.5s ease-in-out infinite; */
+    transform: scale(1.1);
     filter: brightness(1.01);
   }
 }
@@ -354,5 +369,11 @@ path {
   stroke: #007bff;
   stroke-width: 2.75px;
   stroke-linejoin: round;
+}
+
+button:disabled {
+    border: 1px solid #999999;
+    background-color: #cccccc;
+    color: #666666;
 }
 </style>
