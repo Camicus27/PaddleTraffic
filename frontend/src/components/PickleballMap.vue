@@ -14,20 +14,24 @@ interface Location {
   estimated_wait_time: number
 }
 
+// TODO: prevent desync
 // interface MapItem {
 //   location: Location
 //   marker: mapboxgl.Marker
 // }
 
-// TODO needs type?
-const mapContainer = ref() // reference to the <div> mapContainer
+// const mapItems: Ref<MapItem[]> = ref([])
+
+// TODO: needs type?
+const mapContainer = ref<HTMLElement | undefined>() // reference to the <div> mapContainer
 const currSelection = ref<Location | undefined>() // can be none
 
 const allLocations: Ref<Location[]> = ref([]) // all locations currently on the map, coincides with mapMarkers
 const mapMarkers = ref<{ [key: number]: mapboxgl.Marker }>({}) // dictionary of locationID -> mapMarkers, right now coincides with allLocations
 const props = defineProps(['lat', 'lon']) // for the URL ?lat=:number&lon=:number
 
-let mapCenter: LngLat // TODO why are we using this instead of just like, map.getCenter() ?
+// => let mapCenterAtTimeOfSearchArea: LngLat
+let mapSearchedCenter: LngLat // TODO why are we using this instead of just like, map.getCenter() ?
 // I think before we were storing the old center so when we do queries it'll like be where the old center was, that's not really working so, maybe we get rid of it and add an endpoint 💀
 
 // TODO: improve token handling
@@ -54,7 +58,7 @@ function initGeoloc(mapVal: mapboxgl.Map) {
     showAccuracyCircle: false
   })
 
-  mapCenter = mapVal.getCenter()
+  mapSearchedCenter = mapVal.getCenter()
   mapVal.addControl(geolocateControl)
   mapVal.on('load', () => geolocateControl.trigger())
 }
@@ -63,10 +67,10 @@ function initGeoloc(mapVal: mapboxgl.Map) {
 /**
  * GET latest info about markers at center of map
  */
-function addMarkers(mapVal: mapboxgl.Map) { // => addMarkersQuery ?
+function addMarkersQuery(mapVal: mapboxgl.Map) { // => addMarkersQuery ?
   // TODO why not use mapVal.getCenter()??
-  let lat = mapCenter?.lat
-  let lng = mapCenter?.lng
+  let lat = mapSearchedCenter?.lat
+  let lng = mapSearchedCenter?.lng
   axios.get(`${URL}/locations/bounds?lat=${lat}&lon=${lng}`)
     .then((response) => {
       allLocations.value = response.data.locations
@@ -75,6 +79,7 @@ function addMarkers(mapVal: mapboxgl.Map) { // => addMarkersQuery ?
           .setLngLat([loc.longitude, loc.latitude])
           .addTo(mapVal)
 
+
         mapMarkers.value[loc.id] = marker
 
         // affects how much to take into account the court_count, greater means more tolerance, less means less tolerance
@@ -82,28 +87,27 @@ function addMarkers(mapVal: mapboxgl.Map) { // => addMarkersQuery ?
 
         // Add an event listener to each marker
         marker.getElement().addEventListener('click', () => {
-          updateInfoSection(loc.id)
+          markerCallback(loc.id)
         })
       })
     })
     .catch((error) => console.log(error))
 }
 
-function updateMarkers() {
+function updateMarkersOnSearch() {
   Object.entries(mapMarkers.value).forEach(marker => {
     marker[1].remove()
   })
   mapMarkers.value = []
   allLocations.value = []
-  mapCenter = map.value!.getCenter()
-  addMarkers(map.value!)
+  mapSearchedCenter = map.value!.getCenter()
+  addMarkersQuery(map.value!)
 }
 
 function updateMarkerColor(loc: Location) {
   let fill_el = mapMarkers.value[loc.id]?.getElement().querySelector('path')
-  if (fill_el === undefined) {
-    return
-  }
+  if (fill_el === undefined) return
+
   let waiting_constant = 1.2
   // ratio for number waiting / c * court_count
   let waiting_ratio = loc.number_waiting / (waiting_constant * loc.court_count)
@@ -126,8 +130,21 @@ function updateMarkerColor(loc: Location) {
 }
 
 // Update the info section with location data
-function updateInfoSection(locId: number) {
+function markerCallback(locId: number) {
+  let selectedClassName = 'selected'
+  if (currSelection.value) { // if a marker is selected
+    let old_marker = mapMarkers.value[currSelection.value.id].getElement()
+    old_marker.classList.remove(selectedClassName)
+    if (currSelection.value.id == locId) { // and it's the same one
+      currSelection.value = undefined
+      return
+    }
+  }
+
+  // set the new one
   currSelection.value = allLocations.value.find(location => location.id === locId)
+  let fill_el = mapMarkers.value[locId].getElement()
+  fill_el.classList.add(selectedClassName)
 }
 
 const locForm = ref({
@@ -143,7 +160,7 @@ function submitForm() {
       // Handle the response here. For example, logging the new location ID.
       console.log('New event ID:', response.data)
       // console.log('New event ID:', response.data);
-      axios.get(`${URL}/locations/`)
+      axios.get(`${URL}/locations/`) 
         .then((response) => { // todo update just current location?
           allLocations.value = response.data.locations
         })
@@ -162,13 +179,12 @@ function submitForm() {
  * Each of those locations are updated in the Map, 
  * and the current selected location attributes are selected
  */
-function updateLocations() {
-  let LngLat = map.value?.getCenter() // TODO change to be based on the list of locations that you have ... not the center of origin
+function updateLocationsInterval() {
+  let LngLat = mapSearchedCenter // TODO change to be based on the list of locations that you have ... not the center of origin
   let lat = LngLat?.lat
   let lng = LngLat?.lng
-  if (!lat || !lng) {
-    return
-  }
+  if (!lat || !lng) return
+
   axios.get(`${URL}/locations/bounds?lat=${lat}&lon=${lng}`)
     .then((response) => {
       allLocations.value = response.data.locations
@@ -182,7 +198,7 @@ function updateLocations() {
     .catch((error) => console.log(error))
 }
 
-function updateCurrSelection() {
+function updateOnLonLatURL() {
   if (!props?.lat || !props?.lon) return
 
   axios.get(`${URL}/location/latlon?lat=${props.lat}&lon=${props.lon}`)
@@ -192,8 +208,10 @@ function updateCurrSelection() {
     .catch((error) => console.log(error))
 }
 
-let interval : number | undefined
+let interval: number | undefined
 onMounted(() => {
+  if (!mapContainer?.value)
+    return
   map.value = new mapboxgl.Map({
     container: mapContainer.value,
     style: 'mapbox://styles/mapbox/streets-v12',
@@ -201,28 +219,28 @@ onMounted(() => {
     zoom: 11
   })
   initGeoloc(map.value)
-  addMarkers(map.value)
-  updateCurrSelection()
-  interval = setInterval(updateLocations, 3000)
+  addMarkersQuery(map.value)
+  updateOnLonLatURL()
+  interval = setInterval(updateLocationsInterval, 3000)
 })
 
 onUnmounted(() => {
   map.value?.remove()
   map.value = undefined
-  if(interval) {
+  if (interval) {
     clearInterval(interval)
   }
   interval = undefined
 })
 
-function pluralize(word : string, num: number) : string {
-  if(num != 1) {
+function pluralize(word: string, num: number): string {
+  if (num != 1) {
     word += "s"
   }
   return word
 }
 
-function formatTime(timeNum: number) : string {
+function formatTime(timeNum: number): string {
   let timeNumArr = String(timeNum).split(":")
 
   let formattedString = ""
@@ -235,9 +253,9 @@ function formatTime(timeNum: number) : string {
 </script>
 
 <template>
-  <div class="container">
-    <div ref="mapContainer" class="map-container">
-      <button id="search-bt" @click="updateMarkers">Search This Area</button>
+  <div class="map-page">
+    <div ref="mapContainer" class="mapbox-container">
+      <button id="search-bt" @click="updateMarkersOnSearch">Search This Area</button>
     </div>
 
     <div class="info-section" v-if="currSelection">
@@ -246,7 +264,7 @@ function formatTime(timeNum: number) : string {
         <p>Number of Courts: {{ currSelection.court_count }}</p>
         <p>Courts Occupied: {{ currSelection.courts_occupied }}</p>
         <p>Number Waiting: {{ currSelection.number_waiting }}</p>
-        <p>Estimated Wait Time: {{formatTime(currSelection.estimated_wait_time)}}</p>
+        <p>Estimated Wait Time: {{ formatTime(currSelection.estimated_wait_time) }}</p>
       </div>
       <form @submit.prevent="submitForm">
         <label for="courtsOccupied">Courts Occupied:</label><br>
@@ -261,7 +279,6 @@ function formatTime(timeNum: number) : string {
         </button>
       </form>
     </div>
-    
   </div>
 </template>
 
@@ -273,5 +290,69 @@ function formatTime(timeNum: number) : string {
   z-index: 1;
   position: relative;
   margin-left: 1rem;
+}
+
+.map-page {
+  flex-grow: 1;
+}
+
+.mapbox-container {
+  min-height: 45em;
+}
+
+.info-section {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 1rem;
+  padding: 1rem;
+  border: 3px solid black;
+  background-color: #d0d4ca;
+}
+
+.info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  width: 55%;
+  font-size: larger;
+
+  p {
+    margin-top: 0.25em;
+  }
+}
+
+form {
+  width: 30%;
+}
+
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+svg {
+  cursor: pointer;
+  overflow: visible;
+  transform-origin: 50% 100%;
+  transition: transform 0.3s ease, filter 0.3s ease;
+  &:hover {
+    /* animation: spin 2s linear infinite; */
+    transform: scale(1.1); /* Enlarge the SVG on hover */
+    filter: brightness(1.01);
+  }
+}
+
+path {
+  transition: stroke 0.3s ease, stroke-width 0.3s ease, stroke-linejoin 0.3s ease
+}
+
+.selected path {
+  stroke: #007bff;
+  stroke-width: 2.75px;
+  stroke-linejoin: round;
 }
 </style>
