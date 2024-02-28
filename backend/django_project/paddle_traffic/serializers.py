@@ -186,13 +186,13 @@ class EventUpdateSerializer(serializers.ModelSerializer):
         model = Event
         fields = ["name", "description", "location", "host", "players", "date", "time"]
         extra_kwargs = {
-            "name": {"required": False},
+            "name": {"required": True},
             "description": {"required": False},
-            "location": {"required": False},
-            "host": {"required": False},
+            "location": {"required": True},
+            "host": {"required": True},
             "players": {"required": False},
-            "date": {"required": False},
-            "time": {"required": False},
+            "date": {"required": True},
+            "time": {"required": True},
         }
 
 

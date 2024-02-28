@@ -55,7 +55,7 @@ function submitForm() {
         .then(response => {
             // Handle the response here. For example, logging the new location ID.
             console.log('New event ID:', response.data);
-            submittedSuccessfully.value = true
+            submittedSuccessfully.value = true;
         })
         .catch(error => {
             // Handle errors here
@@ -120,11 +120,11 @@ function submitForm() {
 
             <button type="submit">Submit</button>
         </form>
-        <div class="alert-wrapper" v-if="submittedSuccessfully">
+    </div>
+    <div class="alert-wrapper" v-if="submittedSuccessfully">
             <div class="alert-success">
                 <span class="closebtn" @click="submittedSuccessfully = !submittedSuccessfully">&times;</span>
                 <strong>Success!</strong> Your form has been submitted. Please reload the events to see the change.
             </div>
         </div>
-    </div>
 </template>
