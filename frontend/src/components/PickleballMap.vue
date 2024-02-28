@@ -1,36 +1,38 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, type Ref } from 'vue'
-import mapboxgl, { LngLat } from "mapbox-gl";
+import mapboxgl, { LngLat } from "mapbox-gl"
 import axios from 'axios'
 
 interface Location {
-  id: number;
-  name: string;
-  latitude: number;
-  longitude: number;
-  court_count: number;
-  courts_occupied: number;
-  number_waiting: number;
-  estimated_wait_time: number;
+  id: number
+  name: string
+  latitude: number
+  longitude: number
+  court_count: number
+  courts_occupied: number
+  number_waiting: number
+  estimated_wait_time: number
 }
 
-// interface MapMarker {
-//   id: number,
+// interface MapItem {
+//   location: Location
 //   marker: mapboxgl.Marker
 // }
 
-const mapContainer = ref();
-const currSelection = ref<Location | undefined>();
-const allLocations: Ref<Location[]> = ref([])
-const mapMarkers = ref<{ [key: number]: mapboxgl.Marker }>({});
-const props = defineProps(['lat', 'lon'])
-console.log(`Latitude: ${props.lat}, Longitude: ${props.lon}`)
+// TODO needs type?
+const mapContainer = ref() // reference to the <div> mapContainer
+const currSelection = ref<Location | undefined>() // can be none
 
-let mapCenter: LngLat;
+const allLocations: Ref<Location[]> = ref([]) // all locations currently on the map, coincides with mapMarkers
+const mapMarkers = ref<{ [key: number]: mapboxgl.Marker }>({}) // dictionary of locationID -> mapMarkers, right now coincides with allLocations
+const props = defineProps(['lat', 'lon']) // for the URL ?lat=:number&lon=:number
 
-// Todo: improve token handling
-mapboxgl.accessToken = 'pk.eyJ1Ijoic3VudHp1Y2Fwc3RvbmUiLCJhIjoiY2xwOHl6MGZiMWQwcjJ2bzNpdTh3ZXZ5diJ9.2OxP9v87qKxpFmL7FFrD-g';
-const map: Ref<mapboxgl.Map | undefined> = ref();
+let mapCenter: LngLat // TODO why are we using this instead of just like, map.getCenter() ?
+// I think before we were storing the old center so when we do queries it'll like be where the old center was, that's not really working so, maybe we get rid of it and add an endpoint 💀
+
+// TODO: improve token handling
+mapboxgl.accessToken = 'pk.eyJ1Ijoic3VudHp1Y2Fwc3RvbmUiLCJhIjoiY2xwOHl6MGZiMWQwcjJ2bzNpdTh3ZXZ5diJ9.2OxP9v87qKxpFmL7FFrD-g'
+const map: Ref<mapboxgl.Map | undefined> = ref()
 
 let URL: string
 // This is the collection of environment variables.
@@ -40,22 +42,29 @@ if (env.MODE === 'production')
 else
   URL = env.VITE_DEV_URL
 
-// Get users geolocation if permitted
+/**
+ * Initialized Mapbox with settings, and loading things
+ * Gets users geolocation if permitted
+ */
 function initGeoloc(mapVal: mapboxgl.Map) {
   const geolocateControl = new mapboxgl.GeolocateControl({
     fitBoundsOptions: { maxZoom: 11 },
     positionOptions: { enableHighAccuracy: true },
     trackUserLocation: true,
     showAccuracyCircle: false
-  });
+  })
 
-  mapCenter = mapVal.getCenter();
-  mapVal.addControl(geolocateControl);
-  mapVal.on('load', () => geolocateControl.trigger());
+  mapCenter = mapVal.getCenter()
+  mapVal.addControl(geolocateControl)
+  mapVal.on('load', () => geolocateControl.trigger())
 }
 
-// Add markers to map
-function addMarkers(mapVal: mapboxgl.Map) {
+
+/**
+ * GET latest info about markers at center of map
+ */
+function addMarkers(mapVal: mapboxgl.Map) { // => addMarkersQuery ?
+  // TODO why not use mapVal.getCenter()??
   let lat = mapCenter?.lat
   let lng = mapCenter?.lng
   axios.get(`${URL}/locations/bounds?lat=${lat}&lon=${lng}`)
@@ -64,18 +73,18 @@ function addMarkers(mapVal: mapboxgl.Map) {
       allLocations.value.forEach(loc => {
         const marker = new mapboxgl.Marker()
           .setLngLat([loc.longitude, loc.latitude])
-          .addTo(mapVal);
+          .addTo(mapVal)
 
         mapMarkers.value[loc.id] = marker
 
         // affects how much to take into account the court_count, greater means more tolerance, less means less tolerance
-        updateMarkerColor(loc);
+        updateMarkerColor(loc)
 
         // Add an event listener to each marker
         marker.getElement().addEventListener('click', () => {
-          updateInfoSection(loc.id);
-        });
-      });
+          updateInfoSection(loc.id)
+        })
+      })
     })
     .catch((error) => console.log(error))
 }
@@ -83,7 +92,7 @@ function addMarkers(mapVal: mapboxgl.Map) {
 function updateMarkers() {
   Object.entries(mapMarkers.value).forEach(marker => {
     marker[1].remove()
-  });
+  })
   mapMarkers.value = []
   allLocations.value = []
   mapCenter = map.value!.getCenter()
@@ -93,32 +102,32 @@ function updateMarkers() {
 function updateMarkerColor(loc: Location) {
   let fill_el = mapMarkers.value[loc.id]?.getElement().querySelector('path')
   if (fill_el === undefined) {
-    return;
+    return
   }
-  let waiting_constant = 1.2;
+  let waiting_constant = 1.2
   // ratio for number waiting / c * court_count
-  let waiting_ratio = loc.number_waiting / (waiting_constant * loc.court_count);
+  let waiting_ratio = loc.number_waiting / (waiting_constant * loc.court_count)
 
   // caps at 1
-  waiting_ratio = waiting_ratio > 1 ? 1 : waiting_ratio; // ooga booga
+  waiting_ratio = waiting_ratio > 1 ? 1 : waiting_ratio // ooga booga
 
   // ratio of # of courts occupied
-  let courts_occupied_ratio = loc.courts_occupied / loc.court_count;
+  let courts_occupied_ratio = loc.courts_occupied / loc.court_count
 
   // distribution of how much to take into account people waiting vs courts occupied
-  let percent_full = 0.4 * courts_occupied_ratio + 0.6 * waiting_ratio;
-  let scalar = Math.floor(percent_full * 511);
-  let r = (scalar < 255) ? scalar : 255;
-  let g = (scalar < 255) ? 255 : 511 - scalar;
-  let b = 0;
+  let percent_full = 0.4 * courts_occupied_ratio + 0.6 * waiting_ratio
+  let scalar = Math.floor(percent_full * 511)
+  let r = (scalar < 255) ? scalar : 255
+  let g = (scalar < 255) ? 255 : 511 - scalar
+  let b = 0
 
-  let darker_val = 0.95;
-  fill_el?.setAttribute("fill", `rgb(${r * darker_val}, ${g * darker_val}, ${b * darker_val})`);
+  let darker_val = 0.95
+  fill_el?.setAttribute("fill", `rgb(${r * darker_val}, ${g * darker_val}, ${b * darker_val})`)
 }
 
 // Update the info section with location data
 function updateInfoSection(locId: number) {
-  currSelection.value = allLocations.value.find(location => location.id === locId);
+  currSelection.value = allLocations.value.find(location => location.id === locId)
 }
 
 const locForm = ref({
@@ -132,7 +141,7 @@ function submitForm() {
   axios.post(`${URL}/locations/${currSelection.value?.id}/report/`, { report: locForm.value })
     .then(response => {
       // Handle the response here. For example, logging the new location ID.
-      console.log('New event ID:', response.data);
+      console.log('New event ID:', response.data)
       axios.get(`${URL}/locations/`)
         .then((response) => { // todo update just current location?
           allLocations.value = response.data.locations
@@ -143,16 +152,21 @@ function submitForm() {
     })
     .catch(error => {
       // Handle errors here
-      console.error('Error:', error);
-    });
+      console.error('Error:', error)
+    })
 }
 
+/**
+ * Makes a request for the most recent data about the locations
+ * Each of those locations are updated in the Map, 
+ * and the current selected location attributes are selected
+ */
 function updateLocations() {
-  let LngLat = map.value?.getCenter()
+  let LngLat = map.value?.getCenter() // TODO change to be based on the list of locations that you have ... not the center of origin
   let lat = LngLat?.lat
   let lng = LngLat?.lng
-  if (lat === undefined || lng === undefined) {
-    return;
+  if (!lat || !lng) {
+    return
   }
   axios.get(`${URL}/locations/bounds?lat=${lat}&lon=${lng}`)
     .then((response) => {
@@ -162,48 +176,53 @@ function updateLocations() {
         if (loc.id === currSelection.value?.id) {
           currSelection.value = loc
         }
-      });
+      })
     })
     .catch((error) => console.log(error))
 }
 
 function updateCurrSelection() {
-  if (!props?.lat || !props?.lon) return;
+  if (!props?.lat || !props?.lon) return
 
   axios.get(`${URL}/location/latlon?lat=${props.lat}&lon=${props.lon}`)
     .then((response) => {
-      currSelection.value = response.data.location;
+      currSelection.value = response.data.location
     })
     .catch((error) => console.log(error))
 }
 
+let interval : number | undefined
 onMounted(() => {
   map.value = new mapboxgl.Map({
     container: mapContainer.value,
     style: 'mapbox://styles/mapbox/streets-v12',
     center: [-111.876183, 40.758701], // Default to SLC
     zoom: 11
-  });
-  initGeoloc(map.value);
+  })
+  initGeoloc(map.value)
   addMarkers(map.value)
-  updateCurrSelection();
-  setInterval(updateLocations, 3000)
+  updateCurrSelection()
+  interval = setInterval(updateLocations, 3000)
 })
 
 onUnmounted(() => {
-  map.value?.remove();
-  map.value = undefined;
+  map.value?.remove()
+  map.value = undefined
+  if(interval) {
+    clearInterval(interval)
+  }
+  interval = undefined
 })
 
 function pluralize(word : string, num: number) : string {
   if(num != 1) {
-    word += "s";
+    word += "s"
   }
   return word
 }
 
 function formatTime(timeNum: number) : string {
-  let timeNumArr = String(timeNum).split(":");
+  let timeNumArr = String(timeNum).split(":")
 
   let formattedString = ""
   formattedString += timeNumArr[0] + " "
@@ -217,8 +236,9 @@ function formatTime(timeNum: number) : string {
 <template>
   <div class="container">
     <div ref="mapContainer" class="map-container">
-      <button id="our_bouutonnnn" @click="updateMarkers">Search This Area</button>
+      <button id="search-bt" @click="updateMarkers">Search This Area</button>
     </div>
+
     <div class="info-section" v-if="currSelection">
       <div class="info">
         <h3>{{ currSelection.name }}</h3>
@@ -240,12 +260,12 @@ function formatTime(timeNum: number) : string {
         </button>
       </form>
     </div>
-    <div class="info-section" v-else>Select a court for more information</div>
+    
   </div>
 </template>
 
 <style>
-#our_bouutonnnn {
+#search-bt {
   background-color: white;
   border-color: lightgrey;
   color: lightskyblue;
