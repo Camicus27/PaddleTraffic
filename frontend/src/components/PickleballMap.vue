@@ -195,24 +195,22 @@ onUnmounted(() => {
   map.value = undefined;
 })
 
-function pluralizeOOOGA(booga : string, ooga: number) : string {
-  if(ooga == 1) {
-    booga += " ";
-  } else {
-    booga += "s "
+function pluralize(word : string, num: number) : string {
+  if(num != 1) {
+    word += "s";
   }
-  return booga
+  return word
 }
 
-function oogaBooga(appearently: number) : string {
-  let ooga = String(appearently).split(":");
+function formatTime(timeNum: number) : string {
+  let timeNumArr = String(timeNum).split(":");
 
-  let oooga = " Hour"
-  oooga = pluralizeOOOGA(oooga, Number(ooga[0]))
-  let boooga = " Minute";
-  boooga = pluralizeOOOGA(boooga, Number(ooga[1]))
-  let booga = ooga[0] + oooga + ooga[1] + boooga;
-  return booga
+  let formattedString = ""
+  formattedString += timeNumArr[0] + " "
+  formattedString += pluralize("Hour", Number(timeNumArr[0])) + " "
+  formattedString += timeNumArr[1] + " "
+  formattedString += pluralize("Minute", Number(timeNumArr[1]))
+  return formattedString
 }
 </script>
 
@@ -227,7 +225,7 @@ function oogaBooga(appearently: number) : string {
         <p>Number of Courts: {{ currSelection.court_count }}</p>
         <p>Courts Occupied: {{ currSelection.courts_occupied }}</p>
         <p>Number Waiting: {{ currSelection.number_waiting }}</p>
-        <p>Estimated Wait Time: {{oogaBooga(currSelection.estimated_wait_time)}}</p>
+        <p>Estimated Wait Time: {{formatTime(currSelection.estimated_wait_time)}}</p>
       </div>
       <form @submit.prevent="submitForm">
         <label for="courtsOccupied">Courts Occupied:</label><br>
