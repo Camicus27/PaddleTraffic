@@ -60,19 +60,19 @@ class Location(models.Model):
     estimated_wait_time = models.DurationField()
     calculated_time = models.DateTimeField()
 
-    def clean(self):
-        if not isinstance(self.court_count, int):
-            raise ValidationError({'court_count': 'Court count must be an integer.'})
+    # def clean(self):
+    #     if not isinstance(self.court_count, int):
+    #         raise ValidationError({'court_count': 'Court count must be an integer.'})
 
-        if not isinstance(self.courts_occupied, int):
-            raise ValidationError({'courts_occupied': 'Courts occupied must be an integer.'})
+    #     if not isinstance(self.courts_occupied, int):
+    #         raise ValidationError({'courts_occupied': 'Courts occupied must be an integer.'})
             
-        if not isinstance(self.number_waiting, int):
-            raise ValidationError({'number_waiting': 'Number waiting must be an integer.'})
+    #     if not isinstance(self.number_waiting, int):
+    #         raise ValidationError({'number_waiting': 'Number waiting must be an integer.'})
 
-    def save(self, *args, **kwargs):
-        self.full_clean()  # Call clean method before saving
-        super().save(*args, **kwargs)
+    # def save(self, *args, **kwargs):
+    #     self.full_clean()  # Call clean method before saving
+    #     super().save(*args, **kwargs)
 '''
 Represents a match or larger scale event/tournament that can be held at a location.
 Must have a location and host, and many players can sign up to attend.
