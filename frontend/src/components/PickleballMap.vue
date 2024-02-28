@@ -123,7 +123,7 @@ function updateMarkerColor(loc: Location) {
   let waiting_ratio = loc.number_waiting / (waiting_constant * loc.court_count)
 
   // caps at 1
-  waiting_ratio = waiting_ratio > 1 ? 1 : waiting_ratio // ooga booga
+  waiting_ratio = waiting_ratio > 1 ? 1 : waiting_ratio
 
   // ratio of # of courts occupied
   let courts_occupied_ratio = loc.courts_occupied / loc.court_count
@@ -175,7 +175,7 @@ function submitForm() {
       //   axios.get(`${URL}/locations/`) // todo just GET current location to get updated date
       //     .then((response) => { 
       //       allLocations.value = response.data.locations
-      //     }) ooga
+      //     })
       //     .catch((error) => console.log(error))
       currSelection.value = response.data.location
       updateMarkerColor(currSelection.value!!)
@@ -189,7 +189,7 @@ function submitForm() {
 
 /**
  * Makes a request for the most recent data about the locations
- * Each of those locations are updated in the Map, booga
+ * Each of those locations are updated in the Map,
  * and the current selected location attributes are selected
  */
 function updateLocationsInterval() {
@@ -228,7 +228,7 @@ onMounted(() => {
   map.value = new mapboxgl.Map({
     container: mapContainer.value,
     style: 'mapbox://styles/mapbox/streets-v12',
-    center: [-111.876183, 40.758701], // Default to SLC booga
+    center: [-111.876183, 40.758701], // Default to SLC
     zoom: 11
   })
   initGeoloc(map.value)

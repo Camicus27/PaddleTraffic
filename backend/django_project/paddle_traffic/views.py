@@ -371,7 +371,7 @@ def lazy_decay(lat, lon):
     for loc in m_location:
         current_time = datetime.now(timezone.utc)
         time_passed = current_time - loc.calculated_time
-        stay_time = 3600  # 1 hour in seconds, for equal groups waiting to number of courts, gg L + bozo + ratio + balding + malding + ur_mom
+        stay_time = 3600  # 1 hour in seconds, for equal groups waiting to number of courts
 
         # account for groups there - if busier stay less if empty stay longer => ratio between total groups there and number of courts
         total_groups = loc.number_waiting + loc.courts_occupied
@@ -426,10 +426,10 @@ def location_latlon(request):
             lat = float(request.GET.get("lat", None))
             lon = float(request.GET.get("lon", None))
         except ValueError:
-            return http_bad_argument("OOoooooOOOGA BOOOooOOooOooooOoooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooooOoooOOGA")
+            return http_bad_argument("Malformed Latlon")
 
         if None in [lat, lon]:
-            return http_bad_argument("OOoooooOOOGA BOOOooOOooOooooOOoooOOGA")
+            return http_bad_argument("Malformed Latlon")
 
         m_locations = lazy_decay(lat, lon)
         m_location = m_locations.annotate(
@@ -462,10 +462,10 @@ def location_bounds(request):
             lat = float(request.GET.get("lat", None))
             lon = float(request.GET.get("lon", None))
         except ValueError:
-            return http_bad_argument("OOGA BOOOOOGA")
+            return http_bad_argument("Malformed Latlon")
 
         if None in [lat, lon]:
-            return http_bad_argument("OOGA BOOGA")
+            return http_bad_argument("Malformed Latlon")
 
         m_location = lazy_decay(lat, lon)
 
