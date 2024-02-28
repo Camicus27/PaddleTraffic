@@ -221,7 +221,7 @@ function selectLatLonMarker() {
     .catch((error) => console.log(error))
 }
 
-let interval: number | undefined
+let locationsInterval: number | undefined
 onMounted(() => {
   if (!mapContainer?.value)
     return
@@ -233,16 +233,16 @@ onMounted(() => {
   })
   initGeoloc(map.value)
   addMarkersQuery(map.value, true)
-  interval = setInterval(updateLocationsInterval, 3000)
+  locationsInterval = window.setInterval(updateLocationsInterval, 3000)
 })
 
 onUnmounted(() => {
   map.value?.remove()
   map.value = undefined
-  if (interval) {
-    clearInterval(interval)
+  if (locationsInterval) {
+    clearInterval(locationsInterval)
   }
-  interval = undefined
+  locationsInterval = undefined
 })
 
 function pluralize(word: string, num: number): string {
