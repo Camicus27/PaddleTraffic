@@ -24,7 +24,7 @@ const currSelection = ref<Location | undefined>();
 const allLocations: Ref<Location[]> = ref([])
 const mapMarkers = ref<{ [key: number]: mapboxgl.Marker }>({});
 const props = defineProps(['lat', 'lon'])
-console.log(`Latitude: ${props.lat}, Longitude: ${props.lon}`)
+// console.log(`Latitude: ${props.lat}, Longitude: ${props.lon}`)
 
 let mapCenter: LngLat;
 
@@ -132,7 +132,7 @@ function submitForm() {
   axios.post(`${URL}/locations/${currSelection.value?.id}/report/`, { report: locForm.value })
     .then(response => {
       // Handle the response here. For example, logging the new location ID.
-      console.log('New event ID:', response.data);
+      // console.log('New event ID:', response.data);
       axios.get(`${URL}/locations/`)
         .then((response) => { // todo update just current location?
           allLocations.value = response.data.locations
