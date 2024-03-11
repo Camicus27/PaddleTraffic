@@ -23,9 +23,31 @@
 
             <section>
                 <h2>Learn More About Us</h2>
-                <p>Find out more about <strong>PaddleTraffic</strong> and our mission to enhance your Pickleball experience.</p>
+                <p>Find out more about <strong>PaddleTraffic</strong> and our mission to enhance your Pickleball
+                    experience.</p>
                 <RouterLink to="/about">About PaddleTraffic</RouterLink>
             </section>
         </main>
     </div>
 </template>
+
+<style>
+#home-wrapper main {
+    padding: 1rem;
+    background-color: #f5f5f5;
+    border-radius: 8px;
+}
+
+#home-wrapper main section {
+    margin-bottom: .5rem;
+}
+
+#home-wrapper main h2 {
+    color: #4b5320;
+}
+
+#home-wrapper main p {
+    text-align: center;
+    margin-block: .6rem;
+}
+</style>
