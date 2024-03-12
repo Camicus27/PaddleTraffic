@@ -7,7 +7,6 @@ import CommonFooter from './components/CommonFooter.vue'
 </script>
 
 <template>
-  <CommonHeader />
   <div class="main-wrapper">
     <!-- <CommonSidebar />   This is now going to be dynamically loaded as a popup menu so it isn't always visible   -->
     <!-- This allows us to keep all pages loaded, and avoids too many API calls -->
@@ -17,9 +16,9 @@ import CommonFooter from './components/CommonFooter.vue'
       </KeepAlive>
     </RouterView>
   </div>
-  <CommonFooter />
 </template>
 
+<!-- Not scoped here! global css App wide ... -->
 <style>
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;800&display=swap');
@@ -51,23 +50,22 @@ body {
   display: flex;
   flex-direction: column;
   flex-grow: 1;
-  overflow-y: scroll;
+  overflow-y: auto;
+  overflow-x: hidden;
   margin: 0;
 }
 
 #app {
   display: flex;
   flex-direction: column;
-  flex-grow: 1;
-  justify-content: space-between;
+  justify-content: start;
 }
 
 .main-wrapper {
   display: flex;
   flex-grow: 1;
   flex-direction: column;
-  justify-content: center;
-  padding-inline: 3rem;
+  justify-content: space-around;
 }
 
 .main-wrapper header {
@@ -75,7 +73,6 @@ body {
   margin-bottom: .5em;
   color: #4b5320;
   text-align: center;
-  margin-block: 1rem;
 }
 
 .main-wrapper h1 {
@@ -252,7 +249,6 @@ footer {
   left: 0;
   right: 0;
   margin-top: 3rem;
-  padding-inline: .5rem;
   padding-block: 2.75rem;
   background-color: #67784c;
   font-weight: bold;
@@ -322,16 +318,7 @@ footer>div {
 
 
 @media screen and (max-width: 800px) {
-
   /* Global general styles -----------------------------------------------------------------------------------------------------*/
-  .main-wrapper {
-    padding-inline: 1rem;
-  }
-
-  .main-wrapper header {
-    margin-block: .75rem;
-  }
-
   .main-wrapper h1 {
     margin-bottom: .25rem;
     font-size: 2rem;
@@ -372,6 +359,7 @@ footer>div {
   /* Site header styles */
   #site-header {
     align-items: flex-start;
+    padding-block: 1rem;
   }
 
   #site-header #logo-title h1 {

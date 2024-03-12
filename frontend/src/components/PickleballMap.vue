@@ -72,15 +72,15 @@ function initGeoloc(mapVal: mapboxgl.Map) {
 /**
  * GET latest info about markers at center of map
  */
-function addMarkersQuery(mapVal: mapboxgl.Map, selectLatLonProps : boolean = false) {
+function addMarkersQuery(mapVal: mapboxgl.Map, selectLatLonProps: boolean = false) {
   // TODO why not use mapVal.getCenter()??
   let lat = mapSearchedCenter?.lat
   let lng = mapSearchedCenter?.lng
   axios.get(`${URL}/locations/bounds?lat=${lat}&lon=${lng}`)
     .then((response) => {
       allLocations.value = response.data.locations
-      console.log(`We got a response! ${typeof(response.data)}`);
-      
+      console.log(`We got a response! ${typeof (response.data)}`);
+
       allLocations.value.forEach(loc => {
         const marker = new mapboxgl.Marker()
           .setLngLat([loc.longitude, loc.latitude])
@@ -97,7 +97,7 @@ function addMarkersQuery(mapVal: mapboxgl.Map, selectLatLonProps : boolean = fal
           selectMarker(loc.id)
         })
       })
-      if(selectLatLonProps) 
+      if (selectLatLonProps)
         selectLatLonMarker()
     })
     .catch((error) => console.log(error))
@@ -213,7 +213,7 @@ function updateLocationsInterval() {
 
 function selectLatLonMarker() {
   if (!props?.lat || !props?.lon) return
-  
+
   axios.get(`${URL}/location/latlon?lat=${props.lat}&lon=${props.lon}`)
     .then((response) => {
       selectMarker(response.data.location.id)
@@ -258,7 +258,7 @@ function formatTime(timeNum: number): string {
   let formattedString = ""
   let hours = timeNumArr[0].startsWith("0") ? timeNumArr[0].substring(1) : timeNumArr[0]
   let minutes = timeNumArr[1].startsWith("0") ? timeNumArr[1].substring(1) : timeNumArr[1]
-  
+
   formattedString += hours + " "
   formattedString += pluralize("Hour", Number(timeNumArr[0])) + " "
   formattedString += minutes + " "
@@ -285,11 +285,11 @@ function formatTime(timeNum: number): string {
         <form @submit.prevent="submitForm">
           <label for="courtsOccupied">Courts Occupied:</label><br>
           <input type="number" id="courtsOccupied" name="courtsOccupied" min="0" :max="currSelection.court_count"
-          v-model="locForm.courts_occupied" required><br><br>
+            v-model="locForm.courts_occupied" required><br><br>
           <label for="numberWaiting">Number Waiting:</label><br>
           <input type="number" id="numberWaiting" name="numberWaiting" min="0"
-          :max="(locForm.courts_occupied < currSelection.court_count) ? 0 : 10" v-model="locForm.number_waiting"
-          required><br><br>
+            :max="(locForm.courts_occupied < currSelection.court_count) ? 0 : 10" v-model="locForm.number_waiting"
+            required><br><br>
           <button :disabled="submitDataDisabled">
             Update Status
           </button>
@@ -297,22 +297,25 @@ function formatTime(timeNum: number): string {
       </div>
     </Transition>
 
-    </div>
+  </div>
 </template>
 
 <style>
-.info-transition-enter-from, .info-transition-leave-to {
+.info-transition-enter-from,
+.info-transition-leave-to {
   max-height: 0;
   opacity: 0;
   overflow: hidden;
 }
 
-.info-transition-enter-to, .info-transition-leave-from {
+.info-transition-enter-to,
+.info-transition-leave-from {
   max-height: 500px;
   opacity: 1;
 }
 
-.info-transition-enter-active, .info-transition-leave-active {
+.info-transition-enter-active,
+.info-transition-leave-active {
   transition: max-height 0.5s ease-in-out, opacity 0.5s ease-in-out;
   overflow: hidden;
 }
@@ -320,6 +323,7 @@ function formatTime(timeNum: number): string {
 h3 {
   margin-bottom: 0;
 }
+
 sub {
   margin-bottom: 1rem;
 }
@@ -338,12 +342,12 @@ p {
 }
 
 .map-page {
-  flex-grow: 1;
+  height: 100vh;
 }
 
 .mapbox-container {
-  min-height: 45em;
-  }
+  height: 100vh;
+}
 
 .info-section {
   display: flex;
@@ -401,8 +405,8 @@ path {
 }
 
 button:disabled {
-    border: 1px solid #999999;
-    background-color: #cccccc;
-    color: #666666;
+  border: 1px solid #999999;
+  background-color: #cccccc;
+  color: #666666;
 }
 </style>

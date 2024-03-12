@@ -1,7 +1,10 @@
 <script setup lang="ts">
+import CommonHeader from '@/components/CommonHeader.vue';
+
 </script>
 
 <template>
+    <CommonHeader />
     <div id="about-wrapper">
         <header>
             <h1>About PaddleTraffic</h1>
@@ -56,7 +59,7 @@
     </div>
 </template>
 
-<style>
+<style scoped>
 #about-wrapper {
     margin-inline: 15%;
 }

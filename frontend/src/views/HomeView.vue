@@ -1,7 +1,10 @@
 <script setup lang="ts">
+import CommonHeader from '@/components/CommonHeader.vue';
+
 </script>
 
 <template>
+    <CommonHeader />
     <div id="home-wrapper">
         <header>
             <h1>Welcome to PaddleTraffic!</h1>
@@ -31,7 +34,7 @@
     </div>
 </template>
 
-<style>
+<style scoped>
 #home-wrapper main {
     padding: 1rem;
     background-color: #f5f5f5;

@@ -3,6 +3,7 @@ import { ref, onMounted, watch, type Ref } from 'vue'
 import { useRoute } from 'vue-router'
 
 import axios from 'axios'
+import CommonHeader from '@/components/CommonHeader.vue';
 
 const route = useRoute()
 // This should be undefined when there is no user currently logged in.
@@ -200,6 +201,7 @@ function checkFriendshipStatus() {
 </script>
 
 <template>
+  <CommonHeader />
   <div v-if="pageUser && (!username || routeUser)" class="profile-page">
     <div class="header">
       <h1>{{ pageUser.username }}</h1>
