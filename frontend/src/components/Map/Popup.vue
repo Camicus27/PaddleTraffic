@@ -12,7 +12,6 @@ else
     URL = env.VITE_DEV_URL
 
 const props = defineProps(['location', 'onSubmitCallback', 'currSelection'])
-const location: Location = props.location
 const onSubmitCallback: (l: Location) => void = props.onSubmitCallback
 const currSelection: Ref<Location> = props.currSelection
 
@@ -20,6 +19,8 @@ const locForm = ref({
     courts_occupied: 0,
     number_waiting: 0
 })
+
+const location = ref<Location>(props.location)
 
 const submitDataDisabled = ref<boolean>(false)
 
@@ -49,11 +50,12 @@ function submitForm() {
     setTimeout(() => {
         submitDataDisabled.value = false
     }, 3000)
-    axios.post(`${URL}/locations/${location.id}/report/`, { report: locForm.value })
+    axios.post(`${URL}/locations/${location.value.id}/report/`, { report: locForm.value })
         .then(response => {
             // Handle the response here. For example, logging the new location ID.
             currSelection.value = response.data.location
-            onSubmitCallback(location)
+            location.value = response.data.location
+            onSubmitCallback(location.value)
         })
         .catch(error => {
             // Handle errors here

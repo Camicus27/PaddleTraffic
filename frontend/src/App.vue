@@ -50,7 +50,7 @@ body {
   display: flex;
   flex-direction: column;
   flex-grow: 1;
-  overflow-y: auto;
+  overflow-y: hidden;
   overflow-x: hidden;
   margin: 0;
 }
@@ -384,11 +384,11 @@ path {
     transition: stroke 0.3s ease, stroke-width 0.3s ease, stroke-linejoin 0.3s ease
 }
 
-.selected path {
+/* .selected path {
     stroke: #007bff;
     stroke-width: 2.75px;
     stroke-linejoin: round;
-}
+} */
 
 svg {
     cursor: pointer;

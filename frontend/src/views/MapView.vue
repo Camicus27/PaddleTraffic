@@ -87,11 +87,11 @@ function addMarkersQuery(mapVal: mapboxgl.Map, selectLatLonProps: boolean = fals
             allLocations.value = response.data.locations
             allLocations.value.forEach(loc => {
                 const popupComponent = createApp(Popup, { location: loc, onSubmitCallback: updateMarkerColor, currSelection: currSelection })
-                
+
                 // Mount the component and render it to HTML
                 const popupHtml = document.createElement('div')
                 popupComponent.mount(popupHtml);
-                
+
                 const popup = new mapboxgl.Popup({ closeButton: false, offset: 25 }).setDOMContent(
                     popupHtml
                 )
@@ -232,7 +232,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <CommonHeader/>
+    <CommonHeader />
     <div ref="mapContainer" class="mapbox-container">
         <button id="search-bt" @click="updateMarkersOnSearch">Search This Area</button>
     </div>
@@ -240,6 +240,10 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
+* {
+    overflow-y: hidden;
+}
+
 h3 {
     margin-bottom: 0;
 }
