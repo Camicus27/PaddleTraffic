@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, type Ref } from 'vue'
+import { ref, onMounted, onUnmounted, type Ref, getCurrentInstance, createApp } from 'vue'
 import mapboxgl, { LngLat } from "mapbox-gl"
 import axios from 'axios'
 import { useRoute } from "vue-router"
-import Popup from '@/components/MapComponents/Popup'
+import Popup from '@/components/Map/Popup.vue'
 
 interface Location {
     id: number
@@ -34,7 +34,6 @@ const props = {
     lat: Number(useRoute().query.lat),
     lon: Number(useRoute().query.lon)
 }
-const submitDataDisabled = ref<boolean>(false)
 
 // => let mapCenterAtTimeOfSearchArea: LngLat
 let mapSearchedCenter: LngLat // TODO why are we using this instead of just like, map.getCenter() ?
@@ -85,12 +84,16 @@ function addMarkersQuery(mapVal: mapboxgl.Map, selectLatLonProps: boolean = fals
     axios.get(`${URL}/locations/bounds?lat=${lat}&lon=${lng}`)
         .then((response) => {
             allLocations.value = response.data.locations
-            console.log(`We got a response! ${typeof (response.data)}`);
-
             allLocations.value.forEach(loc => {
-                const popup = new mapboxgl.Popup({ offset: 25 }).setHTML(
-                    `<div class="your-mom">mu ah ha ha ha</div>`
-                );
+                const popupComponent = createApp(Popup, { location: loc, onSubmitCallback: updateMarkerColor })
+                
+                // Mount the component and render it to HTML
+                const popupHtml = document.createElement('div')
+                popupComponent.mount(popupHtml);
+                
+                const popup = new mapboxgl.Popup({ offset: 25 }).setDOMContent(
+                    popupHtml
+                )
                 const marker = new mapboxgl.Marker()
                     .setLngLat([loc.longitude, loc.latitude])
                     .setPopup(popup)
@@ -166,36 +169,6 @@ function selectMarker(locId: number) {
     fill_el.classList.add(selectedClassName)
 }
 
-const locForm = ref({
-    courts_occupied: 0,
-    number_waiting: 0
-})
-
-function submitForm() {
-    submitDataDisabled.value = true // disable THE BUTTON
-    setTimeout(() => {
-        submitDataDisabled.value = false
-    }, 3000)
-
-    axios.post(`${URL}/locations/${currSelection.value?.id}/report/`, { report: locForm.value })
-        .then(response => {
-            // Handle the response here. For example, logging the new location ID.
-            console.log('New event ID:', response.data)
-            //   axios.get(`${URL}/locations/`) // todo just GET current location to get updated date
-            //     .then((response) => { 
-            //       allLocations.value = response.data.locations
-            //     })
-            //     .catch((error) => console.log(error))
-            currSelection.value = response.data.location
-            updateMarkerColor(currSelection.value!!)
-            // })
-        })
-        .catch(error => {
-            // Handle errors here
-            console.error('Error:', error)
-        })
-}
-
 /**
  * Makes a request for the most recent data about the locations
  * Each of those locations are updated in the Map,
@@ -255,27 +228,6 @@ onUnmounted(() => {
     }
     locationsInterval = undefined
 })
-
-function pluralize(word: string, num: number): string {
-    if (num != 1) {
-        word += "s"
-    }
-    return word
-}
-
-function formatTime(timeNum: number): string {
-    let timeNumArr = String(timeNum).split(":")
-
-    let formattedString = ""
-    let hours = timeNumArr[0].startsWith("0") ? timeNumArr[0].substring(1) : timeNumArr[0]
-    let minutes = timeNumArr[1].startsWith("0") ? timeNumArr[1].substring(1) : timeNumArr[1]
-
-    formattedString += hours + " "
-    formattedString += pluralize("Hour", Number(timeNumArr[0])) + " "
-    formattedString += minutes + " "
-    formattedString += pluralize("Minute", Number(timeNumArr[1]))
-    return formattedString
-}
 </script>
 
 <template>
