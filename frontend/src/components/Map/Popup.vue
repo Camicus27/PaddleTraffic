@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import axios from 'axios';
-import { ref } from 'vue';
+import { ref, type Ref } from 'vue';
 import type Location from './Location';
 
 let URL: string
@@ -11,17 +11,10 @@ if (env.MODE === 'production')
 else
     URL = env.VITE_DEV_URL
 
-const props = defineProps(['location', 'onSubmitCallback'])
-if (!props?.location) {
-    throw new Error("no location defined for Popup.vue")
-}
-const location : Location = props.location
-console.log(`location:  ${location} and id: ${location.id}`)
-
-if (!props?.onSubmitCallback) {
-    throw new Error("no onSubmitCallback defined for Popup.vue")
-}
-const onSubmitCallback : (l : Location) => void = props.onSubmitCallback
+const props = defineProps(['location', 'onSubmitCallback', 'currSelection'])
+const location: Location = props.location
+const onSubmitCallback: (l: Location) => void = props.onSubmitCallback
+const currSelection: Ref<Location> = props.currSelection
 
 const locForm = ref({
     courts_occupied: 0,
@@ -45,9 +38,9 @@ function formatTime(timeNum: number): string {
     let minutes = timeNumArr[1].startsWith("0") ? timeNumArr[1].substring(1) : timeNumArr[1]
 
     formattedString += hours + " "
-    formattedString += pluralize("Hour", Number(timeNumArr[0])) + " "
+    formattedString += pluralize("Hr", Number(timeNumArr[0])) + " "
     formattedString += minutes + " "
-    formattedString += pluralize("Minute", Number(timeNumArr[1]))
+    formattedString += pluralize("Min", Number(timeNumArr[1]))
     return formattedString
 }
 
@@ -59,9 +52,8 @@ function submitForm() {
     axios.post(`${URL}/locations/${location.id}/report/`, { report: locForm.value })
         .then(response => {
             // Handle the response here. For example, logging the new location ID.
-            // location.value = response.data.location // AHHHHH IDK IDK IDK IDK IDK IDK IDK IDK IDK BAD REFACTOR BOI ABD BAD BAD BAD BAD OOGA BOOGA
+            currSelection.value = response.data.location
             onSubmitCallback(location)
-            // })
         })
         .catch(error => {
             // Handle errors here
@@ -71,25 +63,102 @@ function submitForm() {
 </script>
 
 <template>
-    <div class="info">
-        <h3>{{ location.name }}</h3>
-        <sub>Courts: {{ location.court_count }}</sub>
-        <p>Estimated Courts Occupied: {{ location.courts_occupied }}</p>
-        <p>Estimated Groups Waiting: {{ location.number_waiting }}</p>
-        <p>Estimated Wait Time: {{ formatTime(location.estimated_wait_time) }}</p>
+    <div class="popup">
+        <div class="left-side">
+            <div class="location-title">
+                <h4>{{ location.name }}</h4>
+                <sub>Courts: {{ location.court_count }}</sub>
+            </div>
+            <div class="info">
+                <p>Est. Courts Occupied: {{ location.courts_occupied }}</p>
+                <p>Est. Groups Waiting: {{ location.number_waiting }}</p>
+                <p>Est. Wait: {{ formatTime(location.estimated_wait_time) }}</p>
+            </div>
+        </div>
+        <form @submit.prevent="submitForm">
+            <label for="courtsOccupied">Courts Occupied:</label>
+            <input type="number" id="courtsOccupied" name="courtsOccupied" min="0" :max="location.court_count"
+                v-model="locForm.courts_occupied" required>
+            <label for="numberWaiting">Number Waiting:</label>
+            <input type="number" id="numberWaiting" name="numberWaiting" min="0"
+                :max="(locForm.courts_occupied < location.court_count) ? 0 : 10" v-model="locForm.number_waiting"
+                required>
+            <button :disabled="submitDataDisabled">
+                Update Status
+            </button>
+        </form>
     </div>
-    <form @submit.prevent="submitForm">
-        <label for="courtsOccupied">Courts Occupied:</label><br>
-        <input type="number" id="courtsOccupied" name="courtsOccupied" min="0" :max="location.court_count"
-            v-model="locForm.courts_occupied" required><br><br>
-        <label for="numberWaiting">Number Waiting:</label><br>
-        <input type="number" id="numberWaiting" name="numberWaiting" min="0"
-            :max="(locForm.courts_occupied < location.court_count) ? 0 : 10" v-model="locForm.number_waiting"
-            required><br><br>
-        <button :disabled="submitDataDisabled">
-            Update Status
-        </button>
-    </form>
 </template>
 
-<style></style>
+<style scoped>
+* {
+    display: flex;
+}
+
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+.popup {
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 2px;
+    align-items: center;
+    width: auto;
+}
+
+.left-side {
+    justify-content: space-around;
+    flex-direction: column;
+    h4 {
+        margin: 0;
+    }
+
+    p {
+        margin: 0;
+    }
+    padding-right: 2rem;
+}
+
+.location-title {
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+}
+
+.info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    font-size: small;
+    p {
+        text-wrap: nowrap;
+    }
+}
+
+form {
+    flex-direction: column;
+    justify-content: space-around;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+
+    input {
+        border: none
+    }
+}
+
+button {
+    font-size: x-small;
+    height: 2rem;
+    width: 5rem;
+    line-height: 1rem;
+}
+
+button:disabled {
+    border: 1px solid #999999;
+    background-color: #cccccc;
+    color: #666666;
+}
+</style>

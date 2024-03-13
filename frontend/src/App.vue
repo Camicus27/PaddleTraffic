@@ -66,13 +66,17 @@ body {
   flex-grow: 1;
   flex-direction: column;
   justify-content: space-around;
+  align-items: center;
 }
 
 .main-wrapper header {
   font-family: 'Open Sans', sans-serif;
-  margin-bottom: .5em;
   color: #4b5320;
   text-align: center;
+}
+
+header {
+  width: 100vw;
 }
 
 .main-wrapper h1 {
@@ -128,48 +132,6 @@ button:hover,
   color: #d3d3d3;
 }
 
-/* Forms */
-form {
-  display: flex;
-  flex-direction: column;
-  width: 75%;
-  padding: 1.75rem;
-  background-color: #f9f9f9;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px #ffffff40;
-}
-
-form div {
-  display: flex;
-  flex-direction: column;
-  margin-block: .5rem;
-}
-
-form label {
-  display: block;
-  margin-bottom: .5rem;
-  font-weight: bold;
-}
-
-form input,
-form textarea,
-form select {
-  width: 100%;
-  padding: 8px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  box-sizing: border-box;
-}
-
-form textarea {
-  height: 5rem;
-  resize: vertical;
-}
-
-form select[multiple] {
-  height: auto;
-}
-
 /* Localized styles */
 #home-wrapper,
 #about-wrapper,
@@ -185,9 +147,9 @@ form select[multiple] {
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding-bottom: 3rem;
-  margin-bottom: .5rem;
-  background: linear-gradient(0deg, #ffffff08 0%, #9fb184 100%);
+  border-bottom: 3px solid #183400;
+  padding-bottom: 5px;
+  background-image: linear-gradient(to top, rgba(159, 177, 132, 0), rgba(159, 177, 132, 1))
 }
 
 #site-header #logo-title a {
@@ -335,27 +297,6 @@ footer>div {
     margin-block: .25rem;
   }
 
-  /* Forms */
-  form {
-    width: 85%;
-    padding: 1.5rem;
-  }
-
-  form input,
-  form textarea,
-  form select {
-    width: 95%;
-  }
-
-  form textarea {
-    height: 4rem;
-    resize: vertical;
-  }
-
-  form select[multiple] {
-    height: auto;
-  }
-
   /* Site header styles */
   #site-header {
     align-items: flex-start;
@@ -370,7 +311,7 @@ footer>div {
     font-size: .8rem;
   }
 
-  #site-header nav a,
+  nav a,
   #login,
   #logout,
   #register {
@@ -433,5 +374,32 @@ footer>div {
     width: 100%;
     align-items: flex-end;
   }
+}
+
+.mapboxgl-popup-content {
+    width: max-content;
+}
+
+path {
+    transition: stroke 0.3s ease, stroke-width 0.3s ease, stroke-linejoin 0.3s ease
+}
+
+.selected path {
+    stroke: #007bff;
+    stroke-width: 2.75px;
+    stroke-linejoin: round;
+}
+
+svg {
+    cursor: pointer;
+    overflow: visible;
+    transform-origin: 50% 100%;
+    transition: transform 0.3s ease, filter 0.3s ease;
+
+    &:hover {
+        /* animation: spin 1.5s ease-in-out infinite; */
+        transform: scale(1.1);
+        filter: brightness(1.01);
+    }
 }
 </style>

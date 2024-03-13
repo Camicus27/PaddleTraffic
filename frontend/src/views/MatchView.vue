@@ -13,82 +13,16 @@ import MatchList from '@/components/MatchList.vue'
   </div>
 </template>
 
-<style>
+<style scoped>
 #match-wrapper {
     display: flex;
     flex-direction: column;
+    justify-content: center;
     align-items: center;
-}
-
-#match-wrapper .matches {
-    border: 3px solid gray;
-    border-radius: 3px;
-    background-color: #d0d4ca;
     padding: 1rem;
     margin: 1rem;
-    width: 65%;
-}
-
-#match-wrapper #event-form-wrapper {
-    display: flex;
-    justify-content: center;
-    margin-top: 1.5rem;
     width: 80%;
 }
-  
-#match-wrapper .button-wrapper {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-}
-
-.selected-players {
-    margin-top: 10px;
-}
-
-.selected-player {
-    display: inline-block;
-    margin-right: 5px;
-    padding: 5px 10px;
-    background-color: #f2f2f2;
-    border-radius: 4px;
-    border: 1px solid #ddd;
-}
-
-.alert-wrapper {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    margin-top: 2em;
-    font-size: large;
-    font-family: 'Open Sans', sans-serif;
-}
-
-.alert-success {
-    padding: 1rem;
-    padding-right: 3rem;
-    background-color: #4b5320;
-    color: white;
-    margin-bottom: 1rem;
-    border-radius: 4px;
-    position: relative;
-}
-    .alert-success strong {
-        margin-right: .75rem;
-    }
-
-.closebtn {
-    position: absolute;
-    top: 5px;
-    right: 15px;
-    color: white;
-    font-size: 1.25rem;
-    cursor: pointer;
-}
-    .closebtn:hover {
-        color: #71864f;
-    }
-
 
 /* Media query for narrower screens */
 @media only screen and (max-width: 850px) {
@@ -96,9 +30,9 @@ import MatchList from '@/components/MatchList.vue'
         width: 100%;
     }
 
-    #match-wrapper .matches {
+    #match-wrapper {
         margin: .75rem;
         width: 85%;
-    }
-}
+    } 
+} 
 </style>

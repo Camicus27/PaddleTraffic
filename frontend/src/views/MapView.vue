@@ -4,6 +4,7 @@ import mapboxgl, { LngLat } from "mapbox-gl"
 import axios from 'axios'
 import { useRoute } from "vue-router"
 import Popup from '@/components/Map/Popup.vue'
+import CommonHeader from '@/components/CommonHeader.vue'
 
 interface Location {
     id: number
@@ -85,13 +86,13 @@ function addMarkersQuery(mapVal: mapboxgl.Map, selectLatLonProps: boolean = fals
         .then((response) => {
             allLocations.value = response.data.locations
             allLocations.value.forEach(loc => {
-                const popupComponent = createApp(Popup, { location: loc, onSubmitCallback: updateMarkerColor })
+                const popupComponent = createApp(Popup, { location: loc, onSubmitCallback: updateMarkerColor, currSelection: currSelection })
                 
                 // Mount the component and render it to HTML
                 const popupHtml = document.createElement('div')
                 popupComponent.mount(popupHtml);
                 
-                const popup = new mapboxgl.Popup({ offset: 25 }).setDOMContent(
+                const popup = new mapboxgl.Popup({ closeButton: false, offset: 25 }).setDOMContent(
                     popupHtml
                 )
                 const marker = new mapboxgl.Marker()
@@ -231,32 +232,14 @@ onUnmounted(() => {
 </script>
 
 <template>
+    <CommonHeader/>
     <div ref="mapContainer" class="mapbox-container">
         <button id="search-bt" @click="updateMarkersOnSearch">Search This Area</button>
     </div>
     <!-- Dynamic adding to map page popup thingy ... -->
 </template>
 
-<style>
-.info-transition-enter-from,
-.info-transition-leave-to {
-    max-height: 0;
-    opacity: 0;
-    overflow: hidden;
-}
-
-.info-transition-enter-to,
-.info-transition-leave-from {
-    max-height: 500px;
-    opacity: 1;
-}
-
-.info-transition-enter-active,
-.info-transition-leave-active {
-    transition: max-height 0.5s ease-in-out, opacity 0.5s ease-in-out;
-    overflow: hidden;
-}
-
+<style scoped>
 h3 {
     margin-bottom: 0;
 }
@@ -278,26 +261,15 @@ p {
     margin-left: 1rem;
 }
 
+.mapboxgl-popup-content {
+    max-width: max-content;
+}
+
 .mapbox-container {
+    min-height: 100vh;
+    min-width: 100vw;
     height: 100vh;
-}
-
-.info-section {
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    margin-top: 1rem;
-    padding: 1rem;
-    border: 3px solid black;
-    background-color: #d0d4ca;
-}
-
-.info {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    width: 55%;
-    font-size: larger;
+    width: 100vw;
 }
 
 form {
@@ -312,34 +284,5 @@ form {
     to {
         transform: rotate(360deg);
     }
-}
-
-svg {
-    cursor: pointer;
-    overflow: visible;
-    transform-origin: 50% 100%;
-    transition: transform 0.3s ease, filter 0.3s ease;
-
-    &:hover {
-        /* animation: spin 1.5s ease-in-out infinite; */
-        transform: scale(1.1);
-        filter: brightness(1.01);
-    }
-}
-
-path {
-    transition: stroke 0.3s ease, stroke-width 0.3s ease, stroke-linejoin 0.3s ease
-}
-
-.selected path {
-    stroke: #007bff;
-    stroke-width: 2.75px;
-    stroke-linejoin: round;
-}
-
-button:disabled {
-    border: 1px solid #999999;
-    background-color: #cccccc;
-    color: #666666;
 }
 </style>

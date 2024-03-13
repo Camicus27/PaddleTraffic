@@ -62,6 +62,8 @@ import CommonHeader from '@/components/CommonHeader.vue';
 <style scoped>
 #about-wrapper {
     margin-inline: 15%;
+    width: 80%;
+    margin-top: 4rem;
 }
 
 #about-wrapper p {

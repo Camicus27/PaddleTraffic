@@ -35,6 +35,10 @@ import CommonHeader from '@/components/CommonHeader.vue';
 </template>
 
 <style scoped>
+#home-wrapper {
+    margin-top: 4rem;
+}
+
 #home-wrapper main {
     padding: 1rem;
     background-color: #f5f5f5;

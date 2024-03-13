@@ -63,3 +63,7 @@ function getCurrentUser() {
     </nav>
   </header>
 </template>
+
+<script scoped>
+
+</script>
