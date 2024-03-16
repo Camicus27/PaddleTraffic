@@ -375,31 +375,4 @@ footer>div {
     align-items: flex-end;
   }
 }
-
-.mapboxgl-popup-content {
-    width: max-content;
-}
-
-path {
-    transition: stroke 0.3s ease, stroke-width 0.3s ease, stroke-linejoin 0.3s ease
-}
-
-/* .selected path {
-    stroke: #007bff;
-    stroke-width: 2.75px;
-    stroke-linejoin: round;
-} */
-
-svg {
-    cursor: pointer;
-    overflow: visible;
-    transform-origin: 50% 100%;
-    transition: transform 0.3s ease, filter 0.3s ease;
-
-    &:hover {
-        /* animation: spin 1.5s ease-in-out infinite; */
-        transform: scale(1.1);
-        filter: brightness(1.01);
-    }
-}
 </style>

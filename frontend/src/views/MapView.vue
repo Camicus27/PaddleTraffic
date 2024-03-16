@@ -240,10 +240,6 @@ onUnmounted(() => {
 </template>
 
 <style scoped>
-* {
-    overflow-y: hidden;
-}
-
 h3 {
     margin-bottom: 0;
 }
@@ -280,13 +276,30 @@ form {
     width: 30%;
 }
 
-@keyframes spin {
-    from {
-        transform: rotate(0deg);
-    }
+/* Map Marker Styling */
+:deep(.mapboxgl-popup-content) {
+    width: max-content;
+}
 
-    to {
-        transform: rotate(360deg);
+:deep(path) {
+    transition: stroke 0.3s ease, stroke-width 0.3s ease, stroke-linejoin 0.3s ease
+}
+
+:deep(.selected path) {
+    stroke: #007bff;
+    stroke-width: 2.75px;
+    stroke-linejoin: round;
+}
+
+:deep(svg) {
+    cursor: pointer;
+    overflow: visible;
+    transform-origin: 50% 100%;
+    transition: transform 0.3s ease, filter 0.3s ease;
+
+    :deep(&:hover) {
+        transform: scale(1.1);
+        filter: brightness(1.01);
     }
 }
 </style>
