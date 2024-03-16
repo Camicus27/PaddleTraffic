@@ -239,67 +239,67 @@ onUnmounted(() => {
     <!-- Dynamic adding to map page popup thingy ... -->
 </template>
 
-<style scoped>
-h3 {
-    margin-bottom: 0;
-}
+<style scoped lang="scss">
+// h3 {
+//     margin-bottom: 0;
+// }
 
-sub {
-    margin-bottom: 1rem;
-}
+// sub {
+//     margin-bottom: 1rem;
+// }
 
-p {
-    margin: 0.5rem 0;
-}
+// p {
+//     margin: 0.5rem 0;
+// }
 
-#search-bt {
-    background-color: white;
-    border-color: lightgrey;
-    color: lightskyblue;
-    z-index: 1;
-    position: relative;
-    margin-left: 1rem;
-}
+// #search-bt {
+//     background-color: white;
+//     border-color: lightgrey;
+//     color: lightskyblue;
+//     z-index: 1;
+//     position: relative;
+//     margin-left: 1rem;
+// }
 
-.mapboxgl-popup-content {
-    max-width: max-content;
-}
+// .mapboxgl-popup-content {
+//     max-width: max-content;
+// }
 
-.mapbox-container {
-    min-height: 100vh;
-    min-width: 100vw;
-    height: 100vh;
-    width: 100vw;
-}
+// .mapbox-container {
+//     min-height: 100vh;
+//     min-width: 100vw;
+//     height: 100vh;
+//     width: 100vw;
+// }
 
-form {
-    width: 30%;
-}
+// form {
+//     width: 30%;
+// }
 
-/* Map Marker Styling */
-:deep(.mapboxgl-popup-content) {
-    width: max-content;
-}
+// /* Map Marker Styling */
+// :deep(.mapboxgl-popup-content) {
+//     width: max-content;
+// }
 
-:deep(path) {
-    transition: stroke 0.3s ease, stroke-width 0.3s ease, stroke-linejoin 0.3s ease
-}
+// :deep(path) {
+//     transition: stroke 0.3s ease, stroke-width 0.3s ease, stroke-linejoin 0.3s ease
+// }
 
-:deep(.selected path) {
-    stroke: #007bff;
-    stroke-width: 2.75px;
-    stroke-linejoin: round;
-}
+// :deep(.selected path) {
+//     stroke: #007bff;
+//     stroke-width: 2.75px;
+//     stroke-linejoin: round;
+// }
 
-:deep(svg) {
-    cursor: pointer;
-    overflow: visible;
-    transform-origin: 50% 100%;
-    transition: transform 0.3s ease, filter 0.3s ease;
+// :deep(svg) {
+//     cursor: pointer;
+//     overflow: visible;
+//     transform-origin: 50% 100%;
+//     transition: transform 0.3s ease, filter 0.3s ease;
 
-    :deep(&:hover) {
-        transform: scale(1.1);
-        filter: brightness(1.01);
-    }
-}
+//     :deep(&:hover) {
+//         transform: scale(1.1);
+//         filter: brightness(1.01);
+//     }
+// }
 </style>

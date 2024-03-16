@@ -59,29 +59,29 @@ import CommonHeader from '@/components/CommonHeader.vue';
     </div>
 </template>
 
-<style scoped>
-#about-wrapper {
-    margin-inline: 15%;
-    width: 80%;
-    margin-top: 4rem;
-}
+<style scoped lang="scss">
+// #about-wrapper {
+//     margin-inline: 15%;
+//     width: 80%;
+//     margin-top: 4rem;
+// }
 
-#about-wrapper p {
-    font-size: 1.2rem;
-    line-height: 1.5rem;
-    color: #333;
-    text-align: justify;
-    margin-bottom: 1rem;
-}
+// #about-wrapper p {
+//     font-size: 1.2rem;
+//     line-height: 1.5rem;
+//     color: #333;
+//     text-align: justify;
+//     margin-bottom: 1rem;
+// }
 
-@media screen and (max-width: 800px) {
-    #about-wrapper {
-        margin-inline: .5rem;
-    }
+// @media screen and (max-width: 800px) {
+//     #about-wrapper {
+//         margin-inline: .5rem;
+//     }
 
-    #about-wrapper p {
-        font-size: 1rem;
-        line-height: 1.25rem;
-    }
-}
+//     #about-wrapper p {
+//         font-size: 1rem;
+//         line-height: 1.25rem;
+//     }
+// }
 </style>

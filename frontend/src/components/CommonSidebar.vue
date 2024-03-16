@@ -46,12 +46,12 @@ let matchList = ref([
   </div>
 </template>
 
-<style scoped>
-  .sidebar {
-    display: flex;
-    flex-direction: column;
-    align-items: start;
-    width: 20%;
-    margin-right: 2.5rem;
-  }
+<style scoped lang="scss">
+  // .sidebar {
+  //   display: flex;
+  //   flex-direction: column;
+  //   align-items: start;
+  //   width: 20%;
+  //   margin-right: 2.5rem;
+  // }
 </style>

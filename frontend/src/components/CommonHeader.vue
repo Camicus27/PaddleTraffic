@@ -64,6 +64,6 @@ function getCurrentUser() {
   </header>
 </template>
 
-<script scoped>
+<script scoped lang="scss">
 
 </script>

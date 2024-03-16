@@ -34,27 +34,27 @@ import CommonHeader from '@/components/CommonHeader.vue';
     </div>
 </template>
 
-<style scoped>
-#home-wrapper {
-    margin-top: 4rem;
-}
+<style scoped lang="scss">
+// #home-wrapper {
+//     margin-top: 4rem;
+// }
 
-#home-wrapper main {
-    padding: 1rem;
-    background-color: #f5f5f5;
-    border-radius: 8px;
-}
+// #home-wrapper main {
+//     padding: 1rem;
+//     background-color: #f5f5f5;
+//     border-radius: 8px;
+// }
 
-#home-wrapper main section {
-    margin-bottom: .5rem;
-}
+// #home-wrapper main section {
+//     margin-bottom: .5rem;
+// }
 
-#home-wrapper main h2 {
-    color: #4b5320;
-}
+// #home-wrapper main h2 {
+//     color: #4b5320;
+// }
 
-#home-wrapper main p {
-    text-align: center;
-    margin-block: .6rem;
-}
+// #home-wrapper main p {
+//     text-align: center;
+//     margin-block: .6rem;
+// }
 </style>

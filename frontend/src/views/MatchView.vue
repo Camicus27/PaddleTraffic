@@ -13,26 +13,28 @@ import MatchList from '@/components/MatchList.vue'
   </div>
 </template>
 
-<style scoped>
-#match-wrapper {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 1rem;
-    margin: 1rem;
-    width: 80%;
-}
+<style scoped lang="scss">
+@use '../styles/components/buttons';
 
-/* Media query for narrower screens */
-@media only screen and (max-width: 850px) {
-    #match-wrapper #event-form-wrapper {
-        width: 100%;
-    }
+// #match-wrapper {
+//     display: flex;
+//     flex-direction: column;
+//     justify-content: center;
+//     align-items: center;
+//     padding: 1rem;
+//     margin: 1rem;
+//     width: 80%;
+// }
 
-    #match-wrapper {
-        margin: .75rem;
-        width: 85%;
-    } 
-} 
+// /* Media query for narrower screens */
+// @media only screen and (max-width: 850px) {
+//     #match-wrapper #event-form-wrapper {
+//         width: 100%;
+//     }
+
+//     #match-wrapper {
+//         margin: .75rem;
+//         width: 85%;
+//     } 
+// } 
 </style>

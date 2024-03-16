@@ -129,58 +129,58 @@ function submitForm() {
         </div>
 </template>
 
-<style scoped>
-form {
-  display: flex;
-  flex-direction: column;
-  width: 75%;
-  padding: 1.75rem;
-  background-color: #f9f9f9;
-  border-radius: 8px;
-  box-shadow: 0 2px 4px #ffffff40;
-}
+<style scoped lang="scss">
+// form {
+//   display: flex;
+//   flex-direction: column;
+//   width: 75%;
+//   padding: 1.75rem;
+//   background-color: #f9f9f9;
+//   border-radius: 8px;
+//   box-shadow: 0 2px 4px #ffffff40;
+// }
 
-form div {
-  display: flex;
-  flex-direction: column;
-  margin-block: .5rem;
-}
+// form div {
+//   display: flex;
+//   flex-direction: column;
+//   margin-block: .5rem;
+// }
 
-form label {
-  display: block;
-  margin-bottom: .5rem;
-  font-weight: bold;
-}
+// form label {
+//   display: block;
+//   margin-bottom: .5rem;
+//   font-weight: bold;
+// }
 
-form input,
-form textarea,
-form select {
-  width: 100%;
-  padding: 8px;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  box-sizing: border-box;
-}
+// form input,
+// form textarea,
+// form select {
+//   width: 100%;
+//   padding: 8px;
+//   border: 1px solid #ddd;
+//   border-radius: 4px;
+//   box-sizing: border-box;
+// }
 
-form textarea {
-  height: 5rem;
-  resize: vertical;
-}
+// form textarea {
+//   height: 5rem;
+//   resize: vertical;
+// }
 
-form select[multiple] {
-  height: auto;
-}
+// form select[multiple] {
+//   height: auto;
+// }
 
-@media only screen and (max-width: 850px) {
-    #event-form-wrapper {
-            width: 100%;
-    }
-}
+// @media only screen and (max-width: 850px) {
+//     #event-form-wrapper {
+//             width: 100%;
+//     }
+// }
 
-#event-form-wrapper {
-    display: flex;
-    justify-content: center;
-    margin-top: 1.5rem;
-    width: 80%;
-}
+// #event-form-wrapper {
+//     display: flex;
+//     justify-content: center;
+//     margin-top: 1.5rem;
+//     width: 80%;
+// }
 </style>

@@ -92,75 +92,75 @@ function submitForm() {
     </div>
 </template>
 
-<style scoped>
-* {
-    display: flex;
-}
+<style scoped lang="scss">
+// * {
+//     display: flex;
+// }
 
-input::-webkit-outer-spin-button,
-input::-webkit-inner-spin-button {
-    -webkit-appearance: none;
-    margin: 0;
-}
+// input::-webkit-outer-spin-button,
+// input::-webkit-inner-spin-button {
+//     -webkit-appearance: none;
+//     margin: 0;
+// }
 
-.popup {
-    flex-direction: row;
-    justify-content: space-between;
-    padding: 2px;
-    align-items: center;
-    width: auto;
-}
+// .popup {
+//     flex-direction: row;
+//     justify-content: space-between;
+//     padding: 2px;
+//     align-items: center;
+//     width: auto;
+// }
 
-.left-side {
-    justify-content: space-around;
-    flex-direction: column;
-    h4 {
-        margin: 0;
-    }
+// .left-side {
+//     justify-content: space-around;
+//     flex-direction: column;
+//     h4 {
+//         margin: 0;
+//     }
 
-    p {
-        margin: 0;
-    }
-    padding-right: 2rem;
-}
+//     p {
+//         margin: 0;
+//     }
+//     padding-right: 2rem;
+// }
 
-.location-title {
-    display: flex;
-    flex-direction: column;
-    justify-content: start;
-}
+// .location-title {
+//     display: flex;
+//     flex-direction: column;
+//     justify-content: start;
+// }
 
-.info {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    font-size: small;
-    p {
-        text-wrap: nowrap;
-    }
-}
+// .info {
+//     display: flex;
+//     flex-direction: column;
+//     justify-content: center;
+//     font-size: small;
+//     p {
+//         text-wrap: nowrap;
+//     }
+// }
 
-form {
-    flex-direction: column;
-    justify-content: space-around;
-    background-color: #f9f9f9;
-    border-radius: 8px;
+// form {
+//     flex-direction: column;
+//     justify-content: space-around;
+//     background-color: #f9f9f9;
+//     border-radius: 8px;
 
-    input {
-        border: none
-    }
-}
+//     input {
+//         border: none
+//     }
+// }
 
-button {
-    font-size: x-small;
-    height: 2rem;
-    width: 5rem;
-    line-height: 1rem;
-}
+// button {
+//     font-size: x-small;
+//     height: 2rem;
+//     width: 5rem;
+//     line-height: 1rem;
+// }
 
-button:disabled {
-    border: 1px solid #999999;
-    background-color: #cccccc;
-    color: #666666;
-}
+// button:disabled {
+//     border: 1px solid #999999;
+//     background-color: #cccccc;
+//     color: #666666;
+// }
 </style>

@@ -75,18 +75,18 @@ function getAllPlayers() {
   </template>
 </template>
 
-<style>
-.matches {
-        margin: .75rem;
-        width: 85%;
-}
+<style scoped lang="scss">
+// .matches {
+//         margin: .75rem;
+//         width: 85%;
+// }
 
-.matches {
-    border: 3px solid gray;
-    border-radius: 3px;
-    background-color: #d0d4ca;
-    padding: 1rem;
-    margin: 1rem;
-    width: 65%;
-}
+// .matches {
+//     border: 3px solid gray;
+//     border-radius: 3px;
+//     background-color: #d0d4ca;
+//     padding: 1rem;
+//     margin: 1rem;
+//     width: 65%;
+// }
 </style>
