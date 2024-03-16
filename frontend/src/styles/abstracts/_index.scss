@@ -1,4 +1,6 @@
-@forward 'colors' as colors-*;
-@forward 'functions' as functions-*;
-@forward 'mixins' as mixins-*;
-@forward 'placeholders' as placeholder-*;
+@forward './colors';
+@forward './functions';
+
+@forward './layouts';
+@forward './mixins';
+@forward './mobile_variables';
