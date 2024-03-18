@@ -63,6 +63,11 @@ import CommonHeader from '@/components/CommonHeader.vue';
 @use '../styles/abstracts';
 .about {
     @extend %main-page;
+    width: 55%;
+    p {
+        font-size: 1.2rem;
+        line-height: 1.5rem;
+    }
 }
 // #about-wrapper {
 //     margin-inline: 15%;

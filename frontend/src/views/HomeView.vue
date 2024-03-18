@@ -42,6 +42,7 @@ div {
 }
 
 header {
+    @extend %flex-col-center;
     h1 {
         margin-bottom: 1rem;
     }
@@ -65,11 +66,5 @@ main {
 
 section {
     margin-bottom: .5rem;
-}
-
-div {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
 }
 </style>
