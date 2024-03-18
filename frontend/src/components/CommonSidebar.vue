@@ -1,4 +1,5 @@
 <script setup lang='ts'>
+// TODO is this deprecated??
 import { ref } from 'vue'
 import axios from 'axios'
 import SidebarItem from './SidebarItem.vue'

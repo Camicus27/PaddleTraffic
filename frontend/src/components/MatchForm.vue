@@ -67,109 +67,107 @@ function submitForm() {
 </script>
 
 <template>
-    <div id="event-form-wrapper">
-        <form @submit.prevent="submitForm">
-            <div>
-                <label for="name">Event Name:</label>
-                <input type="text" id="name" v-model="eventForm.name" autofocus tabindex="1" placeholder="Awesome Event Name..." required>
-            </div>
+    <form @submit.prevent="submitForm">
+        <div>
+            <label for="name">Event Name:</label>
+            <input type="text" id="name" v-model="eventForm.name" autofocus tabindex="1"
+                placeholder="Awesome Event Name..." required>
+        </div>
 
-            <div>
-                <label for="description">Description:</label>
-                <textarea id="description" v-model="eventForm.description" tabindex="2" placeholder="Description of your event..."></textarea>
-            </div>
+        <div>
+            <label for="description">Description:</label>
+            <textarea id="description" v-model="eventForm.description" tabindex="2"
+                placeholder="Description of your event..."></textarea>
+        </div>
 
-            <div>
-                <label for="location">Location:</label>
-                <select id="location" v-model="eventForm.location" tabindex="3" required>
-                    <!-- Options should be populated dynamically -->
-                    <option v-for="{ id, name } in allLocations" :key="id" :value="id">{{ name }}</option>
-                </select>
-            </div>
+        <div>
+            <label for="location">Location:</label>
+            <select id="location" v-model="eventForm.location" tabindex="3" required>
+                <!-- Options should be populated dynamically -->
+                <option v-for="{ id, name } in allLocations" :key="id" :value="id">{{ name }}</option>
+            </select>
+        </div>
 
+        <div>
+            <label for="host">Host:</label>
+            <select id="host" v-model="eventForm.host" tabindex="4" required>
+                <!-- Options should be populated dynamically -->
+                <option v-for="{ id, username } in allPlayers" :key="id" :value="id">{{ username }}</option>
+            </select>
+        </div>
+        <div>
             <div>
-                <label for="host">Host:</label>
-                <select id="host" v-model="eventForm.host" tabindex="4" required>
-                    <!-- Options should be populated dynamically -->
+                <label for="players">Players:</label>
+                <select id="players" multiple v-model="eventForm.players" tabindex="5"><!--@change="updatePlayers"-->
                     <option v-for="{ id, username } in allPlayers" :key="id" :value="id">{{ username }}</option>
+                    <!-- Options should be populated dynamically -->
                 </select>
             </div>
-            <div>
-                <div>
-                    <label for="players">Players:</label>
-                    <select id="players" multiple v-model="eventForm.players" tabindex="5"><!--@change="updatePlayers"-->
-                        <option v-for="{ id, username } in allPlayers" :key="id" :value="id">{{ username }}</option>
-                        <!-- Options should be populated dynamically -->
-                    </select>
-                </div>
-                <div class="selected-players">
-                    <span v-for="player in eventForm.players" :key="player.toString()" class="selected-player" tabindex="6">
-                        {{ allPlayers.filter((p: any) => p.id === player)[0].username }}
-                    </span>
-                </div>
-            </div>
-            <div>
-                <label for="date">Date:</label>
-                <input type="date" id="date" v-model="eventForm.date" tabindex="7" required>
-            </div>
-
-            <div>
-                <label for="time">Time:</label>
-                <input type="time" id="time" v-model="eventForm.time" tabindex="8" required>
-            </div>
-
-            <button type="submit">Submit</button>
-        </form>
-    </div>
-    <div class="alert-wrapper" v-if="submittedSuccessfully">
-            <div class="alert-success">
-                <span class="closebtn" @click="submittedSuccessfully = !submittedSuccessfully">&times;</span>
-                <strong>Success!</strong> Your form has been submitted. Please reload the events to see the change.
+            <div class="selected-players">
+                <span v-for="player in eventForm.players" :key="player.toString()" class="selected-player" tabindex="6">
+                    {{ allPlayers.filter((p: any) => p.id === player)[0].username }}
+                </span>
             </div>
         </div>
+        <div>
+            <label for="date">Date:</label>
+            <input type="date" id="date" v-model="eventForm.date" tabindex="7" required>
+        </div>
+
+        <div>
+            <label for="time">Time:</label>
+            <input type="time" id="time" v-model="eventForm.time" tabindex="8" required>
+        </div>
+
+        <button type="submit" class="dark-solid-button">Submit</button>
+    </form>
+    <div class="alert-wrapper" v-if="submittedSuccessfully">
+        <div class="alert-success">
+            <span class="closebtn" @click="submittedSuccessfully = !submittedSuccessfully">&times;</span>
+            <strong>Success!</strong> Your form has been submitted. Please reload the events to see the change.
+        </div>
+    </div>
 </template>
 
 <style scoped lang="scss">
-// form {
-//   display: flex;
-//   flex-direction: column;
-//   width: 75%;
-//   padding: 1.75rem;
-//   background-color: #f9f9f9;
-//   border-radius: 8px;
-//   box-shadow: 0 2px 4px #ffffff40;
-// }
+@use '../styles/components';
 
-// form div {
-//   display: flex;
-//   flex-direction: column;
-//   margin-block: .5rem;
-// }
+form {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    padding: 1.75rem;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px #ffffff40;
 
-// form label {
-//   display: block;
-//   margin-bottom: .5rem;
-//   font-weight: bold;
-// }
+    div {
+        display: flex;
+        flex-direction: column;
+        margin-block: .5rem;
+    }
 
-// form input,
-// form textarea,
-// form select {
-//   width: 100%;
-//   padding: 8px;
-//   border: 1px solid #ddd;
-//   border-radius: 4px;
-//   box-sizing: border-box;
-// }
+    label {
+        display: block;
+        margin-bottom: .5rem;
+        font-weight: bold;
+    }
 
-// form textarea {
-//   height: 5rem;
-//   resize: vertical;
-// }
+    input,
+    textarea,
+    select {
+        width: 100%;
+        padding: 8px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        box-sizing: border-box;
+    }
 
-// form select[multiple] {
-//   height: auto;
-// }
+    textarea {
+        height: 5rem;
+        resize: vertical;
+    }
+}
 
 // @media only screen and (max-width: 850px) {
 //     #event-form-wrapper {

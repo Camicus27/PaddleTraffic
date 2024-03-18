@@ -5,26 +5,22 @@ import MatchList from '@/components/MatchList.vue'
 
 <template>
   <CommonHeader />
-  <div id="match-wrapper">
-    <header>
-      <h1>Matchmaking Services</h1>
-    </header>
+  <div>
+    <h1>Matchmaking Services</h1>
     <MatchList />
   </div>
 </template>
 
 <style scoped lang="scss">
-@use '../styles/components/buttons';
+@use '../styles/abstracts';
 
-// #match-wrapper {
-//     display: flex;
-//     flex-direction: column;
-//     justify-content: center;
-//     align-items: center;
-//     padding: 1rem;
-//     margin: 1rem;
-//     width: 80%;
-// }
+h1 {
+  margin-bottom: 1.5rem;
+}
+
+div {
+  @extend %main-page;
+}
 
 // /* Media query for narrower screens */
 // @media only screen and (max-width: 850px) {

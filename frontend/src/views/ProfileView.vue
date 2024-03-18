@@ -333,6 +333,7 @@ function checkFriendshipStatus() {
 </template>
 
 <style scoped lang="scss">
+// i didn't even want to touch this so. here ya go.
 // .form-wrapper {
 //     display: flex;
 //     flex-direction: column;
