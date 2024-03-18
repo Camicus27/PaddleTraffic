@@ -75,6 +75,7 @@ function getCurrentUser() {
 
 header {
   width: 100vw;
+  flex: 0 1 auto;
 }
 
 .user-buttons {

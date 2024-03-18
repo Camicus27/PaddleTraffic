@@ -1,4 +1,5 @@
 <script setup lang="ts">
+// TODO deprecated??
 </script>
 
 <template>

@@ -232,34 +232,51 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <CommonHeader />
-    <div ref="mapContainer" class="mapbox-container">
-        <button id="search-bt" @click="updateMarkersOnSearch">Search This Area</button>
+    <div class="main-page">
+        <CommonHeader />
+        <div ref="mapContainer" class="mapbox-container">
+            <button id="search-bt" @click="updateMarkersOnSearch">Search This Area</button>
+        </div>
     </div>
     <!-- Dynamic adding to map page popup thingy ... -->
 </template>
 
 <style scoped lang="scss">
-// h3 {
-//     margin-bottom: 0;
-// }
+@use '../styles/abstracts';
+@use '../styles/components';
 
-// sub {
-//     margin-bottom: 1rem;
-// }
+.main-page {
+    @extend %flex-col-center;
+    height: 100vh;
+}
 
-// p {
-//     margin: 0.5rem 0;
-// }
+.mapbox-container {
+    display: flex;
+    width: 100vw;
+    flex: 1 1 auto;
+}
 
-// #search-bt {
-//     background-color: white;
-//     border-color: lightgrey;
-//     color: lightskyblue;
-//     z-index: 1;
-//     position: relative;
-//     margin-left: 1rem;
-// }
+#search-bt {
+    @extend .dark-solid-button;
+    border: none;
+    background-color: white;
+    color: lightskyblue;
+    z-index: 1;
+    position: relative;
+    margin-left: 1rem;
+    margin-top: 1rem;
+    height: 2rem;
+
+    &:hover {
+        color: white;
+        background-color: lightblue;
+    }
+
+    &:active {
+        background-color: darken($color: lightblue, $amount: 25);
+        transition: background-color 0.1s;
+    }
+}
 
 // .mapboxgl-popup-content {
 //     max-width: max-content;
@@ -301,5 +318,4 @@ onUnmounted(() => {
 //         transform: scale(1.1);
 //         filter: brightness(1.01);
 //     }
-// }
-</style>
+// }</style>

@@ -5,7 +5,7 @@ import CommonHeader from '@/components/CommonHeader.vue';
 
 <template>
     <CommonHeader />
-    <div id="about-wrapper">
+    <div class="about">
         <header>
             <h1>About PaddleTraffic</h1>
         </header>
@@ -60,6 +60,10 @@ import CommonHeader from '@/components/CommonHeader.vue';
 </template>
 
 <style scoped lang="scss">
+@use '../styles/abstracts';
+.about {
+    @extend %main-page;
+}
 // #about-wrapper {
 //     margin-inline: 15%;
 //     width: 80%;
