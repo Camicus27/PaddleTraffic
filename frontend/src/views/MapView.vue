@@ -278,44 +278,30 @@ onUnmounted(() => {
     }
 }
 
-// .mapboxgl-popup-content {
-//     max-width: max-content;
-// }
+// Must use :deep directive as components are loaded dynamically by mapboxgl
+:deep(.mapboxgl-popup-content) {
+    width: max-content;
+}
 
-// .mapbox-container {
-//     min-height: 100vh;
-//     min-width: 100vw;
-//     height: 100vh;
-//     width: 100vw;
-// }
+:deep(path) {
+    transition: stroke 0.3s ease, stroke-width 0.3s ease, stroke-linejoin 0.3s ease
+}
 
-// form {
-//     width: 30%;
-// }
+:deep(.selected path) {
+    stroke: #007bff;
+    stroke-width: 2.25px;
+    stroke-linejoin: round;
+}
 
-// /* Map Marker Styling */
-// :deep(.mapboxgl-popup-content) {
-//     width: max-content;
-// }
+:deep(svg) {
+    cursor: pointer;
+    overflow: visible;
+    transform-origin: 50% 100%;
+    transition: transform 0.3s ease, filter 0.3s ease;
 
-// :deep(path) {
-//     transition: stroke 0.3s ease, stroke-width 0.3s ease, stroke-linejoin 0.3s ease
-// }
-
-// :deep(.selected path) {
-//     stroke: #007bff;
-//     stroke-width: 2.75px;
-//     stroke-linejoin: round;
-// }
-
-// :deep(svg) {
-//     cursor: pointer;
-//     overflow: visible;
-//     transform-origin: 50% 100%;
-//     transition: transform 0.3s ease, filter 0.3s ease;
-
-//     :deep(&:hover) {
-//         transform: scale(1.1);
-//         filter: brightness(1.01);
-//     }
-// }</style>
+}
+:deep(svg:hover) {
+    transform: scale(1.1);
+    filter: brightness(1.01);
+}
+</style>

@@ -91,48 +91,4 @@ h2 {
   #register {
     padding: 0;
   }
-
-  /* Site footer styles */
-  footer {
-    padding-block: 2rem 0;
-  }
-
-  footer>div {
-    flex-direction: column;
-  }
-
-  #extra-info {
-    width: 95%;
-    align-items: center;
-    margin-bottom: 1rem;
-  }
-
-  #extra-info h3 {
-    font-size: 1rem;
-    margin-bottom: .25rem;
-  }
-
-  #extra-info p {
-    font-size: .8rem;
-  }
-
-  #contact-us {
-    width: 95%;
-    font-size: .8rem;
-    margin-bottom: 1rem;
-  }
-
-  #contact-us p {
-    margin-block: 0;
-  }
-
-  #socials p {
-    margin: 0;
-    margin-top: .5rem;
-  }
-
-  #legal {
-    width: 100%;
-    align-items: flex-end;
-  }
 }
