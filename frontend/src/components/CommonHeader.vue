@@ -49,12 +49,10 @@ function getCurrentUser() {
     </template>
   </div>
   <header>
-    <div>
-      <RouterLink to="/" class="logo">
-        <img src="@/assets/logo.png" class="logo" alt="PaddleTraffic Logo" width="64" height="64">
-        <h1>PaddleTraffic</h1>
-      </RouterLink>
-    </div>
+    <RouterLink to="/" class="logo">
+      <img src="@/assets/logo.png" class="logo" alt="PaddleTraffic Logo" width="64" height="64">
+      <h1>PaddleTraffic</h1>
+    </RouterLink>
     <nav>
       <RouterLink to="/" class="nav-bt">HOME</RouterLink>
       <RouterLink to="/map" class="nav-bt">MAP</RouterLink>
@@ -68,9 +66,17 @@ function getCurrentUser() {
 @use '../styles/components';
 @use '../styles/abstracts' as *;
 
+$mobile-size : 800px;
+
 .nav-bt {
   // just did this cus the name is long to type everywhere
   @extend .nav-button;
+
+  @include responsive($mobile-size) {
+    padding: 0 0.3rem;
+    font-size: 1rem;
+
+  }
 }
 
 header {
@@ -100,6 +106,15 @@ header {
     margin-top: .25rem;
     justify-content: center;
     font-size: 1.25rem;
+
+    @include responsive($mobile-size) {
+      width: 100%;
+      justify-content: space-around;
+    }
+  }
+
+  @include responsive($mobile-size) {
+    align-items: start;
   }
 }
 
@@ -108,13 +123,27 @@ header {
   flex-direction: row;
   align-items: center;
   text-decoration: none;
-  h1 {
-      padding-left: .5rem;
-      font-size: 2rem;
-      font-weight: bold;
-      color: $pickle-500;
-      text-shadow: 0px 0px 1px #080f0180;
-    }
-}
 
+  h1 {
+    padding-left: .5rem;
+    font-size: 2rem;
+    font-weight: bold;
+    color: $pickle-500;
+    text-shadow: 0px 0px 1px #080f0180;
+  }
+
+  @include responsive($mobile-size) {
+    margin-bottom: 10px;
+    position: static;
+
+    img {
+      width: 40px;
+      height: auto;
+    }
+
+    h1 {
+      font-size: 1.5rem;
+    }
+  }
+}
 </style>

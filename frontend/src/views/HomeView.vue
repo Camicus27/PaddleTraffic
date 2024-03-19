@@ -45,6 +45,7 @@ header {
     @extend %flex-col-center;
     h1 {
         margin-bottom: 1rem;
+        text-align: center;
     }
 
     p {
