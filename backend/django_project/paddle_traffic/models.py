@@ -121,24 +121,4 @@ class FriendRequest(models.Model):
         unique_together = ["requester", "receiver"]
 
 
-class FriendRequest(models.Model):
-    requester = models.ForeignKey(
-        PickleUser,
-        on_delete=models.CASCADE,
-        related_name="outgoing_requests",
-        null=False,
-    )
-    receiver = models.ForeignKey(
-        PickleUser,
-        on_delete=models.CASCADE,
-        related_name="incoming_requests",
-        null=False,
-    )
-    date_created = models.DateTimeField(default=timezone.now, blank=True)
-    accepted = models.BooleanField(default=False)
-
-    class Meta:
-        unique_together = ["requester", "receiver"]
-
-
 # TODO: add a "proposal" model for people who are proposing to add a new court somewhere?
