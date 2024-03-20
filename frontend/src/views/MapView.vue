@@ -348,8 +348,8 @@ onUnmounted(() => {
 </template>
 
 <style scoped lang="scss">
-@use '../styles/abstracts';
-@use '../styles/components';
+@use '@/styles/abstracts';
+@use '@/styles/components';
 
 .main-page {
     @extend %flex-col-center;

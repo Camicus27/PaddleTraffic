@@ -63,8 +63,8 @@ function getCurrentUser() {
 </template>
 
 <style scoped lang="scss">
-@use '../styles/components';
-@use '../styles/abstracts' as *;
+@use '@/styles/components';
+@use '@/styles/abstracts' as *;
 
 $mobile-size : 800px;
 

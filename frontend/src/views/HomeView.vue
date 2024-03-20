@@ -34,8 +34,8 @@ import CommonHeader from '@/components/CommonHeader.vue';
 </template>
 
 <style scoped lang="scss">
-@use '../styles/components';
-@use '../styles/abstracts';
+@use '@/styles/components';
+@use '@/styles/abstracts';
 
 div {
     @extend %main-page;

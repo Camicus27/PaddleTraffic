@@ -75,7 +75,7 @@ function getAllPlayers() {
 </template>
 
 <style scoped lang="scss">
-@use '../styles/components';
+@use '@/styles/components';
 
 .matches {
   margin: .75rem;

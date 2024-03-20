@@ -60,7 +60,7 @@ import CommonHeader from '@/components/CommonHeader.vue';
 </template>
 
 <style scoped lang="scss">
-@use '../styles/abstracts';
+@use '@/styles/abstracts';
 .about {
     @extend %main-page;
     width: 55%;

@@ -130,7 +130,7 @@ function submitForm() {
 </template>
 
 <style scoped lang="scss">
-@use '../styles/components';
+@use '@/styles/components';
 
 form {
     display: flex;
