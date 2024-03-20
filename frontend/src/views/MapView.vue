@@ -8,7 +8,6 @@ import CommonHeader from '@/components/CommonHeader.vue'
 import {getAllLocations, getLocationId, } from '@/api/functions'
 import {type Location} from '@/api/types'
 
-
 // -------------------------------- REFACTOR ZONE -------------------------------------------- //
 
 interface MapItem {
