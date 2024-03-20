@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import axios from 'axios';
 import { ref, type Ref } from 'vue';
-import type Location from './Location';
+import type {Location} from '@/api/types';
 
 let URL: string
 // This is the collection of environment variables.

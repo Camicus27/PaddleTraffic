@@ -6,17 +6,7 @@ import { useRoute } from "vue-router"
 import Popup from '@/components/Map/Popup.vue'
 import CommonHeader from '@/components/CommonHeader.vue'
 import {getAllLocations, getLocationId, } from '@/api/functions'
-
-interface Location {
-    id: number
-    name: string
-    latitude: number
-    longitude: number
-    court_count: number
-    courts_occupied: number
-    number_waiting: number
-    estimated_wait_time: number
-}
+import {type Location} from '@/api/types'
 
 
 // -------------------------------- REFACTOR ZONE -------------------------------------------- //
