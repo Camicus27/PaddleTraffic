@@ -17,18 +17,102 @@ interface Location {
     estimated_wait_time: number
 }
 
-// TODO: prevent desync
-// interface MapItem {
-//   location: Location
-//   marker: mapboxgl.Marker
-// }
 
-// const mapItems: Ref<MapItem[]> = ref([])
+// -------------------------------- REFACTOR ZONE -------------------------------------------- //
+
+interface MapItem {
+    location: Location
+    marker: mapboxgl.Marker
+}
+
+// [Location.id] : MapItem
+const mapItems: Ref<Map<number, MapItem>> = ref(new Map())
+const currSelected = ref<number | undefined>()
+
+function addMapItem(location: Location, map: mapboxgl.Map) {
+    if (mapItems.value.has(location.id)) return
+
+
+    // Create Popup vue app
+    const popupComponent = createApp(Popup,
+        {
+            location: location,
+            onSubmitCallback: updateMarkerColor,
+            currSelection: currSelection
+        })
+
+    // Mount the component and render it to HTML
+    const popupHtml = document.createElement('div')
+    popupComponent.mount(popupHtml);
+    const popup = new mapboxgl.Popup({ closeButton: false, offset: 25 }).setDOMContent(
+        popupHtml
+    )
+
+    // Create Map Marker
+    let marker: mapboxgl.Marker;
+    marker = new mapboxgl.Marker()
+        .setLngLat([location.longitude, location.latitude])
+        .setPopup(popup)
+        .addTo(map)
+
+    // add this to map items
+    const newMapItem: MapItem = {
+        location: location,
+        marker: marker
+    }
+    mapItems.value.set(location.id, newMapItem)
+
+    // update color!
+    updateMarkerColor(location)
+
+    // TODO change to be for event listener on like the Popup instead of just on click
+    marker.getElement().addEventListener('click', () => {
+        selectMarkerREFACTORED(location.id)
+    })
+
+}
+
+// Update the info section with location data
+function selectMarkerREFACTORED(locId: number) {
+    if (!mapItems.value.has(locId)) return
+
+    const selectedClassName = 'selected'
+    if (currSelected.value) { // if a marker is selected
+        let mapItem = mapItems.value.get(currSelected.value)
+        let old_marker = mapItem!.marker.getElement()
+        old_marker.classList.remove(selectedClassName)
+        if (currSelected.value == locId) { // and it's the same one
+            currSelected.value = undefined // then none is selected in state
+            return // return
+        }
+    }
+
+    // otherwise set the new one
+    currSelected.value = locId
+    let fill_el = mapItems.value.get(locId)!.marker.getElement()
+    fill_el.classList.add(selectedClassName)
+}
+
+function removeMapItem(locId: number) {
+    let mapItem = mapItems.value.get(locId)
+    if (!mapItem) return
+    // remove it from the map
+    mapItem.marker.remove()
+    // from mapItems
+    mapItems.value.delete(locId)
+}
+
+// -------------------------------- REFACTOR ZONE -------------------------------------------- //
 
 const mapContainer = ref<HTMLElement | undefined>() // reference to the <div> mapContainer
+
+// TODO DELETE
 const currSelection = ref<Location | undefined>() // can be none
 
+// TODO DELETE
 const allLocations: Ref<Location[]> = ref([]) // all locations currently on the map, coincides with mapMarkers
+
+// TODO DELETE
 const mapMarkers = ref<{ [key: number]: mapboxgl.Marker }>({}) // dictionary of locationID -> mapMarkers, right now coincides with allLocations
 // for the URL ?lat=:number&lon=:number
 const props = {
@@ -36,13 +120,14 @@ const props = {
     lon: Number(useRoute().query.lon)
 }
 
-// => let mapCenterAtTimeOfSearchArea: LngLat
+
+// TODO DELETE
 let mapSearchedCenter: LngLat // TODO why are we using this instead of just like, map.getCenter() ?
 // I think before we were storing the old center so when we do queries it'll like be where the old center was, that's not really working so, maybe we get rid of it and add an endpoint 💀
 
 // TODO: improve token handling
 mapboxgl.accessToken = 'pk.eyJ1Ijoic3VudHp1Y2Fwc3RvbmUiLCJhIjoiY2xwOHl6MGZiMWQwcjJ2bzNpdTh3ZXZ5diJ9.2OxP9v87qKxpFmL7FFrD-g'
-const map: Ref<mapboxgl.Map | undefined> = ref()
+const map: Ref<mapboxgl.Map | undefined> = ref() // TODO can we make this just like not undefined? or something
 
 let URL: string
 // This is the collection of environment variables.
@@ -64,14 +149,29 @@ function initGeoloc(mapVal: mapboxgl.Map) {
         showAccuracyCircle: false
     })
 
+    // TODO chagney
     if (props?.lat && props?.lon) {
         let lonLatLike = new mapboxgl.LngLat(props.lon, props.lat)
         map.value?.setCenter(lonLatLike)
+        mapSearchedCenter = lonLatLike;
+    }
+    else {
+        mapSearchedCenter = mapVal.getCenter()
     }
 
-    mapSearchedCenter = mapVal.getCenter()
-    mapVal.addControl(geolocateControl)
-    mapVal.on('load', () => geolocateControl.trigger())
+    mapVal.addControl(geolocateControl);
+
+    // change bc mapSearchedCenter
+    geolocateControl.on('geolocate', (e: any) => {
+        let userLocation = new mapboxgl.LngLat(e.coords.longitude, e.coords.latitude);
+        mapVal.setCenter(userLocation);
+        mapSearchedCenter = userLocation;
+        addMarkersQuery(mapVal);
+    });
+
+    mapVal.on('load', () => {
+        geolocateControl.trigger();
+    });
 }
 
 
@@ -79,13 +179,14 @@ function initGeoloc(mapVal: mapboxgl.Map) {
  * GET latest info about markers at center of map
  */
 function addMarkersQuery(mapVal: mapboxgl.Map, selectLatLonProps: boolean = false) {
-    // TODO why not use mapVal.getCenter()??
+    // TODO lat / lng will just be center of map probs, or we pass it in idk
     let lat = mapSearchedCenter?.lat
     let lng = mapSearchedCenter?.lng
     axios.get(`${URL}/locations/bounds?lat=${lat}&lon=${lng}`)
         .then((response) => {
             allLocations.value = response.data.locations
             allLocations.value.forEach(loc => {
+                // TODO use our 'Class/Library/GigaChadCode' instead of using any of the code here basically 💀💀💀 
                 const popupComponent = createApp(Popup, { location: loc, onSubmitCallback: updateMarkerColor, currSelection: currSelection })
 
                 // Mount the component and render it to HTML
@@ -95,10 +196,18 @@ function addMarkersQuery(mapVal: mapboxgl.Map, selectLatLonProps: boolean = fals
                 const popup = new mapboxgl.Popup({ closeButton: false, offset: 25 }).setDOMContent(
                     popupHtml
                 )
-                const marker = new mapboxgl.Marker()
-                    .setLngLat([loc.longitude, loc.latitude])
-                    .setPopup(popup)
-                    .addTo(mapVal)
+
+                let marker: mapboxgl.Marker;
+                if (loc.id in mapMarkers.value) {
+                    marker = mapMarkers.value[loc.id]
+                }
+                else {
+                    marker = new mapboxgl.Marker()
+                        .setLngLat([loc.longitude, loc.latitude])
+                        .addTo(mapVal)
+                }
+
+                marker.setPopup(popup)
 
                 mapMarkers.value[loc.id] = marker
 
@@ -110,13 +219,16 @@ function addMarkersQuery(mapVal: mapboxgl.Map, selectLatLonProps: boolean = fals
                     selectMarker(loc.id)
                 })
             })
-            if (selectLatLonProps)
+            if (selectLatLonProps) // TODO this is for QR code Should only happen on loading the URL. Ideally extract two functions for loading and QR and have common code btwn where possible
                 selectLatLonMarker()
         })
         .catch((error) => console.log(error))
 }
 
-function updateMarkersOnSearch() {
+// TODO change a bit because we are using mapItems now
+function refreshMapItems() {
+    // mapItems.removeAll()
+    // mapItems.addAll(API.getLocations(lat, lon))
     Object.entries(mapMarkers.value).forEach(marker => {
         marker[1].remove()
     })
@@ -127,7 +239,7 @@ function updateMarkersOnSearch() {
     addMarkersQuery(map.value!)
 }
 
-function updateMarkerColor(loc: Location) {
+function updateMarkerColor(loc: Location) { // TODO change to just take id
     let fill_el = mapMarkers.value[loc.id]?.getElement().querySelector('path')
     if (fill_el === undefined) return
 
@@ -175,11 +287,16 @@ function selectMarker(locId: number) {
  * Each of those locations are updated in the Map,
  * and the current selected location attributes are selected
  */
-function updateLocationsInterval() {
-    let LngLat = mapSearchedCenter // TODO change to be based on the list of locations that you have ... not the center of origin
+function updateLocationsInterval() { // TODO implement API for this in backend and frontend /locations/[id1, id2, ... id_n]
+    let LngLat = mapSearchedCenter // TODO change to mapItems lmao not cringey af 💀💀💀💀💀💀💀💀bozo
     let lat = LngLat?.lat
     let lng = LngLat?.lng
     if (!lat || !lng) return
+    /**
+     * {
+     * "yuh" : []
+     * }
+     */
 
     axios.get(`${URL}/locations/bounds?lat=${lat}&lon=${lng}`)
         .then((response) => {
@@ -193,7 +310,7 @@ function updateLocationsInterval() {
         })
         .catch((error) => console.log(error))
 }
-
+// TODO remove this to be an API call
 function selectLatLonMarker() {
     if (!props?.lat || !props?.lon) return
 
@@ -206,16 +323,14 @@ function selectLatLonMarker() {
 
 let locationsInterval: number | undefined
 onMounted(() => {
-    if (!mapContainer?.value)
-        return
+    if (!mapContainer?.value) throw new Error("OH MY FREAKING GOSH WHAT THE FRICK 💀💀💀💀💀💀💀💀")
     map.value = new mapboxgl.Map({
         container: mapContainer.value,
         style: 'mapbox://styles/mapbox/streets-v12',
-        center: [-111.876183, 40.758701], // Default to SLC
+        center: [-111.876183, 40.758701], // Default to SLC 
         zoom: 11
     })
     initGeoloc(map.value)
-    addMarkersQuery(map.value, true)
     locationsInterval = window.setInterval(updateLocationsInterval, 3000)
     document.querySelector('.mapboxgl-ctrl-bottom-right')?.remove()
     document.querySelector('.mapboxgl-ctrl-bottom-left')?.setAttribute('style', 'transform: scale(0.85);')
@@ -234,8 +349,8 @@ onUnmounted(() => {
 <template>
     <div class="main-page">
         <CommonHeader />
+        <!-- <button id="search-bt" @click="updateMarkersOnSearch">Search This Area</button> -->
         <div ref="mapContainer" class="mapbox-container">
-            <button id="search-bt" @click="updateMarkersOnSearch">Search This Area</button>
         </div>
     </div>
     <!-- Dynamic adding to map page popup thingy ... -->
@@ -263,8 +378,10 @@ onUnmounted(() => {
     color: lightskyblue;
     z-index: 1;
     position: relative;
-    margin-left: 1rem;
-    margin-top: 1rem;
+    margin-left: 20px;
+    margin-top: 40px;
+    height: 2rem;
+    width: 4rem;
     height: 2rem;
 
     &:hover {
@@ -300,6 +417,7 @@ onUnmounted(() => {
     transition: transform 0.3s ease, filter 0.3s ease;
 
 }
+
 :deep(svg:hover) {
     transform: scale(1.1);
     filter: brightness(1.01);
