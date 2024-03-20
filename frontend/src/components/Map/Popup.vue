@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import axios from 'axios';
 import { ref, type Ref } from 'vue';
-import type {Location} from '@/api/types';
+import type {Location, Report} from '@/api/types';
+import { postLocationReport } from '@/api/functions';
 
 let URL: string
 // This is the collection of environment variables.
@@ -11,15 +12,15 @@ if (env.MODE === 'production')
 else
     URL = env.VITE_DEV_URL
 
-const props = defineProps(['location', 'onSubmitCallback', 'currSelection'])
+const props = defineProps(['location', 'onSubmitCallback'])
 const onSubmitCallback: (l: Location) => void = props.onSubmitCallback
-const currSelection: Ref<Location> = props.currSelection
 
-const locForm = ref({
+const locForm: Ref<Report> = ref({
     courts_occupied: 0,
     number_waiting: 0
 })
 
+// need to be a ref?
 const location = ref<Location>(props.location)
 
 const submitDataDisabled = ref<boolean>(false)
@@ -46,14 +47,16 @@ function formatTime(timeNum: number): string {
 }
 
 function submitForm() {
+    // timeout the button
     submitDataDisabled.value = true
     setTimeout(() => {
         submitDataDisabled.value = false
     }, 3000)
+
+    postLocationReport(location.value.id, locForm.value)
     axios.post(`${URL}/locations/${location.value.id}/report/`, { report: locForm.value })
         .then(response => {
             // Handle the response here. For example, logging the new location ID.
-            currSelection.value = response.data.location
             location.value = response.data.location
             onSubmitCallback(location.value)
         })

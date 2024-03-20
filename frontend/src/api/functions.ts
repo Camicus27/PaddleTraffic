@@ -1,6 +1,13 @@
 import axios from 'axios'
+import type { FriendRequest, Location, PendingFriendRequests, PickleUser, RestrictedUser, Report } from './types'
 
-import type { FriendRequest, Location, PendingFriendRequests, PickleUser, RestrictedUser } from './types'
+let URL: string
+// This is the collection of environment variables.
+const env = import.meta.env
+if (env.MODE === 'production')
+    URL = env.VITE_PROD_URL
+else
+    URL = env.VITE_DEV_URL
 
 // USER FUNCTIONS //
 
@@ -81,15 +88,17 @@ export async function getUserUsername(username: string, baseUrl: string, logErro
 
 // LOCATION FUNCTIONS //
 
+// TODO change to be all the same name e.g. function overloading? can u do that?
+
 /**
  * This function fetches all available locations from the server.
  * @param baseUrl The base URL for the HTTP request.
  * @param logError Whether or not the error should be printed, if one occurs.
  * @returns An array of Location objects if the request is successful; undefined otherwise.
  */
-export async function getAllLocations(baseUrl: string, logError: boolean = false): Promise<Array<Location> | undefined> {
+export async function getAllLocations(logError: boolean = false): Promise<Array<Location> | undefined> {
     try {
-        const response = await axios.get(`${baseUrl}/locations/`)
+        const response = await axios.get(`${URL}/locations/`)
         if (response.data.locations)
             return response.data.locations as Array<Location>
     } catch (error) {
@@ -107,9 +116,9 @@ export async function getAllLocations(baseUrl: string, logError: boolean = false
  * @param logError Whether or not the error should be printed, if one occurs.
  * @returns A Location object if the request is successful; undefined otherwise.
  */
-export async function getLocationId(id: number, baseUrl: string, logError: boolean = false): Promise<Location | undefined> {
+export async function getLocationId(id: number, logError: boolean = false): Promise<Location | undefined> {
     try {
-        const response = await axios.get(`${baseUrl}/locations/${id}/`)
+        const response = await axios.get(`${URL}/locations/${id}/`)
         if (response.data.location)
             return response.data.location as Location
     } catch (error) {
@@ -119,7 +128,7 @@ export async function getLocationId(id: number, baseUrl: string, logError: boole
     return undefined
 }
 
-export async function getLocationsByBounds(lat: number, lon: number, logError: boolean = false): Promise<Location[] | undefined> {
+export async function getLocationsByBounds(lat: number, lon: number, logError: boolean = true): Promise<Location[] | undefined> {
     try {
         const response = await axios.get(`${URL}/locations/bounds?lat=${lat}&lon=${lon}`)
         if (response.data.locations)

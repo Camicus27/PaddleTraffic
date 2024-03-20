@@ -1,12 +1,21 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, type Ref, getCurrentInstance, createApp } from 'vue'
 import mapboxgl, { LngLat } from "mapbox-gl"
-import axios from 'axios'
 import { useRoute } from "vue-router"
 import Popup from '@/components/Map/Popup.vue'
 import CommonHeader from '@/components/CommonHeader.vue'
-import {getAllLocations, getLocationId, } from '@/api/functions'
-import {type Location} from '@/api/types'
+import {
+    getAllLocations,
+    getLocationId,
+    getLocationsByBounds,
+    getLocationsByList,
+    getNearestLocation,
+    postLocationReport
+} from '@/api/functions'
+import { type Location } from '@/api/types'
+import { appendFile } from 'fs'
+// TODO handle error messages more elegantly
+// TODO maybe add debug flag and console.error statments or something
 
 // -------------------------------- REFACTOR ZONE -------------------------------------------- //
 
@@ -27,8 +36,7 @@ function addMapItem(location: Location, map: mapboxgl.Map) {
     const popupComponent = createApp(Popup,
         {
             location: location,
-            onSubmitCallback: updateMarkerColor,
-            currSelection: currSelection
+            onSubmitCallback: updateMarkerColor
         })
 
     // Mount the component and render it to HTML
@@ -45,7 +53,7 @@ function addMapItem(location: Location, map: mapboxgl.Map) {
         .setPopup(popup)
         .addTo(map)
 
-    // add this to map items
+    // Add MapItem
     const newMapItem: MapItem = {
         location: location,
         marker: marker
@@ -53,13 +61,19 @@ function addMapItem(location: Location, map: mapboxgl.Map) {
     mapItems.value.set(location.id, newMapItem)
 
     // update color!
-    updateMarkerColor(location)
+    updateMarkerColor(location.id)
 
     // TODO change to be for event listener on like the Popup instead of just on click
     marker.getElement().addEventListener('click', () => {
         selectMarkerREFACTORED(location.id)
     })
 
+}
+
+function addAllMapItems(locations: Location[], map: mapboxgl.Map) {
+    for (let location of locations) {
+        addMapItem(location, map)
+    }
 }
 
 // Update the info section with location data
@@ -92,32 +106,50 @@ function removeMapItem(locId: number) {
     mapItems.value.delete(locId)
 }
 
+function removeAllMapItems() {
+    let keys = mapItems.value.keys()
+    for (let key of keys) { // for-of iterator, not for-in for properties in object :/
+        removeMapItem(key)
+    }
+}
+
+// CHECKOFF
+function refreshMapItems() {
+    let locationIds = Array.from(mapItems.value.keys())
+    getLocationsByList(locationIds).then((locations) => {
+        if (!locations) return // don't refresh if no new data could be received
+        removeAllMapItems()
+        addAllMapItems(locations, getMap())
+    })
+}
+
+// CHECKOFF
+function refreshMapItemsByCenter() {
+    let { lat, lng } = getMap().getCenter()
+    getLocationsByBounds(lat, lng).then((locations) => {
+        if (!locations) return // don't refresh if no new data could be received
+        removeAllMapItems()
+        addAllMapItems(locations, getMap())
+    })
+}
+
 // -------------------------------- REFACTOR ZONE -------------------------------------------- //
 
 const mapContainer = ref<HTMLElement | undefined>() // reference to the <div> mapContainer
-
-// TODO DELETE
-const currSelection = ref<Location | undefined>() // can be none
-
-// TODO DELETE
-const allLocations: Ref<Location[]> = ref([]) // all locations currently on the map, coincides with mapMarkers
-
-// TODO DELETE
-const mapMarkers = ref<{ [key: number]: mapboxgl.Marker }>({}) // dictionary of locationID -> mapMarkers, right now coincides with allLocations
 // for the URL ?lat=:number&lon=:number
 const props = {
     lat: Number(useRoute().query.lat),
     lon: Number(useRoute().query.lon)
 }
 
-
-// TODO DELETE
-let mapSearchedCenter: LngLat // TODO why are we using this instead of just like, map.getCenter() ?
-// I think before we were storing the old center so when we do queries it'll like be where the old center was, that's not really working so, maybe we get rid of it and add an endpoint 💀
-
 // TODO: improve token handling
 mapboxgl.accessToken = 'pk.eyJ1Ijoic3VudHp1Y2Fwc3RvbmUiLCJhIjoiY2xwOHl6MGZiMWQwcjJ2bzNpdTh3ZXZ5diJ9.2OxP9v87qKxpFmL7FFrD-g'
 const map: Ref<mapboxgl.Map | undefined> = ref() // TODO can we make this just like not undefined? or something
+const getMap = () => {
+    if (map.value)
+        return map.value
+    throw new Error("💀I LOVE ERROR MESSAGES💀")
+}
 
 let URL: string
 // This is the collection of environment variables.
@@ -138,110 +170,44 @@ function initGeoloc(mapVal: mapboxgl.Map) {
         trackUserLocation: true,
         showAccuracyCircle: false
     })
-
-    // TODO chagney
-    if (props?.lat && props?.lon) {
-        let lonLatLike = new mapboxgl.LngLat(props.lon, props.lat)
-        map.value?.setCenter(lonLatLike)
-        mapSearchedCenter = lonLatLike;
-    }
-    else {
-        mapSearchedCenter = mapVal.getCenter()
-    }
-
     mapVal.addControl(geolocateControl);
 
     // change bc mapSearchedCenter
     geolocateControl.on('geolocate', (e: any) => {
-        let userLocation = new mapboxgl.LngLat(e.coords.longitude, e.coords.latitude);
-        mapVal.setCenter(userLocation);
-        mapSearchedCenter = userLocation;
-        addMarkersQuery(mapVal);
-    });
+        // bc it's every time the page loads, probably not this here.
+        // let userLocation = new mapboxgl.LngLat(e.coords.longitude, e.coords.latitude);
+        // mapVal.setCenter(userLocation);
+        console.log(`CENTER ON GEOLOCATE CALLBACK ${mapVal.getCenter()}`)
+    }); // when 'turning on' geolocate finishes / page is loaded anew
+
+    if (props.lat && props.lon) {
+        let lonLatLike = new mapboxgl.LngLat(props.lon, props.lat)
+        mapVal.setCenter(lonLatLike)
+    }
 
     mapVal.on('load', () => {
-        geolocateControl.trigger();
+        geolocateControl.trigger() // Basically 'turn on geolocate'
+        console.log(`CENTER ON LOAD ${mapVal.getCenter()}`)
     });
 }
 
+function updateMarkerColor(locationId: number) {
+    let mapItem = mapItems.value.get(locationId)
+    if (!mapItem) return // do not update if not found
+    let { location, marker } = mapItem
 
-/**
- * GET latest info about markers at center of map
- */
-function addMarkersQuery(mapVal: mapboxgl.Map, selectLatLonProps: boolean = false) {
-    // TODO lat / lng will just be center of map probs, or we pass it in idk
-    let lat = mapSearchedCenter?.lat
-    let lng = mapSearchedCenter?.lng
-    axios.get(`${URL}/locations/bounds?lat=${lat}&lon=${lng}`)
-        .then((response) => {
-            allLocations.value = response.data.locations
-            allLocations.value.forEach(loc => {
-                // TODO use our 'Class/Library/GigaChadCode' instead of using any of the code here basically 💀💀💀 
-                const popupComponent = createApp(Popup, { location: loc, onSubmitCallback: updateMarkerColor, currSelection: currSelection })
-
-                // Mount the component and render it to HTML
-                const popupHtml = document.createElement('div')
-                popupComponent.mount(popupHtml);
-
-                const popup = new mapboxgl.Popup({ closeButton: false, offset: 25 }).setDOMContent(
-                    popupHtml
-                )
-
-                let marker: mapboxgl.Marker;
-                if (loc.id in mapMarkers.value) {
-                    marker = mapMarkers.value[loc.id]
-                }
-                else {
-                    marker = new mapboxgl.Marker()
-                        .setLngLat([loc.longitude, loc.latitude])
-                        .addTo(mapVal)
-                }
-
-                marker.setPopup(popup)
-
-                mapMarkers.value[loc.id] = marker
-
-                // affects how much to take into account the court_count, greater means more tolerance, less means less tolerance
-                updateMarkerColor(loc)
-
-                // Add an event listener to each marker
-                marker.getElement().addEventListener('click', () => {
-                    selectMarker(loc.id)
-                })
-            })
-            if (selectLatLonProps) // TODO this is for QR code Should only happen on loading the URL. Ideally extract two functions for loading and QR and have common code btwn where possible
-                selectLatLonMarker()
-        })
-        .catch((error) => console.log(error))
-}
-
-// TODO change a bit because we are using mapItems now
-function refreshMapItems() {
-    // mapItems.removeAll()
-    // mapItems.addAll(API.getLocations(lat, lon))
-    Object.entries(mapMarkers.value).forEach(marker => {
-        marker[1].remove()
-    })
-    mapMarkers.value = []
-    allLocations.value = []
-    mapSearchedCenter = map.value!.getCenter()
-    currSelection.value = undefined
-    addMarkersQuery(map.value!)
-}
-
-function updateMarkerColor(loc: Location) { // TODO change to just take id
-    let fill_el = mapMarkers.value[loc.id]?.getElement().querySelector('path')
-    if (fill_el === undefined) return
+    let fill_el = marker.getElement().querySelector('path')
+    if (!fill_el) return
 
     let waiting_constant = 1.2
     // ratio for number waiting / c * court_count
-    let waiting_ratio = loc.number_waiting / (waiting_constant * loc.court_count)
+    let waiting_ratio = location.number_waiting / (waiting_constant * location.court_count)
 
     // caps at 1
     waiting_ratio = waiting_ratio > 1 ? 1 : waiting_ratio
 
     // ratio of # of courts occupied
-    let courts_occupied_ratio = loc.courts_occupied / loc.court_count
+    let courts_occupied_ratio = location.courts_occupied / location.court_count
 
     // distribution of how much to take into account people waiting vs courts occupied
     let percent_full = 0.4 * courts_occupied_ratio + 0.6 * waiting_ratio
@@ -251,65 +217,9 @@ function updateMarkerColor(loc: Location) { // TODO change to just take id
     let b = 0
 
     let darker_val = 0.95
-    fill_el?.setAttribute("fill", `rgb(${r * darker_val}, ${g * darker_val}, ${b * darker_val})`)
+    fill_el.setAttribute("fill", `rgb(${r * darker_val}, ${g * darker_val}, ${b * darker_val})`)
 }
 
-// Update the info section with location data
-function selectMarker(locId: number) {
-    let selectedClassName = 'selected'
-    if (currSelection.value) { // if a marker is selected
-        let old_marker = mapMarkers.value[currSelection.value.id].getElement()
-        old_marker.classList.remove(selectedClassName)
-        if (currSelection.value.id == locId) { // and it's the same one
-            currSelection.value = undefined
-            return
-        }
-    }
-
-    // set the new one
-    currSelection.value = allLocations.value.find(location => location.id === locId)
-    let fill_el = mapMarkers.value[locId].getElement()
-    fill_el.classList.add(selectedClassName)
-}
-
-/**
- * Makes a request for the most recent data about the locations
- * Each of those locations are updated in the Map,
- * and the current selected location attributes are selected
- */
-function updateLocationsInterval() { // TODO implement API for this in backend and frontend /locations/[id1, id2, ... id_n]
-    let LngLat = mapSearchedCenter // TODO change to mapItems lmao not cringey af 💀💀💀💀💀💀💀💀bozo
-    let lat = LngLat?.lat
-    let lng = LngLat?.lng
-    if (!lat || !lng) return
-    /**
-     * {
-     * "yuh" : []
-     * }
-     */
-
-    axios.get(`${URL}/locations/bounds?lat=${lat}&lon=${lng}`)
-        .then((response) => {
-            allLocations.value = response.data.locations
-            allLocations.value.forEach(loc => {
-                updateMarkerColor(loc)
-                if (loc.id === currSelection.value?.id) {
-                    currSelection.value = loc
-                }
-            })
-        })
-        .catch((error) => console.log(error))
-}
-// TODO remove this to be an API call
-function selectLatLonMarker() {
-    if (!props?.lat || !props?.lon) return
-
-    axios.get(`${URL}/location/latlon?lat=${props.lat}&lon=${props.lon}`)
-        .then((response) => {
-            selectMarker(response.data.location.id)
-        })
-        .catch((error) => console.log(error))
-}
 
 let locationsInterval: number | undefined
 onMounted(() => {
@@ -321,7 +231,7 @@ onMounted(() => {
         zoom: 11
     })
     initGeoloc(map.value)
-    locationsInterval = window.setInterval(updateLocationsInterval, 3000)
+    locationsInterval = window.setInterval(refreshMapItemsByCenter, 3000)
     document.querySelector('.mapboxgl-ctrl-bottom-right')?.remove()
     document.querySelector('.mapboxgl-ctrl-bottom-left')?.setAttribute('style', 'transform: scale(0.85);')
 })
@@ -330,7 +240,7 @@ onUnmounted(() => {
     map.value?.remove()
     map.value = undefined
     if (locationsInterval) {
-        clearInterval(locationsInterval)
+        window.clearInterval(locationsInterval)
     }
     locationsInterval = undefined
 })
