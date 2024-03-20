@@ -17,7 +17,6 @@ class RestrictedUserSerializer(serializers.ModelSerializer):
             "loss_count",
             "skill_level",
             "bio",
-            "profile_picture",
         ]
 
 
@@ -46,7 +45,6 @@ class UserSerializer(serializers.ModelSerializer):
             "loss_count",
             "skill_level",
             "bio",
-            "profile_picture",
             "is_member",
             "latitude",
             "longitude",
@@ -73,7 +71,6 @@ class UserUpdateSerializer(serializers.ModelSerializer):
             "loss_count",
             "skill_level",
             "bio",
-            "profile_picture",
             "is_member",
             "latitude",
             "longitude",
@@ -95,7 +92,6 @@ class UserUpdateSerializer(serializers.ModelSerializer):
             "loss_count": {"required": False},
             "skill_level": {"required": False},
             "bio": {"required": False},
-            "profile_picture": {"required": False},
             "is_member": {"required": False},
             "latitude": {"required": False},
             "longitude": {"required": False},

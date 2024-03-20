@@ -27,9 +27,6 @@ class PickleUser(AbstractUser):
         help_text="Pickleball Skill Level",
     )
     bio = models.TextField(blank=True)
-    profile_picture = models.ImageField(
-        upload_to="profile_pictures/", blank=True, null=True
-    )
     is_member = models.BooleanField(default=False)
     latitude = models.DecimalField(
         max_digits=9, decimal_places=6, blank=True, null=True

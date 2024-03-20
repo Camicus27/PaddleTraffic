@@ -40,6 +40,7 @@ else URL = env.VITE_DEV_URL
 
 onMounted(async () => {
   await getCurrentUser()
+  console.dir(myUser)
   if (myUser.value) {
     await getFriendRequests()
     await fetchUsers()
