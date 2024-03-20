@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, type Ref } from 'vue'
+import { ref, onMounted, onActivated, type Ref } from 'vue'
 import axios from 'axios'
 
 const isFetching = ref(true)
@@ -30,9 +30,13 @@ onMounted(async () => {
   getAllLocations()
 })
 
-function redirect(path: string) {
-  window.location.href = path
-}
+onActivated(async () => {
+  submittedSuccessfully.value = false
+  await getCurrentUser()
+  if (currentUser.value) {
+    allFriends.value = currentUser.value.friends
+  }
+})
 
 async function getCurrentUser() {
   try {
@@ -41,9 +45,8 @@ async function getCurrentUser() {
       currentUser.value = response.data.user
     } else currentUser.value = undefined
   } catch {
-    currentUser.value = undefined
     // Redirect to login page if the user is not logged in
-    // if (!username.value) redirect('/login')
+    window.location.href = '/login'
   }
 }
 
@@ -70,7 +73,6 @@ function submitForm() {
     eventForm.value.isPublic = matchVisibility.value === 'public'
     axios.post(`${URL}/events/`, { event: eventForm.value })
         .then(response => {
-            // Handle the response here. For example, logging the new location ID.
             console.log('New event ID:', response.data);
             submittedSuccessfully.value = true;
         })
@@ -82,10 +84,6 @@ function submitForm() {
 </script>
 
 <template>
-    <!-- helpful scripts stuff
-    if (currentUser.value)  - checks if there is a logged in user
-    -->
-
     <div v-if="currentUser" id="event-form-wrapper">
         <form @submit.prevent="submitForm">
             <div>
@@ -132,13 +130,20 @@ function submitForm() {
             <div>
                 <label for="isPublic">Match Privacy:</label>
                 <input type="radio" id="public" value="public" v-model="matchVisibility">
-                <label for="public">Public</label>
+                <p>
+                    Public
+                </p>
                 <input type="radio" id="private" value="private" v-model="matchVisibility">
-                <label for="private">Private</label>
+                <p>
+                    Private
+                </p>
             </div>
 
             <button type="submit">Submit</button>
         </form>
+    </div>
+    <div>
+        <RouterLink to="/matchmaking">&larr; Return to Events</RouterLink>
     </div>
     <div class="alert-wrapper" v-if="submittedSuccessfully">
         <div class="alert-success">

@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import MatchList from '@/components/MatchList.vue'
+import MatchForm from '@/components/MatchForm.vue'
 </script>
 
 <template>
   <div id="match-wrapper">
     <header>
-      <h1>Matchmaking Events</h1>
+      <h1>New Event</h1>
     </header>
-    <MatchList />
+    <MatchForm />
   </div>
 </template>

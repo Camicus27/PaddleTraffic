@@ -26,10 +26,11 @@ class Command(BaseCommand):
         p3 = PickleUser.objects.create_user("p3", "p3@paddletraffic.net", "p3")
         players.user_set.add(p1, p2, p3)
 
+        # Park locations
         picklecoin_hq = Location.objects.create(
             name="Picklecoin HQ",
-            latitude=40.767807,
-            longitude=-111.845182,
+            latitude=40.457575,
+            longitude=-111.50373,
             court_count=24,
             courts_occupied=24,
             number_waiting=15,
@@ -170,6 +171,71 @@ class Command(BaseCommand):
             number_waiting=4,
             estimated_wait_time=timezone.timedelta(minutes=12)
         )
+        highfield_park = Location.objects.create(
+            name="Highfield Park",
+            latitude=40.489473,
+            longitude=-112.004145,
+            court_count=1,
+            courts_occupied=0,
+            number_waiting=0,
+            estimated_wait_time=timezone.timedelta(minutes=0)
+        )
+        sierra_newbold_park = Location.objects.create(
+            name="Sierra Newbold Memorial Park",
+            latitude=40.593980,
+            longitude=-112.034920,
+            court_count=6,
+            courts_occupied=0,
+            number_waiting=0,
+            estimated_wait_time=timezone.timedelta(minutes=0)
+        )
+        south_jordan_city_park = Location.objects.create(
+            name="South Jordan City Park",
+            latitude=40.550955,
+            longitude=-111.940657,
+            court_count=6,
+            courts_occupied=2,
+            number_waiting=0,
+            estimated_wait_time=timezone.timedelta(minutes=0)
+        )
+        independence = Location.objects.create(
+            name="Independence Pickleball Courts",
+            latitude=40.478724,
+            longitude=-111.920604,
+            court_count=4,
+            courts_occupied=4,
+            number_waiting=1,
+            estimated_wait_time=timezone.timedelta(minutes=4)
+        )
+        southfork_park = Location.objects.create(
+            name="Southfork Park",
+            latitude=40.496517,
+            longitude=-111.882103,
+            court_count=6,
+            courts_occupied=3,
+            number_waiting=0,
+            estimated_wait_time=timezone.timedelta(minutes=0)
+        )
+        riverton_city_park = Location.objects.create(
+            name="Riverton City Park",
+            latitude=40.520857,
+            longitude=-111.931275,
+            court_count=8,
+            courts_occupied=8,
+            number_waiting=5,
+            estimated_wait_time=timezone.timedelta(minutes=12)
+        )
+        the_picklr = Location.objects.create(
+            name="The Picklr Sandy",
+            latitude=40.593629,
+            longitude=-111.830412,
+            court_count=12,
+            courts_occupied=8,
+            number_waiting=0,
+            estimated_wait_time=timezone.timedelta(minutes=0)
+        )
+        
+        
 
         match0 = Event.objects.create(
             name="Battle of the Picklers",

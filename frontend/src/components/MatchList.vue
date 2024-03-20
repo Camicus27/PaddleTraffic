@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { ref, onMounted, type Ref } from 'vue';
+import { ref, onActivated, onMounted, type Ref } from 'vue';
 import axios from 'axios'
 import MatchForm from './MatchForm.vue'
 
 const isFetching = ref(true)
 
+const currentUser: Ref<any> = ref(undefined)
 const matches: Ref<any> = ref([])
+const allPlayers: Ref<any> = ref([])
 
 let URL: string
 // This is the collection of environment variables.
@@ -15,12 +17,25 @@ if (env.MODE === 'production')
 else
   URL = env.VITE_DEV_URL
 
-onMounted(() => {
-  getEvents()
+onMounted(async () => {
   getAllPlayers()
 })
 
-const allPlayers: Ref<any> = ref([])
+onActivated(async () => {
+  await getCurrentUser()
+  getEvents()
+})
+
+async function getCurrentUser() {
+  try {
+    const response = await axios.get(`${URL}/current-user/`)
+    if (response.data.user) {
+      currentUser.value = response.data.user
+    } else currentUser.value = undefined
+  } catch {
+    currentUser.value = undefined
+  }
+}
 
 function getEvents() {
   axios.get(`${URL}/events/`)
@@ -40,11 +55,20 @@ function getAllPlayers() {
     .catch((error) => console.log(error))
 }
 
+function redirect() {
+  window.location.href = '/login'
+}
+
 </script>
 
 <template>
   <div class="button-wrapper">
-    <button @click="getEvents">Reload Events</button>
+    <div v-if="!currentUser">
+      <p>
+        <a href="/login/">Sign in</a> to create your own events!
+      </p>
+    </div>
+    <RouterLink v-else to="/matchmaking/create-event">Create Your Own Event</RouterLink>
   </div>
   <template v-if="!isFetching">
     <div class="matches" v-for="{ id, name, location, host, players, description, date, time } in matches" :key="id">
