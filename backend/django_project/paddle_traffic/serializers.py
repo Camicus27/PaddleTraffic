@@ -178,6 +178,7 @@ class EventSerializer(serializers.ModelSerializer):
             "players",
             "date",
             "time",
+            "isPublic",
         ]
 
 
@@ -193,6 +194,7 @@ class EventUpdateSerializer(serializers.ModelSerializer):
             "players": {"required": False},
             "date": {"required": True},
             "time": {"required": True},
+            "isPublic": {"required": True}
         }
 
 

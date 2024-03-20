@@ -83,6 +83,7 @@ class Event(models.Model):
     )
     date = models.DateField()
     time = models.TimeField()
+    isPublic = models.BooleanField(default=True, null=False)
 
 
 class Report(models.Model):

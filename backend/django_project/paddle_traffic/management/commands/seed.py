@@ -26,15 +26,6 @@ class Command(BaseCommand):
         p3 = PickleUser.objects.create_user("p3", "p3@paddletraffic.net", "p3")
         players.user_set.add(p1, p2, p3)
 
-        the_park = Location.objects.create(
-            name="The Park",
-            latitude=40.745929,
-            longitude=-111.873945,
-            court_count=4,
-            courts_occupied=2,
-            number_waiting=0,
-            estimated_wait_time=timezone.timedelta(minutes=0)
-        )
         picklecoin_hq = Location.objects.create(
             name="Picklecoin HQ",
             latitude=40.767807,
@@ -43,15 +34,6 @@ class Command(BaseCommand):
             courts_occupied=24,
             number_waiting=15,
             estimated_wait_time=timezone.timedelta(hours=2)
-        )
-        the_moon = Location.objects.create(
-            name="The Moon",
-            latitude=40.673265,
-            longitude=-111.683013,
-            court_count=2,
-            courts_occupied=2,
-            number_waiting=3,
-            estimated_wait_time=timezone.timedelta(minutes=15)
         )
         hogan_park = Location.objects.create(
             name="Hogan Park",
@@ -179,6 +161,15 @@ class Command(BaseCommand):
             number_waiting=0,
             estimated_wait_time=timezone.timedelta(minutes=0)
         )
+        wardle_fields = Location.objects.create(
+            name="Wardle Fields Regional Park",
+            latitude=40.494285,
+            longitude=-111.959243,
+            court_count=16,
+            courts_occupied=16,
+            number_waiting=4,
+            estimated_wait_time=timezone.timedelta(minutes=12)
+        )
 
         match0 = Event.objects.create(
             name="Battle of the Picklers",
@@ -186,16 +177,18 @@ class Command(BaseCommand):
             location=picklecoin_hq,
             host=organizer1,
             date=timezone.now().date(),
-            time=timezone.now().time()
+            time=timezone.now().time(),
+            isPublic=True
         )
         match0.players.add(p1, p2)
         match1 = Event.objects.create(
             name="Pickleball Scrimmage",
             description="A casual game between pickleball enthusiasts.",
-            location=the_park,
+            location=flatiron_mesa,
             host=organizer2,
             date=timezone.now().date(),
-            time=timezone.now().time()
+            time=timezone.now().time(),
+            isPublic=True
         )
         match1.players.add(p2)
         match2 = Event.objects.create(
@@ -204,14 +197,16 @@ class Command(BaseCommand):
             location=picklecoin_hq,
             host=organizer1,
             date=timezone.now().date(),
-            time=timezone.now().time()
+            time=timezone.now().time(),
+            isPublic=True
         )
         match3 = Event.objects.create(
-            name="Moon Match",
-            description="A chill game of pickleball on the moon.",
-            location=the_moon,
+            name="Secret Match",
+            description="A secret game of pickleball.",
+            location=wardle_fields,
             host=organizer2,
             date=timezone.now().date(),
-            time=timezone.now().time()
+            time=timezone.now().time(),
+            isPublic=False
         )
-        match3.players.add(p1, p2, p3)
+        match3.players.add(p1, p2)

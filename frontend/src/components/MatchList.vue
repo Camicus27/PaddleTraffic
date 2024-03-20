@@ -43,7 +43,6 @@ function getAllPlayers() {
 </script>
 
 <template>
-  <MatchForm />
   <div class="button-wrapper">
     <button @click="getEvents">Reload Events</button>
   </div>

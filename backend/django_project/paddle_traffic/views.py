@@ -7,7 +7,7 @@ from django.views.decorators.csrf import csrf_exempt
 from paddle_traffic import models as m
 from django.contrib.auth import get_user_model
 from django.contrib.auth.decorators import login_required
-from django.db import models as django_model
+from django.db import models as django_m
 from paddle_traffic import serializers as ser
 from paddle_traffic.ApiHttpResponses import *
 import json
@@ -527,7 +527,20 @@ def events(request):
     """
 
     def get():
-        m_events = m.Event.objects.all()
+        m_events = None  
+        
+        
+        # submiss = models.Submission.objects.filter(grader__username=request.user.username, assignment_id=assignment_id).order_by('author__username')
+        
+        # Public events & private events the user is participating in
+        if request.user.is_authenticated:
+            user_events = m.Event.objects.filter(django_m.Q(host=request.user) | django_m.Q(players=request.user))
+            m_events = m.Event.objects.filter(django_m.Q(isPublic=True) | django_m.Q(id__in=user_events))
+        
+        # No logged in user, only public events
+        else:
+            m_events = m.Event.objects.filter(isPublic=True)
+        
         serializer = ser.EventSerializer(m_events, many=True)
         return JsonResponse({"events": serializer.data})
 
@@ -626,7 +639,7 @@ def get_response(request, funs) -> HttpResponse:
         return http_method_not_allowed()
 
 
-def try_get_instance(model_class: django_model.Model, id):
+def try_get_instance(model_class: django_m.Model, id):
     try:
         existing_location = model_class.objects.get(id=id)
         return existing_location
