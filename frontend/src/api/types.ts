@@ -1,20 +1,20 @@
 export interface PickleUser {
   id: number
-  username: String
-  first_name: String | null
-  last_name: String | null
-  email: String | null
-  groups: Array<String> // Not sure if groups are strings yet, they're probably their own object
-  is_staff: Boolean
-  is_active: Boolean
-  is_superuser: Boolean
-  last_login: String
-  date_joined: String
+  username: string
+  first_name: string | null
+  last_name: string | null
+  email: string | null
+  groups: Array<string> // Not sure if groups are strings yet, they're probably their own object type
+  is_staff: boolean
+  is_active: boolean
+  is_superuser: boolean
+  last_login: string
+  date_joined: string
   friends: Array<RestrictedUser>
-  matches_attended: Number
-  matches_created: Number
-  win_count: Number
-  loss_count: Number
+  matches_attended: number
+  matches_created: number
+  win_count: number
+  loss_count: number
   skill_level:
   | 'Beginner'
   | 'Advanced Beginner'
@@ -24,21 +24,21 @@ export interface PickleUser {
   | 'Expert'
   | 'Advanced Expert'
   | 'Professional'
-  bio: String
+  bio: string
   is_member: boolean
-  latitude: Number | null
-  longitude: Number | null
+  latitude: number | null
+  longitude: number | null
 }
 
 export interface RestrictedUser {
-  id: Number
-  username: String
-  first_name: String | null
-  last_name: String | null
-  matches_attended: Number
-  matches_created: Number
-  win_count: Number
-  loss_count: Number
+  id: number
+  username: string
+  first_name: string | null
+  last_name: string | null
+  matches_attended: number
+  matches_created: number
+  win_count: number
+  loss_count: number
   skill_level:
   | 'Beginner'
   | 'Advanced Beginner'
@@ -48,7 +48,7 @@ export interface RestrictedUser {
   | 'Expert'
   | 'Advanced Expert'
   | 'Professional'
-  bio: String
+  bio: string
 }
 
 export interface Location {
@@ -60,4 +60,29 @@ export interface Location {
   courts_occupied: number
   number_waiting: number
   estimated_wait_time: number
+  calculated_time: string
+}
+
+export interface Event {
+  id: number
+  name: string
+  description: string
+  location: Location
+  host: RestrictedUser
+  players: Array<RestrictedUser>
+  date: string
+  time: string
+}
+
+export interface FriendRequest {
+  id: number
+  requester: RestrictedUser
+  receiver: RestrictedUser
+  date_created: string
+  accepted: boolean
+}
+
+export interface PendingFriendRequests {
+  incoming_requests: Array<FriendRequest>
+  outgoing_requests: Array<FriendRequest>
 }
