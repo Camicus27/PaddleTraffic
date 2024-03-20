@@ -185,10 +185,10 @@ class EventSerializer(serializers.ModelSerializer):
 class EventUpdateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Event
-        fields = ["name", "description", "location", "host", "players", "date", "time"]
+        fields = ["name", "description", "location", "host", "players", "date", "time", "isPublic"]
         extra_kwargs = {
             "name": {"required": True},
-            "description": {"required": False},
+            "description": {"required": False, "allow_blank": True},
             "location": {"required": True},
             "host": {"required": True},
             "players": {"required": False},

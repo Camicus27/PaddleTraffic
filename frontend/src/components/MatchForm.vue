@@ -5,6 +5,10 @@ import axios from 'axios'
 const isFetching = ref(true)
 const submittedSuccessfully = ref(false)
 
+const currentUser: Ref<any> = ref(undefined)
+const allFriends: Ref<any> = ref([])
+const allLocations: Ref<any> = ref([])
+
 const eventForm = ref({
     name: '',
     description: '',
@@ -12,26 +16,36 @@ const eventForm = ref({
     host: '',
     players: new Array<String>(),
     date: '',
-    time: ''
+    time: '',
+    isPublic: true
+})
+const matchVisibility = ref("public")
+
+
+onMounted(async () => {
+  await getCurrentUser()
+  if (currentUser.value) {
+    allFriends.value = currentUser.value.friends
+  }
+  getAllLocations()
 })
 
-onMounted(() => {
-    getAllPlayers()
-    getAllLocations()
-})
-
-const allPlayers: Ref<any> = ref([])
-
-function getAllPlayers() {
-    axios.get(`${URL}/users/`)
-        .then((response) => {
-            allPlayers.value = response.data.users
-            isFetching.value = false
-        })
-        .catch((error) => console.log(error))
+function redirect(path: string) {
+  window.location.href = path
 }
 
-const allLocations: Ref<any> = ref([])
+async function getCurrentUser() {
+  try {
+    const response = await axios.get(`${URL}/current-user/`)
+    if (response.data.user) {
+      currentUser.value = response.data.user
+    } else currentUser.value = undefined
+  } catch {
+    currentUser.value = undefined
+    // Redirect to login page if the user is not logged in
+    // if (!username.value) redirect('/login')
+  }
+}
 
 function getAllLocations() {
     axios.get(`${URL}/locations/`)
@@ -50,7 +64,10 @@ if (env.MODE === 'production')
 else
     URL = env.VITE_DEV_URL
 
+
 function submitForm() {
+    eventForm.value.host = currentUser.value.id
+    eventForm.value.isPublic = matchVisibility.value === 'public'
     axios.post(`${URL}/events/`, { event: eventForm.value })
         .then(response => {
             // Handle the response here. For example, logging the new location ID.
@@ -62,12 +79,14 @@ function submitForm() {
             console.error('Error:', error);
         });
 }
-
-
 </script>
 
 <template>
-    <div id="event-form-wrapper">
+    <!-- helpful scripts stuff
+    if (currentUser.value)  - checks if there is a logged in user
+    -->
+
+    <div v-if="currentUser" id="event-form-wrapper">
         <form @submit.prevent="submitForm">
             <div>
                 <label for="name">Event Name:</label>
@@ -82,49 +101,49 @@ function submitForm() {
             <div>
                 <label for="location">Location:</label>
                 <select id="location" v-model="eventForm.location" tabindex="3" required>
-                    <!-- Options should be populated dynamically -->
                     <option v-for="{ id, name } in allLocations" :key="id" :value="id">{{ name }}</option>
                 </select>
             </div>
 
             <div>
-                <label for="host">Host:</label>
-                <select id="host" v-model="eventForm.host" tabindex="4" required>
-                    <!-- Options should be populated dynamically -->
-                    <option v-for="{ id, username } in allPlayers" :key="id" :value="id">{{ username }}</option>
-                </select>
-            </div>
-            <div>
                 <div>
                     <label for="players">Players:</label>
-                    <select id="players" multiple v-model="eventForm.players" tabindex="5"><!--@change="updatePlayers"-->
-                        <option v-for="{ id, username } in allPlayers" :key="id" :value="id">{{ username }}</option>
-                        <!-- Options should be populated dynamically -->
+                    <select id="players" multiple v-model="eventForm.players" tabindex="4">
+                        <optgroup v-if="allFriends.length === 0" label="Add friends to invite them here"></optgroup>
+                        <option v-for="{ id, username } in allFriends" :key="id" :value="id">{{ username }}</option>
                     </select>
                 </div>
                 <div class="selected-players">
                     <span v-for="player in eventForm.players" :key="player.toString()" class="selected-player" tabindex="6">
-                        {{ allPlayers.filter((p: any) => p.id === player)[0].username }}
+                        {{ allFriends.filter((p: any) => p.id === player)[0].username }}
                     </span>
                 </div>
             </div>
             <div>
                 <label for="date">Date:</label>
-                <input type="date" id="date" v-model="eventForm.date" tabindex="7" required>
+                <input type="date" id="date" v-model="eventForm.date" tabindex="5" required>
             </div>
 
             <div>
                 <label for="time">Time:</label>
-                <input type="time" id="time" v-model="eventForm.time" tabindex="8" required>
+                <input type="time" id="time" v-model="eventForm.time" tabindex="6" required>
+            </div>
+
+            <div>
+                <label for="isPublic">Match Privacy:</label>
+                <input type="radio" id="public" value="public" v-model="matchVisibility">
+                <label for="public">Public</label>
+                <input type="radio" id="private" value="private" v-model="matchVisibility">
+                <label for="private">Private</label>
             </div>
 
             <button type="submit">Submit</button>
         </form>
     </div>
     <div class="alert-wrapper" v-if="submittedSuccessfully">
-            <div class="alert-success">
-                <span class="closebtn" @click="submittedSuccessfully = !submittedSuccessfully">&times;</span>
-                <strong>Success!</strong> Your form has been submitted. Please reload the events to see the change.
-            </div>
+        <div class="alert-success">
+            <span class="closebtn" @click="submittedSuccessfully = !submittedSuccessfully">&times;</span>
+            <strong>Success!</strong> Your form has been submitted.
         </div>
+    </div>
 </template>

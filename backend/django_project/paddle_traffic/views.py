@@ -527,10 +527,7 @@ def events(request):
     """
 
     def get():
-        m_events = None  
-        
-        
-        # submiss = models.Submission.objects.filter(grader__username=request.user.username, assignment_id=assignment_id).order_by('author__username')
+        m_events = None
         
         # Public events & private events the user is participating in
         if request.user.is_authenticated:

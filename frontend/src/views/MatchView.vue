@@ -8,7 +8,7 @@ import MatchList from '@/components/MatchList.vue'
     <header>
       <h1>Matchmaking Events</h1>
     </header>
-    
+    <MatchForm />
     <MatchList />
   </div>
 </template>
