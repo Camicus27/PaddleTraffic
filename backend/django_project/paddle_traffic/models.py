@@ -27,9 +27,6 @@ class PickleUser(AbstractUser):
         help_text="Pickleball Skill Level",
     )
     bio = models.TextField(blank=True)
-    profile_picture = models.ImageField(
-        upload_to="profile_pictures/", blank=True, null=True
-    )
     is_member = models.BooleanField(default=False)
     latitude = models.DecimalField(
         max_digits=9, decimal_places=6, blank=True, null=True
@@ -102,26 +99,6 @@ class Report(models.Model):
     location = models.ForeignKey(Location, on_delete=models.CASCADE)
     number_waiting = models.IntegerField()  # number_waiting at time of report
     courts_occupied = models.IntegerField()  # courts_occupied ^^
-
-
-class FriendRequest(models.Model):
-    requester = models.ForeignKey(
-        PickleUser,
-        on_delete=models.CASCADE,
-        related_name="outgoing_requests",
-        null=False,
-    )
-    receiver = models.ForeignKey(
-        PickleUser,
-        on_delete=models.CASCADE,
-        related_name="incoming_requests",
-        null=False,
-    )
-    date_created = models.DateTimeField(default=timezone.now, blank=True)
-    accepted = models.BooleanField(default=False)
-
-    class Meta:
-        unique_together = ["requester", "receiver"]
 
 
 class FriendRequest(models.Model):

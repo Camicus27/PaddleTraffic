@@ -5,11 +5,14 @@ import { useRoute } from 'vue-router'
 import axios from 'axios'
 import CommonHeader from '@/components/CommonHeader.vue';
 
+import { getCurrentUser, getFriendRequests } from '@/api/functions';
+import type { FriendRequest, PickleUser, RestrictedUser } from '@/api/types';
+
 const route = useRoute()
 // This should be undefined when there is no user currently logged in.
 
-const incomingRequests: Ref<any> = ref([])
-const outgoingRequests: Ref<any> = ref([])
+const incomingRequests: Ref<Array<FriendRequest>> = ref([])
+const outgoingRequests: Ref<Array<FriendRequest>> = ref([])
 const searchQuery: Ref<string> = ref('')
 const users: Ref<any> = ref([])
 const searchResults: Ref<any> = ref([])
@@ -18,7 +21,7 @@ const pageUser: Ref<any> = ref(undefined)
 
 const username: Ref<string> = ref(route.params.username as string)
 const routeUser: Ref<any> = ref(undefined)
-const myUser: Ref<any> = ref(undefined)
+const myUser: Ref<PickleUser | undefined> = ref(undefined)
 
 enum Relationship {
   Same,
@@ -39,9 +42,17 @@ if (env.MODE === 'production') URL = env.VITE_PROD_URL
 else URL = env.VITE_DEV_URL
 
 onMounted(async () => {
-  await getCurrentUser()
+  myUser.value = await getCurrentUser(URL, true)
+  if (!myUser.value && !username.value)
+    redirect("/login")
   if (myUser.value) {
-    await getFriendRequests()
+    const requests = await getFriendRequests(URL, true) // Refresh the list of friend requests
+    if (requests)
+      ({ incoming_requests: incomingRequests.value, outgoing_requests: outgoingRequests.value } = requests)
+    else {
+      incomingRequests.value = []
+      outgoingRequests.value = []
+    }
     await fetchUsers()
   }
   await handleRouteChange()
@@ -65,35 +76,42 @@ async function handleRouteChange() {
   doneLoading.value = true
 }
 
-async function getCurrentUser() {
-  try {
-    const response = await axios.get(`${URL}/current-user/`)
-    if (response.data.user) {
-      myUser.value = response.data.user
-    } else myUser.value = undefined
-  } catch {
-    myUser.value = undefined
-    // Redirect to login page if the user is not logged in
-    if (!username.value) redirect('/login')
-  }
-}
+// async function getCurrentUser() {
+//   try {
+//     const response = await axios.get(`${URL}/current-user/`)
+//     if (response.data.user) {
+//       myUser.value = response.data.user
+//     } else myUser.value = undefined
+//   } catch {
+//     myUser.value = undefined
+//     // Redirect to login page if the user is not logged in
+//     if (!username.value) redirect('/login')
+//   }
+// }
 
-async function getFriendRequests() {
-  try {
-    const response = await axios.get(`${URL}/friend-requests/`, { withCredentials: true })
-    incomingRequests.value = response.data.incoming_requests
-    outgoingRequests.value = response.data.outgoing_requests
-  } catch (error) {
-    return console.error('Failed to fetch friend requests:', error)
-  }
-}
+// async function getFriendRequests() {
+//   try {
+//     const response = await axios.get(`${URL}/friend-requests/`, { withCredentials: true })
+//     incomingRequests.value = response.data.incoming_requests
+//     outgoingRequests.value = response.data.outgoing_requests
+//   } catch (error) {
+//     return console.error('Failed to fetch friend requests:', error)
+//   }
+// }
 
 async function acceptFriendRequest(requestId: number) {
   try {
     await axios.post(`${URL}/friend-requests/accept/${requestId}/`, {}, { withCredentials: true })
-    await getCurrentUser()
+    myUser.value = await getCurrentUser(URL, true)
     console.log(myUser.value)
-    await getFriendRequests() // Refresh the list of friend requests
+    const requests = await getFriendRequests(URL, true) // Refresh the list of friend requests
+    if (requests)
+      ({ incoming_requests: incomingRequests.value, outgoing_requests: outgoingRequests.value } = requests)
+    else {
+      incomingRequests.value = []
+      outgoingRequests.value = []
+    }
+
     runFilter()
   } catch (error) {
     return console.error('Failed to accept friend request:', error)
@@ -103,7 +121,13 @@ async function acceptFriendRequest(requestId: number) {
 async function createFriendRequest(receiverId: number) {
   try {
     await axios.post(`${URL}/friend-requests/${receiverId}/`, {}, { withCredentials: true })
-    await getFriendRequests() // Refresh the list of friend requests
+    const requests = await getFriendRequests(URL, true) // Refresh the list of friend requests
+    if (requests)
+      ({ incoming_requests: incomingRequests.value, outgoing_requests: outgoingRequests.value } = requests)
+    else {
+      incomingRequests.value = []
+      outgoingRequests.value = []
+    }
     runFilter()
     usersAreFriends.value = checkFriendshipStatus()
   } catch (error) {
@@ -114,7 +138,13 @@ async function createFriendRequest(receiverId: number) {
 async function deleteFriendRequest(reqId: number) {
   try {
     await axios.delete(`${URL}/friend-requests/${reqId}/`, { withCredentials: true })
-    await getFriendRequests()
+    const requests = await getFriendRequests(URL, true) // Refresh the list of friend requests
+    if (requests)
+      ({ incoming_requests: incomingRequests.value, outgoing_requests: outgoingRequests.value } = requests)
+    else {
+      incomingRequests.value = []
+      outgoingRequests.value = []
+    }
     runFilter()
   } catch (error) {
     return console.error('Failed to delete friend request:', error)
@@ -154,11 +184,15 @@ function runFilter() {
     const excludedUserIds = new Set([
       ...incomingRequests.value.map((request: { requester: { id: any } }) => request.requester.id),
       ...outgoingRequests.value.map((request: { receiver: { id: any } }) => request.receiver.id),
-      // Add the current user's ID to exclude them from the results
-      myUser.value.id,
-      // Add all of the current user's friends' IDs to exclude them as well
-      ...myUser.value.friends.map((friend: { id: any }) => friend.id)
     ])
+
+
+    if (myUser.value) {
+      // Add the current user's ID to exclude them from the results
+      excludedUserIds.add(myUser.value.id)
+      // Add all of the current user's friends' IDs to exclude them as well
+      myUser.value.friends.forEach((friend: RestrictedUser) => excludedUserIds.add(friend.id));
+    }
 
     searchResults.value = users.value.filter(
       (user: { username: string; id: any }) =>
@@ -206,8 +240,8 @@ function checkFriendshipStatus() {
     <div class="header">
       <h1>{{ pageUser.username }}</h1>
       <h3>
-        <span v-if="pageUser.first_name">{{ pageUser.first_name }}</span
-        >&nbsp;<span v-if="pageUser.last_name">{{ pageUser.last_name }}</span>
+        <span v-if="pageUser.first_name">{{ pageUser.first_name }}</span>&nbsp;<span v-if="pageUser.last_name">{{
+    pageUser.last_name }}</span>
       </h3>
       <p class="bio">{{ pageUser.bio }}</p>
     </div>
@@ -256,8 +290,8 @@ function checkFriendshipStatus() {
               <ul>
                 <li v-for="friend in pageUser.friends" :key="friend.id">
                   <a class="profile-link" :href="`/profile/${friend.username}`">{{
-                    friend.username
-                  }}</a>
+    friend.username
+  }}</a>
                 </li>
               </ul>
             </div>
@@ -274,8 +308,8 @@ function checkFriendshipStatus() {
             <ul>
               <li v-for="request in incomingRequests" :key="request.id">
                 <a class="profile-link" :href="`/profile/${request.requester.username}`">{{
-                  request.requester.username
-                }}</a>
+    request.requester.username
+  }}</a>
                 <button @click="acceptFriendRequest(request.id)" class="button accept">
                   Accept
                 </button>
@@ -290,8 +324,8 @@ function checkFriendshipStatus() {
             <ul>
               <li v-for="request in outgoingRequests" :key="request.id">
                 <a class="profile-link" :href="`/profile/${request.receiver.username}`">{{
-                  request.receiver.username
-                }}</a>
+    request.receiver.username
+  }}</a>
                 <button @click="deleteFriendRequest(request.id)" class="button delete">
                   Delete
                 </button>
@@ -304,18 +338,13 @@ function checkFriendshipStatus() {
         <div class="search-add-friends card">
           <h2>Add Friends</h2>
           <div class="search-section">
-            <input
-              type="text"
-              v-model="searchQuery"
-              placeholder="Search Users..."
-              class="search-box"
-            />
+            <input type="text" v-model="searchQuery" placeholder="Search Users..." class="search-box" />
             <div class="search-results" v-if="searchResults.length">
               <ul>
                 <li v-for="user in searchResults" :key="user.id">
                   <a class="profile-link" :href="`/profile/${user.username}`">{{
-                    user.username
-                  }}</a>
+    user.username
+                    }}</a>
                   <button @click="createFriendRequest(user.id)">Add Friend</button>
                 </li>
               </ul>
@@ -335,126 +364,132 @@ function checkFriendshipStatus() {
 <style scoped lang="scss">
 // i didn't even want to touch this so. here ya go.
 .form-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding-inline: 3rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding-inline: 3rem;
 }
-    .form-wrapper header {
-        display: flex;
-        flex-direction: column;
-        font-family: 'Open Sans', sans-serif;
-        margin-bottom: .5em;
-        margin-top: 3rem;
-        color: #4b5320;
-        text-align: center;
-    }
 
-    .form-wrapper #logo-title {
-        display: flex;
-        flex-direction: row;
-        align-items: center;
-        justify-content: center;
-    }
-        .form-wrapper #logo-title h1 {
-            padding-left: .5rem;
-            font-size: 3rem;
-            font-weight: bold;
-            text-shadow: 0px 0px 1px #080f0180;
-        }
+.form-wrapper header {
+  display: flex;
+  flex-direction: column;
+  font-family: 'Open Sans', sans-serif;
+  margin-bottom: .5em;
+  margin-top: 3rem;
+  color: #4b5320;
+  text-align: center;
+}
 
-    .form-wrapper h2 {
-        margin: 0;
-        font-size: 2rem;
-        line-height: 3rem;
-    }
+.form-wrapper #logo-title {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+}
 
-    .form-wrapper header p {
-        font-size: 1.5rem;
-        line-height: 2rem;
-        margin-top: .33rem;
-    }
+.form-wrapper #logo-title h1 {
+  padding-left: .5rem;
+  font-size: 3rem;
+  font-weight: bold;
+  text-shadow: 0px 0px 1px #080f0180;
+}
+
+.form-wrapper h2 {
+  margin: 0;
+  font-size: 2rem;
+  line-height: 3rem;
+}
+
+.form-wrapper header p {
+  font-size: 1.5rem;
+  line-height: 2rem;
+  margin-top: .33rem;
+}
 
 main {
-    display: flex;
-    flex-direction: column;
-    width: 50%;
-    align-items: center;
+  display: flex;
+  flex-direction: column;
+  width: 50%;
+  align-items: center;
 }
 
 #required-warning {
-    margin-top: 0;
-    color: #d00000d0;
-    font-size: .75rem;
+  margin-top: 0;
+  color: #d00000d0;
+  font-size: .75rem;
 }
 
 .submit-button {
-    align-items: center;
+  align-items: center;
 }
-    .submit-button button {
-        width: 80%;
-    }
+
+.submit-button button {
+  width: 80%;
+}
 
 .redirect-swap {
-    flex-direction: row;
-    justify-content: center;
-    align-items: center;
-    margin: 0;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  margin: 0;
 }
-    .redirect-swap p {
-        margin-block: .25rem;
-        margin-right: .5rem;
-    }
+
+.redirect-swap p {
+  margin-block: .25rem;
+  margin-right: .5rem;
+}
 
 output {
-    color: #d00000;
-    font-weight: bold;
-    text-align: center;
-    margin: .5rem;
+  color: #d00000;
+  font-weight: bold;
+  text-align: center;
+  margin: .5rem;
 }
 
 
 /* Media query for narrower screens */
 @media only screen and (max-width: 1300px) {
-    .form-wrapper {
-        padding-inline: .5rem;
-    }
-        .form-wrapper header {
-            margin-top: 1rem;
-        }
+  .form-wrapper {
+    padding-inline: .5rem;
+  }
 
-        .form-wrapper #logo-title h1 {
-            font-size: 1.75rem;
-            line-height: 2rem;
-        }
-    
-        .form-wrapper h2 {
-            font-size: 1.25rem;
-            line-height: 1.5rem;
-        }
-    
-        .form-wrapper header p {
-            font-size: 1rem;
-            line-height: 1.25rem;
-        }
-    
-    main {
-        width: 90vw;
-        margin-bottom: 3rem;
-    }
-    
-    #required-warning {
-        font-size: .66rem;
-    }
-    
-    .redirect-swap {
-        flex-direction: column;
-    }
-        .redirect-swap p {
-            margin-block: .5rem;
-            margin-right: 0;
-        }
+  .form-wrapper header {
+    margin-top: 1rem;
+  }
+
+  .form-wrapper #logo-title h1 {
+    font-size: 1.75rem;
+    line-height: 2rem;
+  }
+
+  .form-wrapper h2 {
+    font-size: 1.25rem;
+    line-height: 1.5rem;
+  }
+
+  .form-wrapper header p {
+    font-size: 1rem;
+    line-height: 1.25rem;
+  }
+
+  main {
+    width: 90vw;
+    margin-bottom: 3rem;
+  }
+
+  #required-warning {
+    font-size: .66rem;
+  }
+
+  .redirect-swap {
+    flex-direction: column;
+  }
+
+  .redirect-swap p {
+    margin-block: .5rem;
+    margin-right: 0;
+  }
 }
 
 .profile-page {
@@ -552,7 +587,8 @@ li:last-child {
 }
 
 .friend-button {
-  background-color: #71864f; /* Green accent */
+  background-color: #71864f;
+  /* Green accent */
   color: white;
   border: none;
   border-radius: 5px;
@@ -606,16 +642,23 @@ li:last-child {
 .search-box {
   padding: 10px 20px;
   font-size: 16px;
-  border: 2px solid #71864f; /* Themed green border */
-  border-radius: 20px; /* Rounded corners for a modern look */
-  width: 80%; /* Responsive width */
-  max-width: 400px; /* Maximum width to maintain aesthetics */
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
-  outline: none; /* Remove the default focus outline */
+  border: 2px solid #71864f;
+  /* Themed green border */
+  border-radius: 20px;
+  /* Rounded corners for a modern look */
+  width: 80%;
+  /* Responsive width */
+  max-width: 400px;
+  /* Maximum width to maintain aesthetics */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  /* Subtle shadow for depth */
+  outline: none;
+  /* Remove the default focus outline */
 }
 
 .search-box:focus {
-  border-color: #5a6e3f; /* Darker green on focus for better visibility */
+  border-color: #5a6e3f;
+  /* Darker green on focus for better visibility */
 }
 
 .search-results ul {
@@ -633,7 +676,8 @@ li:last-child {
 }
 
 .search-results button {
-  background-color: #71864f; /* Green accent */
+  background-color: #71864f;
+  /* Green accent */
   color: white;
   border: none;
   border-radius: 5px;
@@ -662,8 +706,10 @@ li:last-child {
 }
 
 .column {
-  flex: 1; /* Each column takes up equal space */
-  padding: 0 15px; /* Spacing between columns */
+  flex: 1;
+  /* Each column takes up equal space */
+  padding: 0 15px;
+  /* Spacing between columns */
   margin: 5px 15px;
 }
 
@@ -716,43 +762,52 @@ li:last-child {
 }
 
 .accept {
-  background-color: #71864f; /* Your theme's green */
+  background-color: #71864f;
+  /* Your theme's green */
 }
 
 .accept:hover {
-  background-color: #5a6e3f; /* A darker shade of green for hover */
+  background-color: #5a6e3f;
+  /* A darker shade of green for hover */
 }
 
 .delete {
-  background-color: #d9534f; /* A subtle red for delete */
+  background-color: #d9534f;
+  /* A subtle red for delete */
 }
 
 .delete:hover {
-  background-color: #c9302c; /* A darker shade of red for hover */
+  background-color: #c9302c;
+  /* A darker shade of red for hover */
 }
 
 .error-template {
   text-align: center;
   padding: 50px;
   margin: 50px auto;
-  background-color: #fff3f3; /* Light red background for error indication */
-  border: 1px solid #ffcccc; /* Slightly darker border for depth */
+  background-color: #fff3f3;
+  /* Light red background for error indication */
+  border: 1px solid #ffcccc;
+  /* Slightly darker border for depth */
   border-radius: 10px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .error-template h2 {
-  color: #d9534f; /* Red color for the error title */
+  color: #d9534f;
+  /* Red color for the error title */
   margin-bottom: 20px;
 }
 
 .error-template p {
-  color: #666; /* Grey color for the message */
+  color: #666;
+  /* Grey color for the message */
   margin-bottom: 30px;
 }
 
 .error-template .button {
-  background-color: #d9534f; /* Red button to match the error theme */
+  background-color: #d9534f;
+  /* Red button to match the error theme */
   color: white;
   border: none;
   border-radius: 5px;
@@ -764,27 +819,37 @@ li:last-child {
 }
 
 .error-template .button:hover {
-  background-color: #c9302c; /* Darker shade for hover */
+  background-color: #c9302c;
+  /* Darker shade for hover */
   transform: translateY(-2px);
 }
 
 .profile-link {
   display: inline-block;
-  color: #4b5320; /* Green accent to match the current theme */
-  text-decoration: none; /* Remove underline from links */
+  color: #4b5320;
+  /* Green accent to match the current theme */
+  text-decoration: none;
+  /* Remove underline from links */
   transition:
     color 0.3s,
-    text-decoration 0.3s; /* Smooth transition for hover effects */
-  font-weight: normal; /* Keep the text weight normal, less button-like */
+    text-decoration 0.3s;
+  /* Smooth transition for hover effects */
+  font-weight: normal;
+  /* Keep the text weight normal, less button-like */
 }
 
 .profile-link:hover,
 .profile-link:focus {
-  color: #71864f; /* Darker green for hover and focus to indicate interactivity */
-  text-decoration: underline; /* Add underline on hover/focus for clarity */
-  text-decoration-color: rgba(113, 134, 79, 0.5); /* Subtle underline color */
-  text-decoration-thickness: 2px; /* Make the underline a bit thicker */
-  text-underline-offset: 3px; /* Slightly offset the underline from the text */
+  color: #71864f;
+  /* Darker green for hover and focus to indicate interactivity */
+  text-decoration: underline;
+  /* Add underline on hover/focus for clarity */
+  text-decoration-color: rgba(113, 134, 79, 0.5);
+  /* Subtle underline color */
+  text-decoration-thickness: 2px;
+  /* Make the underline a bit thicker */
+  text-underline-offset: 3px;
+  /* Slightly offset the underline from the text */
 }
 
 /* Optional: Slight text shadow on hover for depth (subtle effect) */
