@@ -44,9 +44,7 @@ function getAllPlayers() {
 
 <template>
   <MatchForm />
-  <div class="button-wrapper">
-    <button @click="getEvents">Reload Events</button>
-  </div>
+  <button @click="getEvents" class="dark-solid-button">Reload Events</button>
   <template v-if="!isFetching">
     <div class="matches" v-for="{ id, name, location, host, players, description, date, time } in matches" :key="id">
       <h2>{{ name }}</h2>
@@ -56,7 +54,8 @@ function getAllPlayers() {
         <h3>Players:</h3>
         <ul>
           <!-- Maybe shouldn't use player for the key, since not guaranteed to be unique -->
-          <li v-for="player in players" :key="player">{{ allPlayers.filter((p: any) => p.id === player)[0].username }}</li>
+          <li v-for="player in players" :key="player">{{ allPlayers.filter((p: any) => p.id === player)[0].username }}
+          </li>
         </ul>
       </div>
       <h3>Details:</h3>
@@ -74,3 +73,18 @@ function getAllPlayers() {
     </div>
   </template>
 </template>
+
+<style scoped lang="scss">
+@use '../styles/components';
+
+.matches {
+  margin: .75rem;
+  width: 85%;
+  border: 3px solid gray;
+  border-radius: 3px;
+  background-color: #d0d4ca;
+  padding: 1rem;
+  margin: 1rem;
+  width: 65%;
+}
+</style>

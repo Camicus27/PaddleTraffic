@@ -1,0 +1,60 @@
+@use '../abstracts' as *;
+
+* {
+  font-family: 'Open Sans', sans-serif;
+  line-height: 1.25rem;
+}
+
+code {
+  font-family: 'IBM Plex Mono', monospace;
+  font-family: 'Open Sans', sans-serif;
+}
+
+strong {
+  font-weight: bold;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+}
+
+h1 {
+  margin: 0;
+  font-size: 2.75rem;
+  line-height: 3rem;
+  color: $pickle-500;
+}
+
+header p {
+  font-size: 1.5rem;
+}
+
+h2 {
+  color: $pickle-400;
+  text-align: center;
+  font-size: 2rem;
+  line-height: 2.5rem;
+  margin-block: .33rem;
+}
+
+
+@media screen and (max-width: 800px) {
+  /* Global general styles -----------------------------------------------------------------------------------------------------*/
+  .main-wrapper h1 {
+    margin-bottom: .25rem;
+    font-size: 2rem;
+    line-height: 2.25rem;
+  }
+
+  .main-wrapper header p {
+    font-size: 1rem;
+  }
+
+  .main-wrapper h2 {
+    font-size: 1.33rem;
+    line-height: 1.5rem;
+    margin-block: .25rem;
+  }
+}

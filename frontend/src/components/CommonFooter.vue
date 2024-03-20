@@ -1,4 +1,5 @@
 <script setup lang="ts">
+// TODO deprecated??
 </script>
 
 <template>
@@ -25,3 +26,79 @@
     </div>
   </footer>
 </template>
+
+<style scoped lang="scss">
+/* Site footer styles */
+footer {
+  position: relative;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin-top: 3rem;
+  padding-block: 2.75rem;
+  background-color: #67784c;
+  font-weight: bold;
+}
+
+footer>div {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  position: relative;
+}
+
+#extra-info {
+  display: flex;
+  flex-direction: column;
+  width: 27.5%;
+  margin: 0 .33rem;
+}
+
+#extra-info p {
+  margin: 0;
+}
+
+#contact-us {
+  display: flex;
+  flex-direction: column;
+  width: 45%;
+  align-items: center;
+  margin: 0 .33rem;
+  text-align: center;
+  font-size: 1rem;
+}
+
+#contact-us p {
+  margin-block: 0 .7rem;
+}
+
+#contact-us a:any-link {
+  margin-inline: .15rem;
+  font-weight: bold;
+  color: #183400;
+  text-shadow: 0px 0px 1px #080f0180;
+  text-decoration: none;
+}
+
+#contact-us a:active {
+  color: #ffffff;
+}
+
+#contact-us a:hover {
+  color: #2f6500;
+  text-decoration: underline;
+}
+
+#socials p {
+  margin: 0;
+}
+
+#legal {
+  display: flex;
+  flex-direction: column;
+  width: 27.5%;
+  align-items: flex-end;
+  justify-content: center;
+  margin: 0 .33rem;
+}
+</style>

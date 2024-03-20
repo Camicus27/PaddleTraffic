@@ -3,6 +3,7 @@ import { ref, onMounted, watch, type Ref } from 'vue'
 import { useRoute } from 'vue-router'
 
 import axios from 'axios'
+import CommonHeader from '@/components/CommonHeader.vue';
 
 const route = useRoute()
 // This should be undefined when there is no user currently logged in.
@@ -200,6 +201,7 @@ function checkFriendshipStatus() {
 </script>
 
 <template>
+  <CommonHeader />
   <div v-if="pageUser && (!username || routeUser)" class="profile-page">
     <div class="header">
       <h1>{{ pageUser.username }}</h1>
@@ -330,7 +332,131 @@ function checkFriendshipStatus() {
   </div>
 </template>
 
-<style scoped>
+<style scoped lang="scss">
+// i didn't even want to touch this so. here ya go.
+.form-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding-inline: 3rem;
+}
+    .form-wrapper header {
+        display: flex;
+        flex-direction: column;
+        font-family: 'Open Sans', sans-serif;
+        margin-bottom: .5em;
+        margin-top: 3rem;
+        color: #4b5320;
+        text-align: center;
+    }
+
+    .form-wrapper #logo-title {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: center;
+    }
+        .form-wrapper #logo-title h1 {
+            padding-left: .5rem;
+            font-size: 3rem;
+            font-weight: bold;
+            text-shadow: 0px 0px 1px #080f0180;
+        }
+
+    .form-wrapper h2 {
+        margin: 0;
+        font-size: 2rem;
+        line-height: 3rem;
+    }
+
+    .form-wrapper header p {
+        font-size: 1.5rem;
+        line-height: 2rem;
+        margin-top: .33rem;
+    }
+
+main {
+    display: flex;
+    flex-direction: column;
+    width: 50%;
+    align-items: center;
+}
+
+#required-warning {
+    margin-top: 0;
+    color: #d00000d0;
+    font-size: .75rem;
+}
+
+.submit-button {
+    align-items: center;
+}
+    .submit-button button {
+        width: 80%;
+    }
+
+.redirect-swap {
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    margin: 0;
+}
+    .redirect-swap p {
+        margin-block: .25rem;
+        margin-right: .5rem;
+    }
+
+output {
+    color: #d00000;
+    font-weight: bold;
+    text-align: center;
+    margin: .5rem;
+}
+
+
+/* Media query for narrower screens */
+@media only screen and (max-width: 1300px) {
+    .form-wrapper {
+        padding-inline: .5rem;
+    }
+        .form-wrapper header {
+            margin-top: 1rem;
+        }
+
+        .form-wrapper #logo-title h1 {
+            font-size: 1.75rem;
+            line-height: 2rem;
+        }
+    
+        .form-wrapper h2 {
+            font-size: 1.25rem;
+            line-height: 1.5rem;
+        }
+    
+        .form-wrapper header p {
+            font-size: 1rem;
+            line-height: 1.25rem;
+        }
+    
+    main {
+        width: 90vw;
+        margin-bottom: 3rem;
+    }
+    
+    #required-warning {
+        font-size: .66rem;
+    }
+    
+    .redirect-swap {
+        flex-direction: column;
+    }
+        .redirect-swap p {
+            margin-block: .5rem;
+            margin-right: 0;
+        }
+}
+
 .profile-page {
   margin: 20px auto;
   padding: 20px;
