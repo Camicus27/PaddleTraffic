@@ -87,7 +87,7 @@ export async function getUserUsername(username: string, baseUrl: string, logErro
  * @param logError Whether or not the error should be printed, if one occurs.
  * @returns An array of Location objects if the request is successful; undefined otherwise.
  */
-export async function getAllLocations(baseUrl: string, logError: boolean): Promise<Array<Location> | undefined> {
+export async function getAllLocations(baseUrl: string, logError: boolean = false): Promise<Array<Location> | undefined> {
     try {
         const response = await axios.get(`${baseUrl}/locations/`)
         if (response.data.locations)
@@ -107,12 +107,60 @@ export async function getAllLocations(baseUrl: string, logError: boolean): Promi
  * @param logError Whether or not the error should be printed, if one occurs.
  * @returns A Location object if the request is successful; undefined otherwise.
  */
-export async function getLocationId(id: number, baseUrl: string, logError: boolean): Promise<Location | undefined> {
+export async function getLocationId(id: number, baseUrl: string, logError: boolean = false): Promise<Location | undefined> {
     try {
         const response = await axios.get(`${baseUrl}/locations/${id}/`)
         if (response.data.location)
             return response.data.location as Location
     } catch (error) {
+        if (logError)
+            console.error(error)
+    }
+    return undefined
+}
+
+export async function getLocationsByBounds(lat: number, lon: number, logError: boolean = false): Promise<Location[] | undefined> {
+    try {
+        const response = await axios.get(`${URL}/locations/bounds?lat=${lat}&lon=${lon}`)
+        if (response.data.locations)
+            return response.data.locations as Location[]
+    } catch (error) {
+        if (logError)
+            console.error(error)
+    }
+    return undefined
+}
+
+export async function getLocationsByList(locationIds: number[], logError: boolean = false): Promise<Location[] | undefined> {
+    try {
+        const response = await axios.post(`${URL}/locations/list`, {locationIds : locationIds}) // TODO make sure is accurate
+        if (response.data.locations)
+            return response.data.locations as Location[]
+    } catch (error) {
+        if (logError)
+            console.error(error)
+    }
+    return undefined
+}
+
+export async function getNearestLocation(lat: number, lon: number, logError: boolean = false): Promise<Location | undefined> {
+    try {
+        const response = await axios.get(`${URL}/location/latlon?lat=${lat}&lon=${lon}`)
+        if (response.data.location)
+            return response.data.location as Location
+    } catch(error) {
+        if (logError)
+            console.error(error)
+    }
+    return undefined
+}
+
+export async function postLocationReport(locationId: number, reportData: Report, logError: boolean = false): Promise<Location | undefined> {
+    try {
+        const response = await axios.post(`${URL}/locations/${locationId}/report/`, { report: reportData })
+        if (response.data.location)
+            return response.data.location as Location
+    } catch(error) {
         if (logError)
             console.error(error)
     }

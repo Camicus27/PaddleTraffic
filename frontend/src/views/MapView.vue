@@ -5,6 +5,7 @@ import axios from 'axios'
 import { useRoute } from "vue-router"
 import Popup from '@/components/Map/Popup.vue'
 import CommonHeader from '@/components/CommonHeader.vue'
+import {getAllLocations, getLocationId, } from '@/api/functions'
 
 interface Location {
     id: number
