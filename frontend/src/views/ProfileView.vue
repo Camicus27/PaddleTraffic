@@ -76,29 +76,6 @@ async function handleRouteChange() {
   doneLoading.value = true
 }
 
-// async function getCurrentUser() {
-//   try {
-//     const response = await axios.get(`${URL}/current-user/`)
-//     if (response.data.user) {
-//       myUser.value = response.data.user
-//     } else myUser.value = undefined
-//   } catch {
-//     myUser.value = undefined
-//     // Redirect to login page if the user is not logged in
-//     if (!username.value) redirect('/login')
-//   }
-// }
-
-// async function getFriendRequests() {
-//   try {
-//     const response = await axios.get(`${URL}/friend-requests/`, { withCredentials: true })
-//     incomingRequests.value = response.data.incoming_requests
-//     outgoingRequests.value = response.data.outgoing_requests
-//   } catch (error) {
-//     return console.error('Failed to fetch friend requests:', error)
-//   }
-// }
-
 async function acceptFriendRequest(requestId: number) {
   try {
     await axios.post(`${URL}/friend-requests/accept/${requestId}/`, {}, { withCredentials: true })
