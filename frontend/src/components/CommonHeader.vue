@@ -20,7 +20,7 @@ onMounted(() => {
   getCurrentUser()
 })
 
-function getCurrentUser() {
+function getCurrentUser() { // TODO change to be from @/api/functions
   axios.get(`${URL}/current-user/`)
     .then((response) => {
       if (response.data.user)

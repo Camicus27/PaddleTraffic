@@ -1,26 +1,16 @@
 <script setup lang="ts">
-import axios from 'axios';
 import { ref, type Ref } from 'vue';
 import type {Location, Report} from '@/api/types';
 import { postLocationReport } from '@/api/functions';
 
-let URL: string
-// This is the collection of environment variables.
-const env = import.meta.env
-if (env.MODE === 'production')
-    URL = env.VITE_PROD_URL
-else
-    URL = env.VITE_DEV_URL
-
 const props = defineProps(['location', 'onSubmitCallback'])
-const onSubmitCallback: (l: Location) => void = props.onSubmitCallback
 
 const locForm: Ref<Report> = ref({
     courts_occupied: 0,
     number_waiting: 0
 })
 
-// need to be a ref?
+// does need to be a ref?
 const location = ref<Location>(props.location)
 
 const submitDataDisabled = ref<boolean>(false)
@@ -54,16 +44,6 @@ function submitForm() {
     }, 3000)
 
     postLocationReport(location.value.id, locForm.value)
-    axios.post(`${URL}/locations/${location.value.id}/report/`, { report: locForm.value })
-        .then(response => {
-            // Handle the response here. For example, logging the new location ID.
-            location.value = response.data.location
-            onSubmitCallback(location.value)
-        })
-        .catch(error => {
-            // Handle errors here
-            console.error('Error:', error)
-        })
 }
 </script>
 
@@ -171,4 +151,4 @@ button:disabled {
     background-color: #cccccc;
     color: #666666;
 }
-</style>
+</style>@/api/somethingelse
