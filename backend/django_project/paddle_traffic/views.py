@@ -621,7 +621,17 @@ def events(request):
     """
 
     def get():
-        m_events = m.Event.objects.all()
+        m_events = None
+        
+        # Public events & private events the user is participating in
+        if request.user.is_authenticated:
+            user_events = m.Event.objects.filter(django_model.Q(host=request.user) | django_model.Q(players=request.user))
+            m_events = m.Event.objects.filter(django_model.Q(isPublic=True) | django_model.Q(id__in=user_events))
+        
+        # No logged in user, only public events
+        else:
+            m_events = m.Event.objects.filter(isPublic=True)
+            
         serializer = ser.EventSerializer(m_events, many=True)
         return JsonResponse({"events": serializer.data})
 

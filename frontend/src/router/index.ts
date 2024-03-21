@@ -2,7 +2,8 @@ import { createRouter, createWebHistory } from 'vue-router'
 import HomeView from '../views/HomeView.vue'
 import AboutView from '../views/AboutView.vue'
 import MapView from '../views/MapView.vue'
-import MatchView from '../views/MatchView.vue'
+import EventsView from '../views/EventsView.vue'
+import EventFormView from '../views/EventFormView.vue'
 import ProfileView from '../views/ProfileView.vue'
 
 const router = createRouter({
@@ -26,7 +27,12 @@ const router = createRouter({
         {
             path: '/matchmaking',
             name: 'matchmaking',
-            component: MatchView
+            component: EventsView
+        },
+        {
+            path: '/matchmaking/create-event',
+            name: 'create-event',
+            component: EventFormView
         },
         {
             path: '/profile/:username?',

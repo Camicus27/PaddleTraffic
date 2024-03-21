@@ -203,7 +203,8 @@ class Command(BaseCommand):
             location=picklecoin_hq,
             host=organizer1,
             date=timezone.now().date(),
-            time=timezone.now().time()
+            time=timezone.now().time(),
+            isPublic=True
         )
         match0.players.add(p1, p2)
         match1 = Event.objects.create(
@@ -212,7 +213,8 @@ class Command(BaseCommand):
             location=the_park,
             host=organizer2,
             date=timezone.now().date(),
-            time=timezone.now().time()
+            time=timezone.now().time(),
+            isPublic=True
         )
         match1.players.add(p2)
         match2 = Event.objects.create(
@@ -221,7 +223,8 @@ class Command(BaseCommand):
             location=picklecoin_hq,
             host=organizer1,
             date=timezone.now().date(),
-            time=timezone.now().time()
+            time=timezone.now().time(),
+            isPublic=True
         )
         match3 = Event.objects.create(
             name="Moon Match",
@@ -229,6 +232,7 @@ class Command(BaseCommand):
             location=the_moon,
             host=organizer2,
             date=timezone.now().date(),
-            time=timezone.now().time()
+            time=timezone.now().time(),
+            isPublic=False
         )
-        match3.players.add(p1, p2, p3)
+        match3.players.add(p1, p2)

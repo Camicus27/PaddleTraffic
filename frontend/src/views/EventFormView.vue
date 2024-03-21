@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import CommonHeader from '@/components/CommonHeader.vue';
-import MatchList from '@/components/MatchList.vue'
+import MatchForm from '@/components/MatchForm.vue'
 </script>
 
 <template>
   <CommonHeader />
   <div>
-    <h1>Matchmaking Services</h1>
-    <MatchList />
+    <h1>New Matchmaking Event</h1>
+    <MatchForm />
   </div>
 </template>
 
