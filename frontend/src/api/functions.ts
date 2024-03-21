@@ -1,6 +1,6 @@
 import axios from 'axios'
 
-import type { FriendRequest, Location, PendingFriendRequests, PickleUser, RestrictedUser } from './types'
+import type { FriendRequest, Location, Event, PendingFriendRequests, PickleUser, RestrictedUser } from './types'
 
 // USER FUNCTIONS //
 
@@ -121,7 +121,23 @@ export async function getLocationId(id: number, baseUrl: string, logError: boole
 
 // EVENT FUNCTIONS //
 
-// TODO: Fill in event functions
+/**
+ * This function fetches all available events from the server.
+ * @param baseUrl The base URL for the HTTP request.
+ * @param logError Whether or not the error should be printed, if one occurs.
+ * @returns An array of Event objects if the request is successful; undefined otherwise.
+ */
+export async function getAllEvents(baseUrl: string, logError: boolean): Promise<Array<Event> | undefined> {
+    try {
+        const response = await axios.get(`${baseUrl}/events/`)
+        if (response.data.events)
+            return response.data.events.reverse() as Array<Event>
+    } catch (error) {
+        if (logError)
+            console.error(error)
+    }
+    return undefined
+}
 
 
 // FRIEND REQUEST FUNCTIONS //

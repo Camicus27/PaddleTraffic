@@ -1,11 +1,13 @@
 <script setup lang="ts">
-import { ref, onMounted, type Ref } from 'vue';
-import axios from 'axios'
-import MatchForm from './MatchForm.vue'
+import { ref, onActivated, onMounted, type Ref } from 'vue';
+import { getAllUsers, getCurrentUser, getAllEvents } from '@/api/functions';
+import type { PickleUser } from '@/api/types';
 
 const isFetching = ref(true)
 
-const matches: Ref<any> = ref([])
+const currentUser: Ref<PickleUser | undefined> = ref(undefined)
+const allMatches: Ref<any> = ref([])
+const allPlayers: Ref<any> = ref([])
 
 let URL: string
 // This is the collection of environment variables.
@@ -15,38 +17,24 @@ if (env.MODE === 'production')
 else
   URL = env.VITE_DEV_URL
 
-onMounted(() => {
-  getEvents()
-  getAllPlayers()
+onMounted(async () => {
+  allPlayers.value = await getAllUsers(URL, true)
 })
 
-const allPlayers: Ref<any> = ref([])
-
-function getEvents() {
-  axios.get(`${URL}/events/`)
-    .then((response) => {
-      matches.value = response.data.events
-      matches.value.reverse()
-    })
-    .catch((error) => console.log(error))
-}
-
-function getAllPlayers() {
-  axios.get(`${URL}/users/`)
-    .then((response) => {
-      allPlayers.value = response.data.users
-      isFetching.value = false
-    })
-    .catch((error) => console.log(error))
-}
-
+onActivated(async () => {
+  currentUser.value = await getCurrentUser(URL, true)
+  allMatches.value = await getAllEvents(URL, true)
+  isFetching.value = false
+})
 </script>
 
 <template>
-  <MatchForm />
-  <button @click="getEvents" class="dark-solid-button">Reload Events</button>
-  <template v-if="!isFetching">
-    <div class="matches" v-for="{ id, name, location, host, players, description, date, time } in matches" :key="id">
+  <h3 v-if="!currentUser">
+    <a href="/login/">Sign in</a> to create your own events!
+  </h3>
+  <RouterLink v-else to="/matchmaking/create-event" class="dark-solid-button">Create Your Own Event</RouterLink>
+  <div v-if="!isFetching">
+    <div class="matches" v-for="{ id, name, location, host, players, description, date, time } in allMatches" :key="id">
       <h2>{{ name }}</h2>
       <h3>Host:</h3>
       <p>{{ allPlayers.filter((p: any) => p.id === host)[0].username }}</p>
@@ -71,7 +59,7 @@ function getAllPlayers() {
         </p>
       </div>
     </div>
-  </template>
+  </div>
 </template>
 
 <style scoped lang="scss">

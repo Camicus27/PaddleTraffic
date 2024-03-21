@@ -90,8 +90,9 @@ class Event(models.Model):
     players = models.ManyToManyField(
         PickleUser, related_name="attending_events", blank=True
     )
-    date = models.DateField()
-    time = models.TimeField()
+    date = models.DateField(null=False)
+    time = models.TimeField(null=False)
+    isPublic = models.BooleanField(default=True, null=False)
 
 
 class Report(models.Model):
