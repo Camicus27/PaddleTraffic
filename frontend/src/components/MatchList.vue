@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onActivated, onMounted, type Ref } from 'vue';
-import { getAllUsers, getCurrentUser, getAllEvents } from '@/api/functions';
+import { getAllUsers, getCurrentUser, getAllEvents, createJoinGame } from '@/api/functions';
 import type { PickleUser } from '@/api/types';
 
 const isFetching = ref(true)
@@ -26,6 +26,10 @@ onActivated(async () => {
   allMatches.value = await getAllEvents(URL, true)
   isFetching.value = false
 })
+
+async function tryJoinGame(eventId: number) {
+  await createJoinGame(eventId, URL, true)
+}
 </script>
 
 <template>
@@ -38,12 +42,12 @@ onActivated(async () => {
       <h2>{{ name }}</h2>
       <h3>Host:</h3>
       <p>{{ allPlayers.filter((p: any) => p.id === host)[0].username }}</p>
-      <div class="players" v-if="players.length > 0"> <!-- v-if="0" -->
+      <div class="players">
         <h3>Players:</h3>
         <ul>
           <!-- Maybe shouldn't use player for the key, since not guaranteed to be unique -->
-          <li v-for="player in players" :key="player">{{ allPlayers.filter((p: any) => p.id === player)[0].username }}
-          </li>
+          <li v-for="player in players" :key="player">{{ allPlayers.filter((p: any) => p.id === player)[0].username }}</li>
+          <li v-if="players.length < 4"><button id="join-game" @click="tryJoinGame(id)">Join game</button></li>   <!-- :href="`/events/${location.id}`" -->
         </ul>
       </div>
       <h3>Details:</h3>

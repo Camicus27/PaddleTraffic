@@ -639,7 +639,6 @@ def events(request):
         data = all_data.get("event", None)
         if data is None:
             return http_bad_request_json()
-        print(data)
         serializer = ser.EventUpdateSerializer(data=data)
         if not serializer.is_valid():
             return http_bad_request_json()
@@ -660,6 +659,33 @@ def events(request):
 
 @csrf_exempt
 def events_id(request, id):
+    def get():
+        m_event = try_get_instance(m.Event, id)
+        if m_event is None:
+            return http_not_found(str(id))
+        serializer = ser.EventSerializer(instance=m_event, many=False)
+        # return the json formatted as an HTTP response
+        return JsonResponse({"event": serializer.data})
+    
+    """
+    This is the endpoint to create a new join event request.
+    """
+    
+    def post(data):
+        if not request.user.is_authenticated:
+            return http_unauthorized()
+        
+        m_event = try_get_instance(m.Event, id)
+        if m_event is None:
+            return http_not_found(str(id))
+        
+        try:
+            m_event.players.add(request.user)
+            m_event.save()
+            return http_ok("User added to Event successfully")
+        except:
+            return http_bad_argument("Error adding user to event.")
+        
     def patch(data):
         existing_event = try_get_instance(m.Event, id)
         if existing_event is None:
@@ -671,16 +697,8 @@ def events_id(request, id):
             return HttpResponse(
                 "Invalid JSON data", status=400, content_type="text/plain"
             )  # Bad Request
-        updated_location = serializer.save()
+        updated_event = serializer.save()
         return http_ok_request_json()
-
-    def get():
-        m_event = try_get_instance(m.Event, id)
-        if m_event is None:
-            return http_not_found(str(id))
-        serializer = ser.EventSerializer(instance=m_event, many=False)
-        # return the json formatted as an HTTP response
-        return JsonResponse({"event": serializer.data})
 
     def delete():
         m_event = try_get_instance(m.Event, id)
@@ -689,7 +707,7 @@ def events_id(request, id):
         m_event.delete()
         return http_ok(f"Event {id} deleted")
 
-    funs = {"PATCH": patch, "GET": get, "DELETE": delete}
+    funs = {"GET": get, "POST": post, "PATCH": patch, "DELETE": delete}
     return get_response(request, funs)
 
 
