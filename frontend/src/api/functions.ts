@@ -140,6 +140,25 @@ export async function getAllEvents(baseUrl: string, logError: boolean): Promise<
 }
 
 
+/**
+ * This function creates a join event request from the currently authenticated user to the event with eventId.
+ * @param eventId The ID of the event that will receive the join request.
+ * @param baseUrl The base URL for the HTTP request.
+ * @param logError Whether or not the error should be printed, if one occurs.
+ * @returns True if the request is successful; false otherwise.
+ */
+export async function createJoinGame(eventId: number, baseUrl: string, logError: boolean): Promise<boolean> {
+    try {
+        await axios.post(`${baseUrl}/events/${eventId}/`, {}, { withCredentials: true })
+        return true
+    } catch (error) {
+        if (logError)
+            console.error(error)
+        return false
+    }
+}
+
+
 // FRIEND REQUEST FUNCTIONS //
 
 /**
