@@ -28,7 +28,12 @@ onActivated(async () => {
 })
 
 async function tryJoinGame(eventId: number) {
-  await createJoinGame(eventId, URL, true)
+  if (await createJoinGame(eventId, URL, true)) {
+    allMatches.value = await getAllEvents(URL, true)
+  }
+  else {
+    console.log("Failed to join")
+  }
 }
 </script>
 
