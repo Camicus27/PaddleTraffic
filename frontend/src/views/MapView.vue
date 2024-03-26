@@ -185,7 +185,6 @@ interface CustomData {
     type: string;
 }
 
-// Load custom data to supplement the search results.
 const customData: CustomData = {
     features: [
         {
@@ -252,18 +251,18 @@ const customData: CustomData = {
     type: 'FeatureCollection'
 };
 
-function forwardGeocoder(query: string): MapboxGeocoder.Result[] {
-    const matchingFeatures: MapboxGeocoder.Result[] = [];
+function forwardGeocoder(query: string): any[] {
+    const matchingFeatures: any[] = [];
     for (const feature of customData.features) {
         if (feature.properties.title.toLowerCase().includes(query.toLowerCase())) {
-            const result: MapboxGeocoder.Result = {
+            const result: any = {
                 type: "Feature",
                 relevance: 1,
                 geometry: {
                     type: 'Point',
                     coordinates: feature.geometry.coordinates
                 },
-                place_name: `🎾 ${feature.properties.title}, Bountiful, Utah, United States`,
+                place_name: `🎾 ${feature.properties.title}, Bountiful, Utah, United States`
             };
             matchingFeatures.push(result);
         }
@@ -272,7 +271,7 @@ function forwardGeocoder(query: string): MapboxGeocoder.Result[] {
 }
 
 function initMap() {
-    if (!mapContainer?.value) throw new Error("OH MY FREAKING GOSH WHAT THE FRICK 💀💀💀💀💀💀💀💀")
+    if (!mapContainer?.value) throw new Error("OH MY FREAKING GOSH WHAT THE FRICK 💀💀💀💀💀💀💀💀\n💀💀💀💀💀💀💀💀\n💀💀💀💀💀💀💀💀\n💀💀💀💀💀💀💀💀\n💀💀💀💀💀💀💀💀\n💀💀💀💀💀💀💀💀\n")
     map.value = new mapboxgl.Map({
         container: mapContainer.value,
         style: 'mapbox://styles/mapbox/streets-v12',
