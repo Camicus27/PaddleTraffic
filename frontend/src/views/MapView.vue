@@ -252,7 +252,7 @@ const customData: CustomData = {
     type: 'FeatureCollection'
 };
 
-function forwardGeocoder(query: string): any[] {
+function forwardGeocoder(query: string): MapboxGeocoder.Result[] {
     const matchingFeatures: MapboxGeocoder.Result[] = [];
     for (const feature of customData.features) {
         if (feature.properties.title.toLowerCase().includes(query.toLowerCase())) {
