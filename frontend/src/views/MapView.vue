@@ -15,7 +15,7 @@ import {
     postLocationReport
 } from '@/api/functions'
 import { type Location } from '@/api/types'
-import { appendFile } from 'fs'
+// import { appendFile } from 'fs'
 // TODO handle error messages more elegantly
 // TODO maybe add debug flag and console.error statments or something
 
@@ -162,6 +162,114 @@ else
     URL = env.VITE_DEV_URL
 
 
+
+interface Feature {
+    type: string;
+    properties: {
+        title: string;
+        place_name?: string;
+        center?: [number, number];
+        place_type?: string[];
+    };
+    geometry: {
+        coordinates: [number, number];
+        type: string;
+    };
+    place_name?: string;
+    center?: [number, number];
+    place_type?: string[];
+}
+
+interface CustomData {
+    features: Feature[];
+    type: string;
+}
+
+// Load custom data to supplement the search results.
+const customData: CustomData = {
+    features: [
+        {
+            type: 'Feature',
+            properties: {
+                title: 'Picklecoin HQ'
+            },
+            geometry: {
+                type: 'Point',
+                coordinates: [-111.845182, 40.767807]
+            }
+        },
+        {
+            type: 'Feature',
+            properties: {
+                title: 'Hogan Park'
+            },
+            geometry: {
+                type: 'Point',
+                coordinates: [-111.901010, 40.874055]
+            }
+        },
+        {
+            type: 'Feature',
+            properties: {
+                title: '11th Avenue Park'
+            },
+            geometry: {
+                type: 'Point',
+                coordinates: [-111.862134, 40.783488]
+            }
+        },
+        {
+            type: 'Feature',
+            properties: {
+                title: '5th Ave & C Street'
+            },
+            geometry: {
+                type: 'Point',
+                coordinates: [-111.880206, 40.774847]
+            }
+        },
+        {
+            type: 'Feature',
+            properties: {
+                title: 'West Bountiful'
+            },
+            geometry: {
+                type: 'Point',
+                coordinates: [-111.901440, 40.895123]
+            }
+        },
+        {
+            type: 'Feature',
+            properties: {
+                title: 'Twin Hollow'
+            },
+            geometry: {
+                type: 'Point',
+                coordinates: [-111.862690, 40.903635]
+            }
+        }
+    ],
+    type: 'FeatureCollection'
+};
+
+function forwardGeocoder(query: string): any[] {
+    const matchingFeatures: MapboxGeocoder.Result[] = [];
+    for (const feature of customData.features) {
+        if (feature.properties.title.toLowerCase().includes(query.toLowerCase())) {
+            const result: MapboxGeocoder.Result = {
+                type: 'Feature',
+                geometry: {
+                    type: 'Point',
+                    coordinates: feature.geometry.coordinates
+                },
+                place_name: `🎾 ${feature.properties.title}`
+            };
+            matchingFeatures.push(result);
+        }
+    }
+    return matchingFeatures;
+}
+
 function initMap() {
     if (!mapContainer?.value) throw new Error("OH MY FREAKING GOSH WHAT THE FRICK 💀💀💀💀💀💀💀💀")
     map.value = new mapboxgl.Map({
@@ -177,7 +285,8 @@ function initMap() {
         flyTo: { duration: 0 },
         types: 'place',
         marker: false,
-        zoom: 11
+        zoom: getMap().getZoom(),
+        localGeocoder: forwardGeocoder
     });
 
     getMap().addControl(geocoder, 'top-left');
