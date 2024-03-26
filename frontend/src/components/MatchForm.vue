@@ -21,7 +21,7 @@ onMounted(() => {
 })
 
 const allPlayers: Ref<any> = ref([])
-
+// TODO change to be from @/api/functions
 function getAllPlayers() {
     axios.get(`${URL}/users/`)
         .then((response) => {

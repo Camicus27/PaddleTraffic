@@ -1,13 +1,15 @@
 import axios from 'axios'
 import type { FriendRequest, Location, PendingFriendRequests, PickleUser, RestrictedUser, Report } from './types'
 
-let URL: string
+let _URL: string
 // This is the collection of environment variables.
 const env = import.meta.env
 if (env.MODE === 'production')
-    URL = env.VITE_PROD_URL
+    _URL = env.VITE_PROD_URL
 else
-    URL = env.VITE_DEV_URL
+    _URL = env.VITE_DEV_URL
+
+export const URL = _URL
 
 // USER FUNCTIONS //
 
