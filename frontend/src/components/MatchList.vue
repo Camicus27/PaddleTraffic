@@ -4,6 +4,8 @@ import { getAllUsers, getCurrentUser, getAllEvents, createJoinGame } from '@/api
 import type { PickleUser } from '@/api/types';
 
 const isFetching = ref(true)
+const didJoin = ref(true)
+const failedToJoinID = ref(-1)
 
 const currentUser: Ref<PickleUser | undefined> = ref(undefined)
 const allMatches: Ref<any> = ref([])
@@ -28,7 +30,15 @@ onActivated(async () => {
 })
 
 async function tryJoinGame(eventId: number) {
-  await createJoinGame(eventId, URL, true)
+  didJoin.value = await createJoinGame(eventId, URL, true)
+  
+  if (didJoin.value) {
+    allMatches.value = await getAllEvents(URL, true)
+  }
+  else {
+    failedToJoinID.value = eventId
+    console.log("Failed to join")
+  }
 }
 </script>
 
@@ -49,6 +59,9 @@ async function tryJoinGame(eventId: number) {
           <li v-for="player in players" :key="player">{{ allPlayers.filter((p: any) => p.id === player)[0].username }}</li>
           <li v-if="players.length < 4"><button id="join-game" @click="tryJoinGame(id)">Join game</button></li>   <!-- :href="`/events/${location.id}`" -->
         </ul>
+        <p v-if="!didJoin && failedToJoinID === id">
+          * Failed to join match.
+        </p>
       </div>
       <h3>Details:</h3>
       <div class="match-details">

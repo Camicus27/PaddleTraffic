@@ -675,16 +675,22 @@ def events_id(request, id):
         if not request.user.is_authenticated:
             return http_unauthorized()
         
+        # Get the event and verify it exists
         m_event = try_get_instance(m.Event, id)
         if m_event is None:
-            return http_not_found(str(id))
+            return http_not_found(f"Event was not found ({str(id)}).")
         
+        # Verify the user is not already in the event
+        if m_event.players.filter(id=request.user.id).exists() or m_event.host.id == request.user.id:
+            return http_bad_argument(f"User already is participating in event ({str(id)}).")
+        
+        # Add player to event and save
         try:
             m_event.players.add(request.user)
             m_event.save()
-            return http_ok("User added to Event successfully")
+            return http_ok(f"User added to event ({str(id)}) successfully.")
         except:
-            return http_bad_argument("Error adding user to event.")
+            return http_bad_argument(f"Error adding user to event ({str(id)}).")
         
     def patch(data):
         existing_event = try_get_instance(m.Event, id)
