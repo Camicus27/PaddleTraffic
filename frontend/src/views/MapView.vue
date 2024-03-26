@@ -161,35 +161,58 @@ if (env.MODE === 'production')
 else
     URL = env.VITE_DEV_URL
 
+
+function initMap() {
+    if (!mapContainer?.value) throw new Error("OH MY FREAKING GOSH WHAT THE FRICK 💀💀💀💀💀💀💀💀")
+    map.value = new mapboxgl.Map({
+        container: mapContainer.value,
+        style: 'mapbox://styles/mapbox/streets-v12',
+        center: [-111.876183, 40.758701], // Default to SLC 
+        zoom: 11
+    })
+
+    const geocoder = new MapboxGeocoder({
+        accessToken: mapboxgl.accessToken,
+        mapboxgl: mapboxgl,
+        flyTo: { duration: 0 },
+        types: 'place',
+        marker: false,
+        zoom: 11
+    });
+
+    getMap().addControl(geocoder, 'top-left');
+    getMap().addControl(new mapboxgl.NavigationControl());
+}
+
 /**
  * Initialized Mapbox with settings, and loading things
  * Gets users geolocation if permitted
  */
-function initGeoloc(mapVal: mapboxgl.Map) {
+function initGeoloc() {
     const geolocateControl = new mapboxgl.GeolocateControl({
         fitBoundsOptions: { maxZoom: 11 },
         positionOptions: { enableHighAccuracy: true },
         trackUserLocation: true,
         showAccuracyCircle: false
     })
-    mapVal.addControl(geolocateControl);
+    getMap().addControl(geolocateControl);
 
     // change bc mapSearchedCenter
     geolocateControl.on('geolocate', (e: any) => {
         // bc it's every time the page loads, probably not this here.
         // let userLocation = new mapboxgl.LngLat(e.coords.longitude, e.coords.latitude);
         // mapVal.setCenter(userLocation);
-        console.log(`CENTER ON GEOLOCATE CALLBACK ${mapVal.getCenter()}`)
+        console.log(`CENTER ON GEOLOCATE CALLBACK ${getMap().getCenter()}`)
     }); // when 'turning on' geolocate finishes / page is loaded anew
 
     if (props.lat && props.lon) {
         let lonLatLike = new mapboxgl.LngLat(props.lon, props.lat)
-        mapVal.setCenter(lonLatLike)
+        getMap().setCenter(lonLatLike)
     }
 
-    mapVal.on('load', () => {
+    getMap().on('load', () => {
         geolocateControl.trigger() // Basically 'turn on geolocate'
-        console.log(`CENTER ON LOAD ${mapVal.getCenter()}`)
+        console.log(`CENTER ON LOAD ${getMap().getCenter()}`)
     });
 }
 
@@ -225,26 +248,8 @@ function updateMarkerColor(locationId: number) {
 
 let locationsInterval: number | undefined
 onMounted(() => {
-    if (!mapContainer?.value) throw new Error("OH MY FREAKING GOSH WHAT THE FRICK 💀💀💀💀💀💀💀💀")
-    map.value = new mapboxgl.Map({
-        container: mapContainer.value,
-        style: 'mapbox://styles/mapbox/streets-v12',
-        center: [-111.876183, 40.758701], // Default to SLC 
-        zoom: 11
-    })
-
-    const geocoder = new MapboxGeocoder({
-        accessToken: mapboxgl.accessToken,
-        mapboxgl: mapboxgl,
-        flyTo: { duration: 0 },
-        types: 'place',
-        marker: false,
-        zoom: 11
-    });
-
-    map.value.addControl(geocoder, 'top-left');
-
-    initGeoloc(map.value)
+    initMap()
+    initGeoloc()
     locationsInterval = window.setInterval(refreshMapItemsByCenter, 3000)
     document.querySelector('.mapboxgl-ctrl-bottom-right')?.remove()
     document.querySelector('.mapboxgl-ctrl-bottom-left')?.setAttribute('style', 'transform: scale(0.85);')
