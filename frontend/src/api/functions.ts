@@ -153,6 +153,7 @@ export async function createJoinGame(eventId: number, baseUrl: string, logError:
         return true
     } catch (error) {
         if (logError)
+            // Need to return the error reason here?
             console.error(error)
         return false
     }
