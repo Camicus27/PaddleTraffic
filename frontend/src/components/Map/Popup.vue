@@ -151,4 +151,4 @@ button:disabled {
     background-color: #cccccc;
     color: #666666;
 }
-</style>@/api/somethingelse
+</style>
