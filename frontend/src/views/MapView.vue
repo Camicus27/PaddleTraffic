@@ -257,12 +257,13 @@ function forwardGeocoder(query: string): MapboxGeocoder.Result[] {
     for (const feature of customData.features) {
         if (feature.properties.title.toLowerCase().includes(query.toLowerCase())) {
             const result: MapboxGeocoder.Result = {
-                type: 'Feature',
+                type: "Feature",
+                relevance: 1,
                 geometry: {
                     type: 'Point',
                     coordinates: feature.geometry.coordinates
                 },
-                place_name: `🎾 ${feature.properties.title}`
+                place_name: `🎾 ${feature.properties.title}, Bountiful, Utah, United States`,
             };
             matchingFeatures.push(result);
         }
