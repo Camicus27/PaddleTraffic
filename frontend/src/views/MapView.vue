@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, type Ref, getCurrentInstance, createApp } from 'vue'
-import mapboxgl, { LngLat } from "mapbox-gl"
+import mapboxgl, { LngLat, Marker } from "mapbox-gl"
+import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
+import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css';
 import { useRoute } from "vue-router"
 import Popup from '@/components/Map/Popup.vue'
 import CommonHeader from '@/components/CommonHeader.vue'
@@ -230,6 +232,17 @@ onMounted(() => {
         center: [-111.876183, 40.758701], // Default to SLC 
         zoom: 11
     })
+
+    const geocoder = new MapboxGeocoder({
+        accessToken: mapboxgl.accessToken,
+        mapboxgl: mapboxgl,
+        flyTo: { duration: 0 },
+        types: 'place',
+        marker: false
+    });
+
+    map.value.addControl(geocoder, 'top-left');
+
     initGeoloc(map.value)
     locationsInterval = window.setInterval(refreshMapItemsByCenter, 3000)
     document.querySelector('.mapboxgl-ctrl-bottom-right')?.remove()
