@@ -238,7 +238,8 @@ onMounted(() => {
         mapboxgl: mapboxgl,
         flyTo: { duration: 0 },
         types: 'place',
-        marker: false
+        marker: false,
+        zoom: 11
     });
 
     map.value.addControl(geocoder, 'top-left');
