@@ -64,7 +64,7 @@ function submitForm() {
             <label for="courtsOccupied">Courts Occupied:</label>
             <input type="number" id="courtsOccupied" name="courtsOccupied" min="0" :max="location.court_count"
                 v-model="locForm.courts_occupied" required>
-            <label for="numberWaiting">Number Waiting:</label>
+            <label for="numberWaiting">Groups Waiting:</label>
             <input type="number" id="numberWaiting" name="numberWaiting" min="0"
                 :max="(locForm.courts_occupied < location.court_count) ? 0 : 10" v-model="locForm.number_waiting"
                 required>
