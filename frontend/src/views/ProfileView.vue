@@ -3,7 +3,6 @@ import { ref, onMounted, watch, type Ref } from 'vue'
 import { useRoute } from 'vue-router'
 
 import axios from 'axios'
-import CommonHeader from '@/components/CommonHeader.vue';
 
 import { getCurrentUser, getFriendRequests } from '@/api/functions';
 import type { FriendRequest, PickleUser, RestrictedUser } from '@/api/types';
@@ -42,7 +41,7 @@ if (env.MODE === 'production') URL = env.VITE_PROD_URL
 else URL = env.VITE_DEV_URL
 
 onMounted(async () => {
-  myUser.value = await getCurrentUser(URL, true)
+  myUser.value = await getCurrentUser(true)
   if (!myUser.value && !username.value)
     redirect("/login")
   if (myUser.value) {
@@ -76,33 +75,10 @@ async function handleRouteChange() {
   doneLoading.value = true
 }
 
-// async function getCurrentUser() {
-//   try {
-//     const response = await axios.get(`${URL}/current-user/`)
-//     if (response.data.user) {
-//       myUser.value = response.data.user
-//     } else myUser.value = undefined
-//   } catch {
-//     myUser.value = undefined
-//     // Redirect to login page if the user is not logged in
-//     if (!username.value) redirect('/login')
-//   }
-// }
-
-// async function getFriendRequests() {
-//   try {
-//     const response = await axios.get(`${URL}/friend-requests/`, { withCredentials: true })
-//     incomingRequests.value = response.data.incoming_requests
-//     outgoingRequests.value = response.data.outgoing_requests
-//   } catch (error) {
-//     return console.error('Failed to fetch friend requests:', error)
-//   }
-// }
-
 async function acceptFriendRequest(requestId: number) {
   try {
     await axios.post(`${URL}/friend-requests/accept/${requestId}/`, {}, { withCredentials: true })
-    myUser.value = await getCurrentUser(URL, true)
+    myUser.value = await getCurrentUser(true)
     console.log(myUser.value)
     const requests = await getFriendRequests(URL, true) // Refresh the list of friend requests
     if (requests)
@@ -235,7 +211,6 @@ function checkFriendshipStatus() {
 </script>
 
 <template>
-  <CommonHeader />
   <div v-if="pageUser && (!username || routeUser)" class="profile-page">
     <div class="header">
       <h1>{{ pageUser.username }}</h1>

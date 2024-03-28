@@ -4,7 +4,6 @@ import mapboxgl, { LngLat } from "mapbox-gl"
 import axios from 'axios'
 import { useRoute } from "vue-router"
 import Popup from '@/components/Map/Popup.vue'
-import CommonHeader from '@/components/CommonHeader.vue'
 
 interface Location {
     id: number
@@ -233,7 +232,6 @@ onUnmounted(() => {
 
 <template>
     <div class="main-page">
-        <CommonHeader />
         <div ref="mapContainer" class="mapbox-container">
             <button id="search-bt" @click="updateMarkersOnSearch">Search This Area</button>
         </div>

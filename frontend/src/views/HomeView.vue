@@ -1,9 +1,7 @@
 <script setup lang="ts">
-import CommonHeader from '@/components/CommonHeader.vue';
 </script>
 
 <template>
-    <CommonHeader />
     <div>
         <header>
             <h1>Welcome to PaddleTraffic!</h1>

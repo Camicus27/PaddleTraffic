@@ -1,10 +1,8 @@
 <script setup lang="ts">
-import CommonHeader from '@/components/CommonHeader.vue';
 import MatchList from '@/components/MatchList.vue'
 </script>
 
 <template>
-  <CommonHeader />
   <div>
     <h1>Matchmaking Events</h1>
     <MatchList />
