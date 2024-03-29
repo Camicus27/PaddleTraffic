@@ -55,12 +55,12 @@ function submitForm() {
 
 <template>
     <div class="popup">
-        <div class="left-side">
+        <div class="location-info">
             <div class="location-title">
                 <h4>{{ props.location?.value.name }}</h4>
                 <sub>Courts: {{ props.location?.value.court_count }}</sub>
             </div>
-            <div class="info">
+            <div class="data-info">
                 <p>Est. Courts Occupied: {{ props.location?.value.courts_occupied }}</p>
                 <p>Est. Groups Waiting: {{ props.location?.value.number_waiting }}</p>
                 <p>Est. Wait: {{ props.location?.value.estimated_wait_time }}</p>
@@ -83,6 +83,7 @@ function submitForm() {
 
 <style scoped lang="scss">
 @use '@/styles/components';
+@use '@/styles/abstracts' as *;
 
 * {
     display: flex;
@@ -95,26 +96,40 @@ input::-webkit-inner-spin-button {
 }
 
 .popup {
-    flex-direction: row;
-    justify-content: space-between;
+    flex-direction: column;
+    justify-content: center;
     padding: 2px;
     align-items: center;
-    width: auto;
+    width: calc((1/4)*100vw);
+    background-color: $pickle-50;
 }
 
-.left-side {
-    justify-content: space-around;
+$padding-size: 8px;
+.location-info {
+    justify-content: start;
+    align-items: start;
     flex-direction: column;
-
+    flex-grow: 3;
+    width: calc(100% - $padding-size);
+    padding: 0 $padding-size;
     h4 {
         margin: 0;
+        margin-top: 1rem;
+        margin-bottom: 0.2rem;
+        font-size: xx-large;
+        line-height: 2rem;
     }
 
     p {
         margin: 0;
+        font-size: large;
+        line-height: 2rem;
     }
 
-    padding-right: 2rem;
+    sub {
+        margin-bottom: 1rem;
+        font-size: medium
+    }
 }
 
 .location-title {
@@ -123,7 +138,7 @@ input::-webkit-inner-spin-button {
     justify-content: start;
 }
 
-.info {
+.data-info {
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -138,9 +153,10 @@ form {
     flex-direction: column;
     justify-content: space-around;
     align-items: center;
-    background-color: #f9f9f9;
-    border-radius: 8px;
-
+    background-color: #dddddd;
+    flex-grow: 2;
+    width: calc(100% - $padding-size);
+    padding: 0 $padding-size;
     input {
         border: none;
         width: 90%;

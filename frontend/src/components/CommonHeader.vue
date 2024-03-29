@@ -98,7 +98,7 @@ header {
   justify-content: center;
   border-bottom: 3px solid $pickle-500;
   padding-bottom: 5px;
-  background-image: linear-gradient(to top, rgba(159, 177, 132, 0), rgba(159, 177, 132, 1));
+  background-image: linear-gradient(to top, $pickle-600, $pickle-100);
 
   nav {
     display: flex;

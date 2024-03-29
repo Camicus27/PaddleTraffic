@@ -383,22 +383,39 @@ const selectedLocation = computed(() => {
 <template>
     <div class="main-page">
         <CommonHeader />
-        <div class="map-overlay-container">
-            <button id="search-bt" @click="refreshMapItemsByCenter">Search This Area</button>
-            <div ref="mapContainer" class="mapbox-container"></div>
+        <div class="orientation">
+            <div class="map-overlay-container">
+                <button id="search-bt" @click="refreshMapItemsByCenter">Search This Area</button>
+                <div ref="mapContainer" class="mapbox-container"></div>
+            </div>
+            <Transition name="popup-transition">
+                <Popup class="popup" v-if="currSelected" :location="selectedLocation"
+                    :on-submit-callback="updateMarkerColor" />
+            </Transition>
         </div>
-        <Transition name="popup-transition">
-            <Popup class="popup" v-if="currSelected" :location="selectedLocation"
-                :on-submit-callback="updateMarkerColor" />
-        </Transition>
     </div>
 </template>
 
 <style scoped lang="scss">
-@use '@/styles/abstracts';
+@use '@/styles/abstracts' as *;
 @use '@/styles/components';
+$mobile-size: 600px;
 
-.popup {}
+.popup {
+    
+}
+
+.orientation {
+    display: flex;
+    flex-direction: row-reverse;
+    position: relative;
+    flex-grow: 1;
+    width: 100%;
+
+    @include responsive($mobile-size) {
+        flex-direction: column;
+    }
+}
 
 .popup-transition-enter-from,
 .popup-transition-leave-to {
