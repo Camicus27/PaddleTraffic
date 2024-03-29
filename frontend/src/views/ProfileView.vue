@@ -6,6 +6,7 @@ import axios from 'axios'
 
 import { getCurrentUser, getFriendRequests } from '@/api/functions';
 import type { FriendRequest, PickleUser, RestrictedUser } from '@/api/types';
+import PublicProfile from '@/components/Profile/PublicProfile.vue';
 
 const route = useRoute()
 // This should be undefined when there is no user currently logged in.
@@ -45,7 +46,7 @@ onMounted(async () => {
   if (!myUser.value && !username.value)
     redirect("/login")
   if (myUser.value) {
-    const requests = await getFriendRequests(URL, true) // Refresh the list of friend requests
+    const requests = await getFriendRequests(true) // Refresh the list of friend requests
     if (requests)
       ({ incoming_requests: incomingRequests.value, outgoing_requests: outgoingRequests.value } = requests)
     else {
@@ -80,7 +81,7 @@ async function acceptFriendRequest(requestId: number) {
     await axios.post(`${URL}/friend-requests/accept/${requestId}/`, {}, { withCredentials: true })
     myUser.value = await getCurrentUser(true)
     console.log(myUser.value)
-    const requests = await getFriendRequests(URL, true) // Refresh the list of friend requests
+    const requests = await getFriendRequests(true) // Refresh the list of friend requests
     if (requests)
       ({ incoming_requests: incomingRequests.value, outgoing_requests: outgoingRequests.value } = requests)
     else {
@@ -97,7 +98,7 @@ async function acceptFriendRequest(requestId: number) {
 async function createFriendRequest(receiverId: number) {
   try {
     await axios.post(`${URL}/friend-requests/${receiverId}/`, {}, { withCredentials: true })
-    const requests = await getFriendRequests(URL, true) // Refresh the list of friend requests
+    const requests = await getFriendRequests(true) // Refresh the list of friend requests
     if (requests)
       ({ incoming_requests: incomingRequests.value, outgoing_requests: outgoingRequests.value } = requests)
     else {
@@ -114,7 +115,7 @@ async function createFriendRequest(receiverId: number) {
 async function deleteFriendRequest(reqId: number) {
   try {
     await axios.delete(`${URL}/friend-requests/${reqId}/`, { withCredentials: true })
-    const requests = await getFriendRequests(URL, true) // Refresh the list of friend requests
+    const requests = await getFriendRequests(true) // Refresh the list of friend requests
     if (requests)
       ({ incoming_requests: incomingRequests.value, outgoing_requests: outgoingRequests.value } = requests)
     else {
@@ -211,6 +212,7 @@ function checkFriendshipStatus() {
 </script>
 
 <template>
+  <PublicProfile />
   <div v-if="pageUser && (!username || routeUser)" class="profile-page">
     <div class="header">
       <h1>{{ pageUser.username }}</h1>
