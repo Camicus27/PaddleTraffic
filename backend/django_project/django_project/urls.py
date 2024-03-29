@@ -40,6 +40,7 @@ urlpatterns = [
     path('locations/<int:id>/report/', views.report),
     path('locations/bounds/', views.location_bounds),
     path('location/latlon/', views.location_latlon),
+    path('locations/list', views.location_list),
     path('events/', views.events),
     path('events/<int:id>/', views.events_id),
 

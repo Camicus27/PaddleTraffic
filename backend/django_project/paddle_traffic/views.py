@@ -316,6 +316,20 @@ def locations(request):
 
 
 @csrf_exempt
+def location_list(request):
+    def post(data):
+        locIds = data.get("locationIds", None)
+        if not locIds:
+            return http_bad_request_json()
+        locations = m.Location.objects.filter(id__in=locIds)
+        serializer = ser.LocationSerializer(locations, many=True)
+        return JsonResponse({"locations": serializer.data})
+        
+    funs = {"POST": post}
+    return get_response(request, funs)
+
+
+@csrf_exempt
 def locations_id(request, id):
     """
     /locations/{id}

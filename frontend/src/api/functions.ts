@@ -142,9 +142,9 @@ export async function getLocationsByBounds(lat: number, lon: number, logError: b
     return undefined
 }
 
-export async function getLocationsByList(locationIds: number[], logError: boolean = false): Promise<Location[] | undefined> {
+export async function getLocationsByList(locIdList: number[], logError: boolean = false): Promise<Location[] | undefined> {
     try {
-        const response = await axios.post(`${URL}/locations/list`, {locationIds : locationIds}) // TODO make sure is accurate
+        const response = await axios.post(`${URL}/locations/list`, {locationIds : locIdList})
         if (response.data.locations)
             return response.data.locations as Location[]
     } catch (error) {
