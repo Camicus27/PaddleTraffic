@@ -16,12 +16,13 @@ const eventForm = ref({
     description: '',
     location: '',
     host: -1,
-    players: new Array<String>(),
+    players: new Array<number>(),
     date: '',
     time: '',
     isPublic: true
 })
 const matchVisibility = ref("public")
+const isHostPlaying = ref("yes");
 
 
 onMounted(async () => {
@@ -37,6 +38,7 @@ onMounted(async () => {
 
 onActivated(async () => {
     submittedSuccessfully.value = false
+    clearForm()
     currentUser.value = await getCurrentUser(true)
     if (!currentUser.value) {
         window.location.href = '/login'
@@ -55,7 +57,16 @@ else
     URL = env.VITE_DEV_URL
 
 function submitForm() {
-    eventForm.value.host = currentUser.value ? currentUser.value.id : -1
+    if (currentUser.value) {
+        eventForm.value.host = currentUser.value.id
+        if (isHostPlaying.value === 'yes') {
+            eventForm.value.players.push(currentUser.value.id)
+        }
+    }
+    else {
+        eventForm.value.host = -1
+    }
+    
     eventForm.value.isPublic = matchVisibility.value === 'public'
     axios.post(`${URL}/events/`, { event: eventForm.value })
         .then(response => {
@@ -68,29 +79,42 @@ function submitForm() {
             console.error('Error:', error);
         });
 }
+
+function clearForm() {
+    eventForm.value.name = ''
+    eventForm.value.description = ''
+    eventForm.value.location = ''
+    eventForm.value.host = -1
+    eventForm.value.players = []
+    eventForm.value.date = ''
+    eventForm.value.time = ''
+    eventForm.value.isPublic = true
+    matchVisibility.value = "public"
+    isHostPlaying.value = "yes"
+}
 </script>
 
 <template>
     <div v-if="currentUser" id="event-form-wrapper">
         <form @submit.prevent="submitForm">
-            <div>
+            <section>
                 <label for="name">Event Name:</label>
                 <input type="text" id="name" v-model="eventForm.name" autofocus tabindex="1" placeholder="Awesome Event Name..." required>
-            </div>
+            </section>
 
-            <div>
+            <section>
                 <label for="description">Description:</label>
                 <textarea id="description" v-model="eventForm.description" tabindex="2" placeholder="Description of your event..."></textarea>
-            </div>
+            </section>
 
-            <div>
+            <section>
                 <label for="location">Location:</label>
                 <select id="location" v-model="eventForm.location" tabindex="3" required>
                     <option v-for="{ id, name } in allLocations" :key="id" :value="id">{{ name }}</option>
                 </select>
-            </div>
+            </section>
 
-            <div>
+            <section>
                 <div>
                     <label for="players">Players:</label>
                     <select id="players" multiple v-model="eventForm.players" tabindex="4">
@@ -99,89 +123,104 @@ function submitForm() {
                     </select>
                 </div>
                 <div class="selected-players">
-                    <span v-for="player in eventForm.players" :key="player.toString()" class="selected-player" tabindex="6">
-                        {{ allFriends.filter((p: any) => p.id === player)[0].username }}
+                    <span v-for="player in eventForm.players" :key="player" class="selected-player" tabindex="6">
+                        <p v-if="player != currentUser.id">
+                            {{ allFriends.filter((p: any) => p.id === player)[0].username }}
+                        </p>
                     </span>
                 </div>
-            </div>
-            <div>
+            </section>
+
+            <section>
                 <label for="date">Date:</label>
                 <input type="date" id="date" v-model="eventForm.date" tabindex="5" required>
-            </div>
+            </section>
 
-            <div>
+            <section>
                 <label for="time">Time:</label>
                 <input type="time" id="time" v-model="eventForm.time" tabindex="6" required>
-            </div>
+            </section>
 
-            <div>
+            <section class="radio-select">
                 <label for="isPublic">Match Privacy:</label>
-                <input type="radio" id="public" value="public" v-model="matchVisibility">
+                <div>
+                    <input type="radio" name="privacy" id="public" value="public" v-model="matchVisibility" tabindex="7" required>
+                    <label for="public">Public</label>
+                </div>
+                <div>
+                    <input type="radio" name="privacy" id="private" value="private" v-model="matchVisibility" tabindex="8" required>
+                    <label for="private">Private</label>
+                </div>
+            </section>
+
+            <section class="radio-select">
+                <label for="isAttending">Are You Participating?</label>
+                <div>
+                    <input type="radio" name="participating" id="yes-participation" value="yes" v-model="isHostPlaying" tabindex="9" required>
+                    <label for="yes-participation">Yes</label>
+                </div>
+                <div>
+                    <input type="radio" name="participating" id="no-participation" value="no" v-model="isHostPlaying" tabindex="10" required>
+                    <label for="no-participation">No</label>
+                </div>
+            </section>
+
+            <button v-if="!submittedSuccessfully" class="dark-solid-button" type="submit" tabindex="11">Submit</button>
+            <div id="success-alert" v-else>
                 <p>
-                    Public
-                </p>
-                <input type="radio" id="private" value="private" v-model="matchVisibility">
-                <p>
-                    Private
+                    <strong>Success!</strong> Your form has been submitted.
                 </p>
             </div>
-
-            <button type="submit">Submit</button>
         </form>
     </div>
     <div v-else>
         <h3>Sign in to access event creation</h3>
     </div>
-    <div>
+    <div id="back-link">
         <RouterLink to="/matchmaking">&larr; Return to Events</RouterLink>
-    </div>
-    <div class="alert-wrapper" v-if="submittedSuccessfully">
-        <div class="alert-success">
-            <span class="closebtn" @click="submittedSuccessfully = !submittedSuccessfully">&times;</span>
-            <strong>Success!</strong> Your form has been submitted.
-        </div>
     </div>
 </template>
 
 <style scoped lang="scss">
 @use '../styles/components';
 
-form {
-    display: flex;
-    flex-direction: column;
-    width: 100%;
-    padding: 1.75rem;
-    background-color: #f9f9f9;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px #ffffff40;
+#event-form-wrapper {
+  @extend %main-page;
+  width: 85%;
+}
 
+.radio-select {
     div {
         display: flex;
-        flex-direction: column;
-        margin-block: .5rem;
+        flex-direction: row;
+        margin-block: 0;
     }
-
-    label {
-        display: block;
-        margin-bottom: .5rem;
-        font-weight: bold;
+    input {
+        width: auto;
+        appearance: auto;
     }
-
-    input,
-    textarea,
-    select {
-        width: 100%;
-        padding: 8px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        box-sizing: border-box;
-    }
-
-    textarea {
-        height: 5rem;
-        resize: vertical;
+    div label {
+        font-weight: normal;
+        padding-left: .5rem;
+        margin-block: 0;
     }
 }
+
+#back-link {
+    margin-bottom: 5rem;
+    a {
+        font-size: 1.25rem;
+    }
+}
+
+#success-alert {
+    display: flex;
+    justify-content: center;
+    p {
+        font-size: 1.33rem;
+    }
+}
+
 
 // @media only screen and (max-width: 850px) {
 //     #event-form-wrapper {
