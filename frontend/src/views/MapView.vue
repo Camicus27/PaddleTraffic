@@ -266,6 +266,19 @@ function initMap() {
         zoom: 11
     })
 
+    // stank sector
+    map.value.doubleClickZoom.disable()
+    map.value.on('style.load', () => {
+        getMap().setFog({
+            color: '#4b5320', // Lower atmosphere
+            'high-color': 'rgb(200, 200, 200)', // Upper atmosphere
+            'horizon-blend': 0.1, // Atmosphere thickness (default 0.2 at low zooms)
+            'space-color': '#183400', // Background color - deep purple to simulate a strange, dark sky
+            'star-intensity': 1 // Background star brightness (default 0.35 at low zooms)
+        });
+    });
+    // stank sector
+
     const geocoder = new MapboxGeocoder({
         accessToken: mapboxgl.accessToken,
         mapboxgl: mapboxgl,
@@ -370,11 +383,13 @@ const selectedLocation = computed(() => {
 <template>
     <div class="main-page">
         <CommonHeader />
-        <!-- <button id="search-bt" @click="updateMarkersOnSearch">Search This Area</button> -->
-        <div ref="mapContainer" class="mapbox-container">
+        <div class="map-overlay-container">
+            <button id="search-bt" @click="refreshMapItemsByCenter">Search This Area</button>
+            <div ref="mapContainer" class="mapbox-container"></div>
         </div>
-        <Transition name="popup-transtion">
-            <Popup v-if="currSelected" :location="selectedLocation" :on-submit-callback="updateMarkerColor" />
+        <Transition name="popup-transition">
+            <Popup class="popup" v-if="currSelected" :location="selectedLocation"
+                :on-submit-callback="updateMarkerColor" />
         </Transition>
     </div>
 </template>
@@ -383,38 +398,60 @@ const selectedLocation = computed(() => {
 @use '@/styles/abstracts';
 @use '@/styles/components';
 
+.popup {}
+
+.popup-transition-enter-from,
+.popup-transition-leave-to {
+    max-height: 0;
+    opacity: 0;
+    overflow: hidden;
+}
+
+.popup-transition-enter-to,
+.popup-transition-leave-from {
+    max-height: 500px;
+    opacity: 1;
+}
+
+.popup-transition-enter-active,
+.popup-transition-leave-active {
+    transition: max-height 0.5s ease-in-out, opacity 0.5s ease-in-out;
+    overflow: hidden;
+}
+
 .main-page {
     @extend %flex-col-center;
     height: 100vh;
+    overflow: hidden;
+}
+
+.map-overlay-container {
+    position: relative;
+    flex-grow: 1;
+    width: 100%;
 }
 
 .mapbox-container {
-    display: flex;
-    width: 100vw;
-    flex: 1 1 auto;
+    height: 100%;
 }
 
 #search-bt {
-    @extend .dark-solid-button;
-    border: none;
+    position: absolute;
+    bottom: 20px; // Adjust as needed for correct placement from the bottom
+    left: 50%;
+    transform: translateX(-50%); // Center horizontally
+    z-index: 1; // Ensure the button is above the map layers
+    // Rest of your button styling...
     background-color: white;
-    color: lightskyblue;
-    z-index: 1;
-    position: relative;
-    margin-left: 20px;
-    margin-top: 40px;
-    height: 2rem;
-    width: 4rem;
-    height: 2rem;
+    color: #333;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 6px 12px;
+    cursor: pointer;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
 
     &:hover {
-        color: white;
-        background-color: lightblue;
-    }
-
-    &:active {
-        background-color: darken($color: lightblue, $amount: 25);
-        transition: background-color 0.1s;
+        background-color: #f8f8f8;
     }
 }
 
@@ -438,7 +475,6 @@ const selectedLocation = computed(() => {
     overflow: visible;
     transform-origin: 50% 100%;
     transition: transform 0.3s ease, filter 0.3s ease;
-
 }
 
 :deep(svg:hover) {
