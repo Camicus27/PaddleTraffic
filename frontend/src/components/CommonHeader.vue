@@ -80,7 +80,7 @@ $mobile-size : 800px;
 }
 
 header {
-  width: 100vw;
+  width: 100%;
   flex: 0 1 auto;
 }
 

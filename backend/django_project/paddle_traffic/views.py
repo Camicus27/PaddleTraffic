@@ -680,17 +680,38 @@ def events_id(request, id):
         if m_event is None:
             return http_not_found(f"Event was not found ({str(id)}).")
         
-        # Verify the user is not already in the event
-        if m_event.players.filter(id=request.user.id).exists() or m_event.host.id == request.user.id:
-            return http_bad_argument(f"User already is participating in event ({str(id)}).")
+        isJoining = data.get("joining")
+        if isJoining is None:
+            return HttpResponse(
+                "Invalid JSON data", status=400, content_type="text/plain"
+            )
         
-        # Add player to event and save
-        try:
-            m_event.players.add(request.user)
-            m_event.save()
-            return http_ok(f"User added to event ({str(id)}) successfully.")
-        except:
-            return http_bad_argument(f"Error adding user to event ({str(id)}).")
+        # Joining an event
+        if isJoining:
+            # Verify the user is not already in the event
+            if m_event.players.filter(id=request.user.id).exists():
+                return http_bad_argument(f"User already is participating in event ({str(id)}).")
+            
+            # Add player to event and save
+            try:
+                m_event.players.add(request.user)
+                m_event.save()
+                return http_ok(f"User added to event ({str(id)}) successfully.")
+            except:
+                return http_bad_argument(f"Error adding user to event ({str(id)}).")
+        # Leaving an event
+        else:
+            # Verify the user is not already not in the event
+            if not m_event.players.filter(id=request.user.id).exists():
+                return http_bad_argument(f"User is already not participating in event ({str(id)}).")
+            
+            # Remove player from event and save
+            try:
+                m_event.players.remove(request.user)
+                m_event.save()
+                return http_ok(f"User removed from event ({str(id)}) successfully.")
+            except:
+                return http_bad_argument(f"Error removing user from event ({str(id)}).")
         
     def patch(data):
         existing_event = try_get_instance(m.Event, id)

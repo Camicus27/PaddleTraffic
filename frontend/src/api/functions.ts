@@ -149,11 +149,29 @@ export async function getAllEvents(baseUrl: string, logError: boolean): Promise<
  */
 export async function createJoinGame(eventId: number, baseUrl: string, logError: boolean): Promise<boolean> {
     try {
-        await axios.post(`${baseUrl}/events/${eventId}/`, {}, { withCredentials: true })
+        await axios.post(`${baseUrl}/events/${eventId}/`, { joining: true }, { withCredentials: true })
         return true
     } catch (error) {
         if (logError)
-            // Need to return the error reason here?
+            console.error(error)
+        return false
+    }
+}
+
+
+/**
+ * This function creates a leave event request from the currently authenticated user to the event with eventId.
+ * @param eventId The ID of the event that will receive the leave request.
+ * @param baseUrl The base URL for the HTTP request.
+ * @param logError Whether or not the error should be printed, if one occurs.
+ * @returns True if the request is successful; false otherwise.
+ */
+export async function createLeaveGame(eventId: number, baseUrl: string, logError: boolean): Promise<boolean> {
+    try {
+        await axios.post(`${baseUrl}/events/${eventId}/`, { joining: false }, { withCredentials: true })
+        return true
+    } catch (error) {
+        if (logError)
             console.error(error)
         return false
     }
