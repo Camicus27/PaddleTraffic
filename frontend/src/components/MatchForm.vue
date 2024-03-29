@@ -25,7 +25,7 @@ const matchVisibility = ref("public")
 
 
 onMounted(async () => {
-    currentUser.value = await getCurrentUser(URL, true)
+    currentUser.value = await getCurrentUser(true)
     if (!currentUser.value) {
         window.location.href = '/login'
     }
@@ -37,7 +37,7 @@ onMounted(async () => {
 
 onActivated(async () => {
     submittedSuccessfully.value = false
-    currentUser.value = await getCurrentUser(URL, true)
+    currentUser.value = await getCurrentUser(true)
     if (!currentUser.value) {
         window.location.href = '/login'
     }

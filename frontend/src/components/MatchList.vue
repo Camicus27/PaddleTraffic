@@ -24,7 +24,7 @@ onMounted(async () => {
 })
 
 onActivated(async () => {
-  currentUser.value = await getCurrentUser(URL, true)
+  currentUser.value = await getCurrentUser(true)
   allMatches.value = await getAllEvents(URL, true)
   isFetching.value = false
 })

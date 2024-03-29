@@ -2,6 +2,12 @@ import axios from 'axios'
 
 import type { FriendRequest, Location, Event, PendingFriendRequests, PickleUser, RestrictedUser } from './types'
 
+let URL: string
+// This is the collection of environment variables.
+const env = import.meta.env
+if (env.MODE === 'production') URL = env.VITE_PROD_URL
+else URL = env.VITE_DEV_URL
+
 // USER FUNCTIONS //
 
 /**
@@ -10,9 +16,9 @@ import type { FriendRequest, Location, Event, PendingFriendRequests, PickleUser,
  * @param logError Whether or not the error should be printed, if one occurs.
  * @returns a PickleUser object if the request is successful; undefined otherwise
  */
-export async function getCurrentUser(baseUrl: string, logError: boolean): Promise<PickleUser | undefined> {
+export async function getCurrentUser(logError: boolean): Promise<PickleUser | undefined> {
     try {
-        const response = await axios.get(`${baseUrl}/current-user/`)
+        const response = await axios.get(`${URL}/current-user/`)
         if (response.data.user)
             return response.data.user as PickleUser
     } catch (error) {
