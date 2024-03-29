@@ -5,7 +5,7 @@ import MatchForm from '@/components/MatchForm.vue'
 
 <template>
   <CommonHeader />
-  <div>
+  <div id="events-wrapper">
     <h1>New Matchmaking Event</h1>
     <MatchForm />
   </div>
@@ -18,8 +18,9 @@ h1 {
   margin-bottom: 1.5rem;
 }
 
-div {
+#events-wrapper {
   @extend %main-page;
+  width: 85%;
 }
 
 // /* Media query for narrower screens */
