@@ -174,9 +174,9 @@ export async function createJoinGame(eventId: number, baseUrl: string, logError:
  * @param logError Whether or not the error should be printed, if one occurs.
  * @returns A PendingFriendRequests object if the request is successful; undefined otherwise.
  */
-export async function getFriendRequests(baseUrl: string, logError: boolean): Promise<PendingFriendRequests | undefined> {
+export async function getFriendRequests(logError: boolean): Promise<PendingFriendRequests | undefined> {
     try {
-        const response = await axios.get(`${baseUrl}/friend-requests/`, { withCredentials: true })
+        const response = await axios.get(`${URL}/friend-requests/`, { withCredentials: true })
         return response.data as PendingFriendRequests
     } catch (error) {
         if (logError)
