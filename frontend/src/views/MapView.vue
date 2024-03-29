@@ -28,7 +28,7 @@ interface MapItem {
 
 // [Location.id] : MapItem
 const mapItems: Map<number, MapItem> = new Map()
-const currSelected = ref<Location | undefined>()
+const currSelected = ref<number | undefined>()
 
 function addMapItem(location: Location, map: mapboxgl.Map) {
     if (mapItems.has(location.id)) return
@@ -68,25 +68,17 @@ function selectMarker(locId: number) {
 
     const selectedClassName = 'selected'
     if (currSelected.value) { // if a marker is selected
-        let mapItem = mapItems.get(currSelected.value.id)
+        let mapItem = mapItems.get(currSelected.value)
         let old_marker = mapItem!.marker.getElement()
         old_marker.classList.remove(selectedClassName)
-
-        let p = mapItem?.marker.getPopup()
-        if (p && p.isOpen()) {
-            console.log(`Open before: ${p.isOpen()}`)
-            p.remove()
-            console.log(`Open after: ${p.isOpen()}`)
-        }
-        if (currSelected.value.id == locId) { // and it's the same one
+        if (currSelected.value == locId) { // and it's the same one
             currSelected.value = undefined // then none is selected in state
             return // return
         }
     }
 
     // otherwise set the new one
-    currSelected.value = mapItems.get(locId)?.location.value
-    console.log(`currSelected after selection ${currSelected.value?.name}`)
+    currSelected.value = locId
     let fill_el = mapItems.get(locId)!.marker.getElement()
     fill_el.classList.add(selectedClassName)
 }
@@ -114,17 +106,10 @@ function refreshMapItems() {
         locations.forEach((value, index) => {
             let mapItem = mapItems.get(value.id)
             if (mapItem) {
-                // const newMapItem: MapItem = {
-                //     location: value,
-                //     marker: mapItem.marker
-                // }
-                // mapItems.set(value.id, newMapItem)
                 mapItem.location.value = value
+                updateMarkerColor(mapItem.location.value.id)
             }
         })
-        // removeAllMapItems()
-        // addAllMapItems(locations, getMap())
-        console.log("I be out here workin sheeeeeee")
     })
 }
 
@@ -164,7 +149,7 @@ else
     URL = env.VITE_DEV_URL
 
 
-
+// TODO: Remove and add backend endpoint to get ALL location names & coords & address ORRRR figure out backend search
 interface Feature {
     type: string;
     properties: {
@@ -377,7 +362,7 @@ onUnmounted(() => {
 })
 
 const selectedLocation = computed(() => {
-    let v = currSelected.value ? mapItems.get(currSelected.value.id)?.location : undefined;
+    let v = currSelected.value ? mapItems.get(currSelected.value)?.location : undefined;
     return v;
 });
 </script>
@@ -389,10 +374,9 @@ const selectedLocation = computed(() => {
         <div ref="mapContainer" class="mapbox-container">
         </div>
         <Transition name="popup-transtion">
-            <Popup v-if="currSelected" :location="currSelected" :on-submit-callback="updateMarkerColor" />
+            <Popup v-if="currSelected" :location="selectedLocation" :on-submit-callback="updateMarkerColor" />
         </Transition>
     </div>
-    <!-- Dynamic adding to map page popup thingy ... -->
 </template>
 
 <style scoped lang="scss">
