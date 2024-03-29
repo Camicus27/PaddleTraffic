@@ -317,6 +317,12 @@ function initGeoloc() {
     if (props.lat && props.lon) {
         let lonLatLike = new mapboxgl.LngLat(props.lon, props.lat)
         getMap().setCenter(lonLatLike)
+        getNearestLocation(props.lat, props.lon).then((location) => {
+            if(location) {
+                addMapItem(location, getMap()) // this IS safe. addIfNotIn(...)
+                selectMarker(location.id)
+            }
+        })
     }
 
     getMap().on('load', () => {
@@ -399,18 +405,16 @@ const selectedLocation = computed(() => {
 <style scoped lang="scss">
 @use '@/styles/abstracts' as *;
 @use '@/styles/components';
-$mobile-size: 600px;
-
-.popup {
-    
+$mobile-size: 800px;
+* {
+    display: flex;
 }
 
 .orientation {
-    display: flex;
     flex-direction: row-reverse;
     position: relative;
     flex-grow: 1;
-    width: 100%;
+    align-self: stretch;
 
     @include responsive($mobile-size) {
         flex-direction: column;
@@ -442,14 +446,25 @@ $mobile-size: 600px;
     overflow: hidden;
 }
 
+.popup {
+    flex-grow: 1;
+    flex-basis: 30%;
+}
+
 .map-overlay-container {
     position: relative;
     flex-grow: 1;
-    width: 100%;
+    flex-basis: 100%;
 }
 
 .mapbox-container {
     height: 100%;
+    flex-grow: 1;
+
+    @include responsive($mobile-size) {
+        width: 100%;
+        flex-grow: 1;
+    }
 }
 
 #search-bt {
