@@ -28,7 +28,7 @@ interface MapItem {
 
 // [Location.id] : MapItem
 const mapItems: Map<number, MapItem> = new Map()
-const currSelected = ref<number | undefined>()
+const currSelected = ref<Location | undefined>()
 
 function addMapItem(location: Location, map: mapboxgl.Map) {
     if (mapItems.has(location.id)) return
@@ -68,7 +68,7 @@ function selectMarker(locId: number) {
 
     const selectedClassName = 'selected'
     if (currSelected.value) { // if a marker is selected
-        let mapItem = mapItems.get(currSelected.value)
+        let mapItem = mapItems.get(currSelected.value.id)
         let old_marker = mapItem!.marker.getElement()
         old_marker.classList.remove(selectedClassName)
 
@@ -78,14 +78,15 @@ function selectMarker(locId: number) {
             p.remove()
             console.log(`Open after: ${p.isOpen()}`)
         }
-        if (currSelected.value == locId) { // and it's the same one
+        if (currSelected.value.id == locId) { // and it's the same one
             currSelected.value = undefined // then none is selected in state
             return // return
         }
     }
 
     // otherwise set the new one
-    currSelected.value = locId
+    currSelected.value = mapItems.get(locId)?.location.value
+    console.log(`currSelected after selection ${currSelected.value?.name}`)
     let fill_el = mapItems.get(locId)!.marker.getElement()
     fill_el.classList.add(selectedClassName)
 }
@@ -376,7 +377,7 @@ onUnmounted(() => {
 })
 
 const selectedLocation = computed(() => {
-    let v = currSelected.value ? mapItems.get(currSelected.value)?.location : undefined;
+    let v = currSelected.value ? mapItems.get(currSelected.value.id)?.location : undefined;
     return v;
 });
 </script>
@@ -388,7 +389,7 @@ const selectedLocation = computed(() => {
         <div ref="mapContainer" class="mapbox-container">
         </div>
         <Transition name="popup-transtion">
-            <Popup v-if="selectedLocation" :location="selectedLocation" :on-submit-callback="updateMarkerColor" />
+            <Popup v-if="currSelected" :location="currSelected" :on-submit-callback="updateMarkerColor" />
         </Transition>
     </div>
     <!-- Dynamic adding to map page popup thingy ... -->

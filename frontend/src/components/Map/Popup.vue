@@ -5,7 +5,7 @@ import { postLocationReport } from '@/api/functions';
 
 // const props = defineProps(['location', 'onSubmitCallback'])
 const props = defineProps<{
-    location: Ref<Location>,
+    location: Location,
     onSubmitCallback: (locationId: number) => void,
 }>()
 
@@ -14,14 +14,11 @@ const locForm: Ref<Report> = ref({
     number_waiting: 0
 })
 
-// does need to be a ref?
-const location = props.location
-
 const submitDataDisabled = ref<boolean>(false)
 
 onMounted(() => {
     // If you specifically want to print the location prop
-    console.log('!!!Location prop:', props.location?.value?.name);
+    console.log('!!!Location prop:', props.location?.name);
 });
 
 function pluralize(word: string, num: number): string {
@@ -51,8 +48,8 @@ function submitForm() {
     setTimeout(() => {
         submitDataDisabled.value = false
     }, 3000)
-    console.log('!!!Location on submit', location.value.id)
-    postLocationReport(location.value.id, locForm.value)
+    console.log('!!!Location on submit', props.location.id)
+    postLocationReport(props.location.id, locForm.value)
 }
 </script>
 
@@ -60,22 +57,22 @@ function submitForm() {
     <div class="popup">
         <div class="left-side">
             <div class="location-title">
-                <h4>{{ location.name }}</h4>
-                <sub>Courts: {{ location.court_count }}</sub>
+                <h4>{{ props.location.name }}</h4>
+                <sub>Courts: {{ props.location.court_count }}</sub>
             </div>
             <div class="info">
-                <p>Est. Courts Occupied: {{ location.courts_occupied }}</p>
-                <p>Est. Groups Waiting: {{ location.number_waiting }}</p>
-                <p>Est. Wait: {{ location.estimated_wait_time }}</p>
+                <p>Est. Courts Occupied: {{ props.location.courts_occupied }}</p>
+                <p>Est. Groups Waiting: {{ props.location.number_waiting }}</p>
+                <p>Est. Wait: {{ props.location.estimated_wait_time }}</p>
             </div>
         </div>
         <form @submit.prevent="submitForm">
             <label for="courtsOccupied">Courts Occupied:</label>
-            <input type="number" id="courtsOccupied" name="courtsOccupied" min="0" :max="location.court_count"
+            <input type="number" id="courtsOccupied" name="courtsOccupied" min="0" :max="props.location.court_count"
                 v-model="locForm.courts_occupied" required>
             <label for="numberWaiting">Groups Waiting:</label>
             <input type="number" id="numberWaiting" name="numberWaiting" min="0"
-                :max="(locForm.courts_occupied < location.court_count) ? 0 : 10" v-model="locForm.number_waiting"
+                :max="(locForm.courts_occupied < props.location.court_count) ? 0 : 10" v-model="locForm.number_waiting"
                 required>
             <button :disabled="submitDataDisabled">
                 Update Status
