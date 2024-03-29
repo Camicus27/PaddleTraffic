@@ -1,9 +1,13 @@
 <script setup lang="ts">
-import { ref, type Ref } from 'vue';
-import type {Location, Report} from '@/api/types';
+import { onMounted, ref, type ComputedRef, type Ref, toRef } from 'vue';
+import type { Location, Report } from '@/api/types';
 import { postLocationReport } from '@/api/functions';
 
-const props = defineProps(['location', 'onSubmitCallback'])
+// const props = defineProps(['location', 'onSubmitCallback'])
+const props = defineProps<{
+    location: Ref<Location>,
+    onSubmitCallback: (locationId: number) => void,
+}>()
 
 const locForm: Ref<Report> = ref({
     courts_occupied: 0,
@@ -11,9 +15,14 @@ const locForm: Ref<Report> = ref({
 })
 
 // does need to be a ref?
-const location = ref<Location>(props.location)
+const location = props.location
 
 const submitDataDisabled = ref<boolean>(false)
+
+onMounted(() => {
+    // If you specifically want to print the location prop
+    console.log('!!!Location prop:', props.location?.value?.name);
+});
 
 function pluralize(word: string, num: number): string {
     if (num != 1) {
@@ -42,7 +51,7 @@ function submitForm() {
     setTimeout(() => {
         submitDataDisabled.value = false
     }, 3000)
-
+    console.log('!!!Location on submit', location.value.id)
     postLocationReport(location.value.id, locForm.value)
 }
 </script>
@@ -57,7 +66,7 @@ function submitForm() {
             <div class="info">
                 <p>Est. Courts Occupied: {{ location.courts_occupied }}</p>
                 <p>Est. Groups Waiting: {{ location.number_waiting }}</p>
-                <p>Est. Wait: {{ formatTime(location.estimated_wait_time) }}</p>
+                <p>Est. Wait: {{ location.estimated_wait_time }}</p>
             </div>
         </div>
         <form @submit.prevent="submitForm">
@@ -77,6 +86,7 @@ function submitForm() {
 
 <style scoped lang="scss">
 @use '@/styles/components';
+
 * {
     display: flex;
 }
@@ -98,6 +108,7 @@ input::-webkit-inner-spin-button {
 .left-side {
     justify-content: space-around;
     flex-direction: column;
+
     h4 {
         margin: 0;
     }
@@ -105,6 +116,7 @@ input::-webkit-inner-spin-button {
     p {
         margin: 0;
     }
+
     padding-right: 2rem;
 }
 
@@ -119,6 +131,7 @@ input::-webkit-inner-spin-button {
     flex-direction: column;
     justify-content: center;
     font-size: small;
+
     p {
         text-wrap: nowrap;
     }

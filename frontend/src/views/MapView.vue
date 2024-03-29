@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, type Ref, getCurrentInstance, createApp } from 'vue'
-import mapboxgl, { LngLat, Marker } from "mapbox-gl"
+import { ref, onMounted, onUnmounted, type Ref, computed } from 'vue'
+import mapboxgl from "mapbox-gl"
 import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
 import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css';
 import { useRoute } from "vue-router"
@@ -22,52 +22,36 @@ import { type Location } from '@/api/types'
 // -------------------------------- REFACTOR ZONE -------------------------------------------- //
 
 interface MapItem {
-    location: Location
+    location: Ref<Location>
     marker: mapboxgl.Marker
 }
 
 // [Location.id] : MapItem
-const mapItems: Ref<Map<number, MapItem>> = ref(new Map())
+const mapItems: Map<number, MapItem> = new Map()
 const currSelected = ref<number | undefined>()
 
 function addMapItem(location: Location, map: mapboxgl.Map) {
-    if (mapItems.value.has(location.id)) return
-
-
-    // Create Popup vue app
-    const popupComponent = createApp(Popup,
-        {
-            location: location,
-            onSubmitCallback: updateMarkerColor
-        })
-
-    // Mount the component and render it to HTML
-    const popupHtml = document.createElement('div')
-    popupComponent.mount(popupHtml);
-    const popup = new mapboxgl.Popup({ closeButton: false, offset: 25 }).setDOMContent(
-        popupHtml
-    )
+    if (mapItems.has(location.id)) return
 
     // Create Map Marker
     let marker: mapboxgl.Marker;
     marker = new mapboxgl.Marker()
         .setLngLat([location.longitude, location.latitude])
-        .setPopup(popup)
         .addTo(map)
 
     // Add MapItem
     const newMapItem: MapItem = {
-        location: location,
+        location: ref(location),
         marker: marker
     }
-    mapItems.value.set(location.id, newMapItem)
+    mapItems.set(location.id, newMapItem)
 
     // update color!
     updateMarkerColor(location.id)
 
     // TODO change to be for event listener on like the Popup instead of just on click
     marker.getElement().addEventListener('click', () => {
-        selectMarkerREFACTORED(location.id)
+        selectMarker(location.id)
     })
 
 }
@@ -79,14 +63,21 @@ function addAllMapItems(locations: Location[], map: mapboxgl.Map) {
 }
 
 // Update the info section with location data
-function selectMarkerREFACTORED(locId: number) {
-    if (!mapItems.value.has(locId)) return
+function selectMarker(locId: number) {
+    if (!mapItems.has(locId)) return
 
     const selectedClassName = 'selected'
     if (currSelected.value) { // if a marker is selected
-        let mapItem = mapItems.value.get(currSelected.value)
+        let mapItem = mapItems.get(currSelected.value)
         let old_marker = mapItem!.marker.getElement()
         old_marker.classList.remove(selectedClassName)
+
+        let p = mapItem?.marker.getPopup()
+        if (p && p.isOpen()) {
+            console.log(`Open before: ${p.isOpen()}`)
+            p.remove()
+            console.log(`Open after: ${p.isOpen()}`)
+        }
         if (currSelected.value == locId) { // and it's the same one
             currSelected.value = undefined // then none is selected in state
             return // return
@@ -95,37 +86,47 @@ function selectMarkerREFACTORED(locId: number) {
 
     // otherwise set the new one
     currSelected.value = locId
-    let fill_el = mapItems.value.get(locId)!.marker.getElement()
+    let fill_el = mapItems.get(locId)!.marker.getElement()
     fill_el.classList.add(selectedClassName)
 }
 
 function removeMapItem(locId: number) {
-    let mapItem = mapItems.value.get(locId)
+    let mapItem = mapItems.get(locId)
     if (!mapItem) return
     // remove it from the map
     mapItem.marker.remove()
     // from mapItems
-    mapItems.value.delete(locId)
+    mapItems.delete(locId)
 }
 
 function removeAllMapItems() {
-    let keys = mapItems.value.keys()
+    let keys = mapItems.keys()
     for (let key of keys) { // for-of iterator, not for-in for properties in object :/
         removeMapItem(key)
     }
 }
 
-// CHECKOFF
 function refreshMapItems() {
-    let locationIds = Array.from(mapItems.value.keys())
+    let locationIds = Array.from(mapItems.keys())
     getLocationsByList(locationIds).then((locations) => {
-        if (!locations) return // don't refresh if no new data could be received
-        removeAllMapItems()
-        addAllMapItems(locations, getMap())
+        if (!locations) return // don't refresh if data is undefined AKA error could be received
+        locations.forEach((value, index) => {
+            let mapItem = mapItems.get(value.id)
+            if (mapItem) {
+                // const newMapItem: MapItem = {
+                //     location: value,
+                //     marker: mapItem.marker
+                // }
+                // mapItems.set(value.id, newMapItem)
+                mapItem.location.value = value
+            }
+        })
+        // removeAllMapItems()
+        // addAllMapItems(locations, getMap())
+        console.log("I be out here workin sheeeeeee")
     })
 }
 
-// CHECKOFF
 function refreshMapItemsByCenter() {
     let { lat, lng } = getMap().getCenter()
     getLocationsByBounds(lat, lng).then((locations) => {
@@ -323,10 +324,11 @@ function initGeoloc() {
         geolocateControl.trigger() // Basically 'turn on geolocate'
         console.log(`CENTER ON LOAD ${getMap().getCenter()}`)
     });
+    refreshMapItemsByCenter()
 }
 
 function updateMarkerColor(locationId: number) {
-    let mapItem = mapItems.value.get(locationId)
+    let mapItem = mapItems.get(locationId)
     if (!mapItem) return // do not update if not found
     let { location, marker } = mapItem
 
@@ -335,13 +337,13 @@ function updateMarkerColor(locationId: number) {
 
     let waiting_constant = 1.2
     // ratio for number waiting / c * court_count
-    let waiting_ratio = location.number_waiting / (waiting_constant * location.court_count)
+    let waiting_ratio = location.value.number_waiting / (waiting_constant * location.value.court_count)
 
     // caps at 1
     waiting_ratio = waiting_ratio > 1 ? 1 : waiting_ratio
 
     // ratio of # of courts occupied
-    let courts_occupied_ratio = location.courts_occupied / location.court_count
+    let courts_occupied_ratio = location.value.courts_occupied / location.value.court_count
 
     // distribution of how much to take into account people waiting vs courts occupied
     let percent_full = 0.4 * courts_occupied_ratio + 0.6 * waiting_ratio
@@ -359,7 +361,7 @@ let locationsInterval: number | undefined
 onMounted(() => {
     initMap()
     initGeoloc()
-    locationsInterval = window.setInterval(refreshMapItemsByCenter, 3000)
+    locationsInterval = window.setInterval(refreshMapItems, 3000)
     document.querySelector('.mapboxgl-ctrl-bottom-right')?.remove()
     document.querySelector('.mapboxgl-ctrl-bottom-left')?.setAttribute('style', 'transform: scale(0.85);')
 })
@@ -372,6 +374,11 @@ onUnmounted(() => {
     }
     locationsInterval = undefined
 })
+
+const selectedLocation = computed(() => {
+    let v = currSelected.value ? mapItems.get(currSelected.value)?.location : undefined;
+    return v;
+});
 </script>
 
 <template>
@@ -380,6 +387,9 @@ onUnmounted(() => {
         <!-- <button id="search-bt" @click="updateMarkersOnSearch">Search This Area</button> -->
         <div ref="mapContainer" class="mapbox-container">
         </div>
+        <Transition name="popup-transtion">
+            <Popup v-if="selectedLocation" :location="selectedLocation" :on-submit-callback="updateMarkerColor" />
+        </Transition>
     </div>
     <!-- Dynamic adding to map page popup thingy ... -->
 </template>
