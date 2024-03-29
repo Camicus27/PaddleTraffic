@@ -37,7 +37,7 @@ onActivated(async () => {
 
 async function tryJoinGame(eventId: number) {
   didJoin.value = await createJoinGame(eventId, URL, true)
-  
+
   if (didJoin.value) {
     allMatches.value = await getAllEvents(URL, true)
   }
@@ -49,7 +49,7 @@ async function tryJoinGame(eventId: number) {
 
 async function tryLeaveGame(eventId: number) {
   didJoin.value = await createLeaveGame(eventId, URL, true)
-  
+
   if (didJoin.value) {
     allMatches.value = await getAllEvents(URL, true)
   }
@@ -86,30 +86,34 @@ function canLeaveGame(players: number[]) {
   </h3>
   <RouterLink v-else class="dark-solid-button" to="/matchmaking/create-event">Create Your Own Event</RouterLink>
   <div v-if="!isFetching" id="event-list-wrapper">
-    <div class="match" v-for="{ id, name, location, host, players, description, date, time } in allMatches" :key="id">
-      <h2>
+    <div class="match p-2" v-for="{ id, name, location, host, players, description, date, time } in allMatches"
+      :key="id">
+      <h2 class="mb-4">
         {{ name }}
       </h2>
-      <p class="host">
+      <p class="host mb-4">
         Hosted by <RouterLink class="link" :to="{ path: '/profile/' + allPlayers[host] }">
           {{ allPlayers[host] }}
         </RouterLink>
       </p>
-      <p class="location"> 
-        Held at <RouterLink class="link" :to="{ path: '/map/', query: { lat: location.latitude, lon: location.longitude }}"><strong>{{ location.name }}</strong></RouterLink>
+      <p class="location">
+        Held at <RouterLink class="link"
+          :to="{ path: '/map/', query: { lat: location.latitude, lon: location.longitude } }"><strong>{{ location.name
+            }}</strong></RouterLink>
       </p>
-      <p class="date-time">
+      <p class="date-time mb-4">
         on <strong>{{ date }}</strong> at <strong>{{ time }}</strong>
       </p>
-      <p class="description">
+      <p class="description mb-3">
         {{ description }}
       </p>
-      <hr />
-      <div class="players">
-        <h3>Attending Players:</h3>
-        <ul>
+      <hr class="mb-4" />
+      <div class="players mb-4">
+        <h3 class="mb-4">Attending Players:</h3>
+        <ul class="m-4 ml-10">
           <li v-for="playerId in players" :key="playerId">
-            <RouterLink class="link" v-if="currentUser?.id != playerId" :to="{ path: '/profile/' + allPlayers[playerId] }">
+            <RouterLink class="link" v-if="currentUser?.id != playerId"
+              :to="{ path: '/profile/' + allPlayers[playerId] }">
               {{ allPlayers[playerId] }}
             </RouterLink>
             <p v-else>{{ allPlayers[playerId] }} (You)</p>
@@ -117,8 +121,10 @@ function canLeaveGame(players: number[]) {
         </ul>
       </div>
       <div>
-        <button class="dark-solid-button" v-if="canJoinGame(players)" id="join-game" @click="tryJoinGame(id)">Join game</button>
-        <button class="dark-solid-button" v-if="canLeaveGame(players)" id="leave-game" @click="tryLeaveGame(id)">Leave game</button>
+        <button class="dark-solid-button" v-if="canJoinGame(players)" id="join-game" @click="tryJoinGame(id)">Join
+          game</button>
+        <button class="dark-solid-button" v-if="canLeaveGame(players)" id="leave-game" @click="tryLeaveGame(id)">Leave
+          game</button>
       </div>
       <p id="error-msg" v-if="!didJoin && failedToJoinID === id">
         <strong>* Failed to join match.</strong>
