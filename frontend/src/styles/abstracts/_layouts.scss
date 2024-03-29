@@ -23,3 +23,24 @@
         @content;
     }
 }
+
+@mixin off-state($name) {
+    .#{$name}-enter-from,
+    .#{$name}-leave-to {
+        @content;
+    }
+}
+
+@mixin on-state($name) {
+    .#{$name}-enter-to,
+    .#{$name}-leave-from {
+        @content;
+    }
+}
+
+@mixin transition-state($name) {
+    .#{$name}-enter-active,
+    .#{$name}-leave-active {
+        @content;
+    }
+}
