@@ -64,6 +64,7 @@ function submitForm() {
                 <p>Est. Courts Occupied: {{ props.location?.value.courts_occupied }}</p>
                 <p>Est. Groups Waiting: {{ props.location?.value.number_waiting }}</p>
                 <p>Est. Wait: {{ props.location?.value.estimated_wait_time }}</p>
+                <a :href="`https://maps.google.com/?q=${props.location?.value.latitude},${props.location?.value.longitude}`" target="_blank">Get Directions</a>
             </div>
         </div>
         <form @submit.prevent="submitForm">
@@ -175,6 +176,15 @@ $padding-size: 8px;
 
     p {
         text-wrap: nowrap;
+    }
+
+    a {
+        @extend .dark-solid-button;
+        margin: 20px 0;
+
+        @include responsive($mobile-size) {
+            height: 8px;
+        }
     }
 }
 
