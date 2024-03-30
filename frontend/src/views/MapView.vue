@@ -69,11 +69,13 @@ function selectMarker(locId: number) {
     const selectedClassName = 'selected'
     if (currSelected.value) { // if a marker is selected
         let mapItem = mapItems.get(currSelected.value)
-        let old_marker = mapItem!.marker.getElement()
-        old_marker.classList.remove(selectedClassName)
-        if (currSelected.value == locId) { // and it's the same one
-            currSelected.value = undefined // then none is selected in state
-            return // return
+        if (mapItem) {
+            let old_marker = mapItem.marker.getElement()
+            old_marker.classList.remove(selectedClassName)
+            if (currSelected.value == locId) { // and it's the same one
+                currSelected.value = undefined // then none is selected in state
+                return // return
+            }
         }
     }
 
@@ -119,6 +121,14 @@ function refreshMapItemsByCenter() {
         if (!locations) return // don't refresh if no new data could be received
         removeAllMapItems()
         addAllMapItems(locations, getMap())
+
+        if (currSelected.value) {
+            let tmp = currSelected.value
+            currSelected.value = undefined
+            if (mapItems.has(tmp)) {
+                selectMarker(tmp);
+            }
+        }
     })
 }
 
@@ -265,9 +275,10 @@ function initMap() {
         center: [-111.876183, 40.758701], // Default to SLC 
         zoom: 11
     })
-
-    // stank sector
+    
+    getMap().flyTo({animate:false})
     map.value.doubleClickZoom.disable()
+    // stank sector
     map.value.on('style.load', () => {
         getMap().setFog({
             color: '#4b5320', // Lower atmosphere
@@ -314,22 +325,40 @@ function initGeoloc() {
         console.log(`CENTER ON GEOLOCATE CALLBACK ${getMap().getCenter()}`)
     }); // when 'turning on' geolocate finishes / page is loaded anew
 
-    if (props.lat && props.lon) {
+    if (props.lat && props.lon) { // QR CODE
         let lonLatLike = new mapboxgl.LngLat(props.lon, props.lat)
         getMap().setCenter(lonLatLike)
         getNearestLocation(props.lat, props.lon).then((location) => {
-            if(location) {
+            if (location) {
                 addMapItem(location, getMap()) // this IS safe. addIfNotIn(...)
                 selectMarker(location.id)
             }
         })
-    }
 
-    getMap().on('load', () => {
-        geolocateControl.trigger() // Basically 'turn on geolocate'
-        console.log(`CENTER ON LOAD ${getMap().getCenter()}`)
-    });
-    refreshMapItemsByCenter()
+        refreshMapItemsByCenter()
+    } else if (navigator.geolocation) { // GEOLOCATE ON
+        getMap().on('load', () => {
+            geolocateControl.trigger() // Basically 'turn on geolocate'
+
+            navigator.geolocation.getCurrentPosition((position) => {
+                let lngLat = new mapboxgl.LngLat(position.coords.longitude, position.coords.latitude)
+                getMap().setCenter(lngLat)
+                refreshMapItemsByCenter();
+            },
+            () => {
+                fetch('https://ipinfo.io/json?token=85abbc5f029d93')
+                    .then(response => response.json())
+                    .then(data => {
+                        let [latitude, longitude] = data.loc.split(',');
+                        let lngLat = new mapboxgl.LngLat(parseFloat(longitude), parseFloat(latitude));
+                        getMap().setCenter(lngLat);
+                        refreshMapItemsByCenter();
+                    })
+                    .catch(error => console.log(error));
+            }
+            );
+        });
+    }
 }
 
 function updateMarkerColor(locationId: number) {
@@ -406,6 +435,7 @@ const selectedLocation = computed(() => {
 @use '@/styles/abstracts' as *;
 @use '@/styles/components';
 $mobile-size: 800px;
+
 * {
     display: flex;
 }
@@ -427,16 +457,17 @@ $transition: "popup-transition";
 
 @include off-state($transition) {
     opacity: 0;
-    flex-basis: 0;
+    width: 0;
 }
 
- @include on-state($transition) {
+@include on-state($transition) {
     opacity: 1;
-    flex-basis: $popup-width;
+    width: $popup-width;
 }
 
 @include transition-state($transition) {
-    transition: opacity $time ease, flex-basis $time ease; /* Smooth transition for width and opacity */
+    transition: opacity $time ease, width $time ease;
+    /* Smooth transition for width and opacity */
 }
 
 .main-page {
@@ -452,7 +483,7 @@ $transition: "popup-transition";
 
 .map-overlay-container {
     position: relative;
-    flex-grow: 1;
+    flex-grow: 5;
     flex-basis: 100%;
 }
 
