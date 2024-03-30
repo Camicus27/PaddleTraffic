@@ -405,12 +405,12 @@ def lazy_decay(lat, lon):
 
             if(leftover > 0):
                 loc.courts_occupied = max(loc.courts_occupied - leftover, 0)
-            # loc = calculate_wait_time(loc)
+            loc = calculate_wait_time(loc)
             loc.calculated_time = current_time
             loc.save()
         elif loc.courts_occupied > 0:
             loc.courts_occupied = max(loc.courts_occupied - groups_leaving, 0)
-            # loc = calculate_wait_time(loc)
+            loc = calculate_wait_time(loc)
             loc.calculated_time = current_time        
             loc.save()
     return m_location

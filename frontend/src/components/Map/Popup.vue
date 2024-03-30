@@ -37,6 +37,25 @@ function formatTime(timeNum: number): string {
     return formattedString
 }
 
+function formatDateTime(dateTimeString: string) : string {
+    // Create a Date object from the ISO string
+    const date = new Date(dateTimeString);
+
+    // Options for date and time formatting
+    const options: Intl.DateTimeFormatOptions = {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
+        hour12: true // You can set this to false if you prefer 24-hour time
+    };
+
+    // Format the date using the user's locale
+    return date.toLocaleString('en-US', options);
+}
+
 function submitForm() {
     if (!props.location) return
     // timeout the button
@@ -44,6 +63,7 @@ function submitForm() {
     setTimeout(() => {
         submitDataDisabled.value = false
     }, 3000)
+    console.log(`calculated time booga: ${props.location.value.calculated_time}`)
     postLocationReport(props.location.value.id, locForm.value).then((l) => {
         if (props.location) {
             if (l) props.location.value = l
@@ -63,18 +83,23 @@ function submitForm() {
             <div class="data-info">
                 <p>Est. Courts Occupied: {{ props.location?.value.courts_occupied }}</p>
                 <p>Est. Groups Waiting: {{ props.location?.value.number_waiting }}</p>
-                <p>Est. Wait: {{ props.location?.value.estimated_wait_time }}</p>
+                <p>Est. Wait: {{ formatTime(props.location?.value.estimated_wait_time ?? 0) }}</p>
+                <sub>Last Report Sent: {{ formatDateTime(props.location?.value.calculated_time ?? "")}}</sub>
                 <a :href="`https://maps.google.com/?q=${props.location?.value.latitude},${props.location?.value.longitude}`" target="_blank">Get Directions</a>
             </div>
         </div>
         <form @submit.prevent="submitForm">
-            <label for="courtsOccupied">Courts Occupied:</label>
-            <input type="number" id="courtsOccupied" name="courtsOccupied" min="0"
-                :max="props.location?.value.court_count" v-model="locForm.courts_occupied" required>
-            <label for="numberWaiting">Groups Waiting:</label>
-            <input type="number" id="numberWaiting" name="numberWaiting" min="0"
-                :max="(locForm.courts_occupied < (props.location?.value.court_count ?? 0)) ? 0 : 10"
-                v-model="locForm.number_waiting" required>
+            <div class="input-box">
+                <label for="courtsOccupied">Courts Occupied:</label>
+                <input type="number" id="courtsOccupied" name="courtsOccupied" min="0"
+                    :max="props.location?.value.court_count" v-model="locForm.courts_occupied" required>
+            </div>
+            <div class="input-box">
+                <label for="numberWaiting">Groups Waiting:</label>
+                <input type="number" id="numberWaiting" name="numberWaiting" min="0"
+                    :max="(locForm.courts_occupied < (props.location?.value.court_count ?? 0)) ? 0 : 10"
+                    v-model="locForm.number_waiting" required placeholder="your mom">
+            </div>
             <button :disabled="submitDataDisabled">
                 Update Status
             </button>
@@ -153,7 +178,8 @@ $padding-size: 8px;
 
     sub {
         margin-bottom: 1rem;
-        font-size: medium;
+        font-size: small;
+        color: #888888;
 
         @include responsive($mobile-size) {
             font-size: small;
@@ -171,7 +197,7 @@ $padding-size: 8px;
 .data-info {
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: start;
     font-size: small;
 
     p {
@@ -180,7 +206,7 @@ $padding-size: 8px;
 
     a {
         @extend .dark-solid-button;
-        margin: 20px 0;
+        margin-bottom: 20px;
 
         @include responsive($mobile-size) {
             height: 8px;
@@ -197,9 +223,20 @@ form {
     background-color: #dddddd;
     flex-grow: 1;
     flex-basis: 50%;
+}
+
+.input-box {
+    flex-direction: column;
+    align-self: stretch;
+
+    label {
+        margin-bottom: 4px;
+    }
+
     input {
         border: none;
         align-self: stretch;
+        height: 30px;
     }
 }
 

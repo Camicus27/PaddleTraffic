@@ -64,8 +64,8 @@ export interface Location {
 }
 
 export interface Report {
-    courts_occupied: 0,
-    number_waiting: 0
+    courts_occupied: number,
+    number_waiting: number
 }
 
 export interface Event {
