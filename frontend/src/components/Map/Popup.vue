@@ -183,13 +183,13 @@ form {
     justify-content: space-around;
     align-items: start;
     align-self: stretch;
-    padding-left: 16px;
+    padding: 0 8px;
     background-color: #dddddd;
     flex-grow: 1;
     flex-basis: 50%;
     input {
         border: none;
-        width: 90%;
+        align-self: stretch;
     }
 }
 
@@ -197,9 +197,9 @@ button {
     @extend .dark-solid-button;
     font-size: x-small;
     height: 2rem;
-    width: 90%;
     margin-top: 1rem;
     line-height: 1rem;
+    align-self: stretch;
 }
 
 button:disabled {
