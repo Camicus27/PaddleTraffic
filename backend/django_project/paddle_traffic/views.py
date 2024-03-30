@@ -169,7 +169,7 @@ def current_user(request):
             return http_bad_request_json()
         return http_ok_request_json()
 
-    funs = {"GET": get, "POST": patch}
+    funs = {"GET": get, "PATCH": patch}
     return get_response(request, funs)
 
 
