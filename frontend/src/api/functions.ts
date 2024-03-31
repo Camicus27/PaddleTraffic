@@ -29,6 +29,23 @@ export async function getCurrentUser(logError: boolean): Promise<PickleUser | un
 }
 
 /**
+ * This function fetches the information of the currently authenticated user.
+ * @param userData The updated user object.
+ * @param logError Whether or not the error should be printed, if one occurs.
+ * @returns a PickleUser object if the request is successful; undefined otherwise
+ */
+export async function updateCurrentUser(userData: PickleUser, logError: boolean): Promise<boolean> {
+    try {
+        await axios.patch(`${URL}/current-user/`, { user: userData })
+        return true
+    } catch (error) {
+        if (logError)
+            console.error(error)
+        return false
+    }
+}
+
+/**
  * This function fetches all users from the server.
  * @param baseUrl The base URL for the HTTP request.
  * @param logError Whether or not the error should be printed, if one occurs.
