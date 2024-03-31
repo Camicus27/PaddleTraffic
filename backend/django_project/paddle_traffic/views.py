@@ -146,6 +146,7 @@ def logout_view(request):
 # Authentication required
 
 
+@csrf_exempt
 def current_user(request):
     def get():
         if not request.user.is_authenticated:
@@ -159,7 +160,7 @@ def current_user(request):
         data = all_data.get("user", None)
         if data is None:
             return http_bad_request_json()
-        if data.id != request.user.id:
+        if data.get("id") != request.user.id:
             return http_unauthorized()
         serializer = ser.UserUpdateSerializer(
             instance=request.user, data=data)
