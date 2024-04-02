@@ -642,7 +642,17 @@ def events(request):
     """
 
     def get():
-        m_events = m.Event.objects.all()
+        m_events = None
+        
+        # Public events & private events the user is participating in
+        if request.user.is_authenticated:
+            user_events = m.Event.objects.filter(django_model.Q(host=request.user) | django_model.Q(players=request.user))
+            m_events = m.Event.objects.filter(django_model.Q(isPublic=True) | django_model.Q(id__in=user_events))
+        
+        # No logged in user, only public events
+        else:
+            m_events = m.Event.objects.filter(isPublic=True)
+            
         serializer = ser.EventSerializer(m_events, many=True)
         return JsonResponse({"events": serializer.data})
 
@@ -650,7 +660,6 @@ def events(request):
         data = all_data.get("event", None)
         if data is None:
             return http_bad_request_json()
-        print(data)
         serializer = ser.EventUpdateSerializer(data=data)
         if not serializer.is_valid():
             return http_bad_request_json()
@@ -671,6 +680,60 @@ def events(request):
 
 @csrf_exempt
 def events_id(request, id):
+    def get():
+        m_event = try_get_instance(m.Event, id)
+        if m_event is None:
+            return http_not_found(str(id))
+        serializer = ser.EventSerializer(instance=m_event, many=False)
+        # return the json formatted as an HTTP response
+        return JsonResponse({"event": serializer.data})
+    
+    """
+    This is the endpoint to create a new join event request.
+    """
+    
+    def post(data):
+        if not request.user.is_authenticated:
+            return http_unauthorized()
+        
+        # Get the event and verify it exists
+        m_event = try_get_instance(m.Event, id)
+        if m_event is None:
+            return http_not_found(f"Event was not found ({str(id)}).")
+        
+        isJoining = data.get("joining")
+        if isJoining is None:
+            return HttpResponse(
+                "Invalid JSON data", status=400, content_type="text/plain"
+            )
+        
+        # Joining an event
+        if isJoining:
+            # Verify the user is not already in the event
+            if m_event.players.filter(id=request.user.id).exists():
+                return http_bad_argument(f"User already is participating in event ({str(id)}).")
+            
+            # Add player to event and save
+            try:
+                m_event.players.add(request.user)
+                m_event.save()
+                return http_ok(f"User added to event ({str(id)}) successfully.")
+            except:
+                return http_bad_argument(f"Error adding user to event ({str(id)}).")
+        # Leaving an event
+        else:
+            # Verify the user is not already not in the event
+            if not m_event.players.filter(id=request.user.id).exists():
+                return http_bad_argument(f"User is already not participating in event ({str(id)}).")
+            
+            # Remove player from event and save
+            try:
+                m_event.players.remove(request.user)
+                m_event.save()
+                return http_ok(f"User removed from event ({str(id)}) successfully.")
+            except:
+                return http_bad_argument(f"Error removing user from event ({str(id)}).")
+        
     def patch(data):
         existing_event = try_get_instance(m.Event, id)
         if existing_event is None:
@@ -682,16 +745,8 @@ def events_id(request, id):
             return HttpResponse(
                 "Invalid JSON data", status=400, content_type="text/plain"
             )  # Bad Request
-        updated_location = serializer.save()
+        updated_event = serializer.save()
         return http_ok_request_json()
-
-    def get():
-        m_event = try_get_instance(m.Event, id)
-        if m_event is None:
-            return http_not_found(str(id))
-        serializer = ser.EventSerializer(instance=m_event, many=False)
-        # return the json formatted as an HTTP response
-        return JsonResponse({"event": serializer.data})
 
     def delete():
         m_event = try_get_instance(m.Event, id)
@@ -700,7 +755,7 @@ def events_id(request, id):
         m_event.delete()
         return http_ok(f"Event {id} deleted")
 
-    funs = {"PATCH": patch, "GET": get, "DELETE": delete}
+    funs = {"GET": get, "POST": post, "PATCH": patch, "DELETE": delete}
     return get_response(request, funs)
 
 

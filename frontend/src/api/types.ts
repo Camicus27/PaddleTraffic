@@ -77,6 +77,7 @@ export interface Event {
   players: Array<RestrictedUser>
   date: string
   time: string
+  isPublic: boolean
 }
 
 export interface FriendRequest {

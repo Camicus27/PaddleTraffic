@@ -180,7 +180,61 @@ export async function postLocationReport(locationId: number, reportData: Report,
 
 // EVENT FUNCTIONS //
 
-// TODO: Fill in event functions
+/**
+ * This function fetches all available events from the server.
+ * @param baseUrl The base URL for the HTTP request.
+ * @param logError Whether or not the error should be printed, if one occurs.
+ * @returns An array of Event objects if the request is successful; undefined otherwise.
+ */
+export async function getAllEvents(baseUrl: string, logError: boolean): Promise<Array<Event> | undefined> {
+    try {
+        const response = await axios.get(`${baseUrl}/events/`)
+        if (response.data.events)
+            return response.data.events.reverse() as Array<Event>
+    } catch (error) {
+        if (logError)
+            console.error(error)
+    }
+    return undefined
+}
+
+
+/**
+ * This function creates a join event request from the currently authenticated user to the event with eventId.
+ * @param eventId The ID of the event that will receive the join request.
+ * @param baseUrl The base URL for the HTTP request.
+ * @param logError Whether or not the error should be printed, if one occurs.
+ * @returns True if the request is successful; false otherwise.
+ */
+export async function createJoinGame(eventId: number, baseUrl: string, logError: boolean): Promise<boolean> {
+    try {
+        await axios.post(`${baseUrl}/events/${eventId}/`, { joining: true }, { withCredentials: true })
+        return true
+    } catch (error) {
+        if (logError)
+            console.error(error)
+        return false
+    }
+}
+
+
+/**
+ * This function creates a leave event request from the currently authenticated user to the event with eventId.
+ * @param eventId The ID of the event that will receive the leave request.
+ * @param baseUrl The base URL for the HTTP request.
+ * @param logError Whether or not the error should be printed, if one occurs.
+ * @returns True if the request is successful; false otherwise.
+ */
+export async function createLeaveGame(eventId: number, baseUrl: string, logError: boolean): Promise<boolean> {
+    try {
+        await axios.post(`${baseUrl}/events/${eventId}/`, { joining: false }, { withCredentials: true })
+        return true
+    } catch (error) {
+        if (logError)
+            console.error(error)
+        return false
+    }
+}
 
 
 // FRIEND REQUEST FUNCTIONS //

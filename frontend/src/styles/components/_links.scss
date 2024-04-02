@@ -1,0 +1,20 @@
+@use "../abstracts/" as *;
+
+.link {
+    cursor: pointer;
+    transition: color 0.3s;
+    &:any-link {
+        margin-inline: .15rem;
+        font-weight: bold;
+        color: $pickle-300;
+        text-shadow: 0px 0px 1px #080f0180;
+        text-decoration: none;
+    }
+    &:active {
+        color: white;
+    }
+    &:hover {
+        color: $pickle-200;
+        text-decoration: underline;
+    }
+}

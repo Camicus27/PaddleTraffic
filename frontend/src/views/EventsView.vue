@@ -5,8 +5,8 @@ import MatchList from '@/components/MatchList.vue'
 
 <template>
   <CommonHeader />
-  <div>
-    <h1>Matchmaking Services</h1>
+  <div id="matchmaking-wrapper">
+    <h1>Matchmaking Events</h1>
     <MatchList />
   </div>
 </template>
@@ -18,8 +18,9 @@ h1 {
   margin-bottom: 1.5rem;
 }
 
-div {
+#matchmaking-wrapper {
   @extend %main-page;
+  width: 85%;
 }
 
 // /* Media query for narrower screens */
