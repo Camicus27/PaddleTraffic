@@ -85,7 +85,7 @@ function submitForm() {
                 <label for="numberWaiting">Groups Waiting:</label>
                 <input type="number" id="numberWaiting" name="numberWaiting" min="0"
                     :max="(locForm.courts_occupied < (props.location?.value.court_count ?? 0)) ? 0 : 10"
-                    v-model="locForm.number_waiting" required placeholder="your mom">
+                    v-model="locForm.number_waiting" required>
             </div>
             <button :disabled="submitDataDisabled">
                 Update Status

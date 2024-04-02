@@ -320,7 +320,7 @@ def location_list(request):
     def post(data):
         locIds = data.get("locationIds", None)
         if not locIds:
-            return http_bad_request_json()
+            return JsonResponse({"locations": []})
         locations = m.Location.objects.filter(id__in=locIds)
         locations = lazy_decay(locations)
         serializer = ser.LocationSerializer(locations, many=True)

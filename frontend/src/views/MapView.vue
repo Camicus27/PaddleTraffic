@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, type Ref, computed } from 'vue'
+import { ref, onMounted, onUnmounted, type Ref, computed, onActivated, ssrContextKey } from 'vue'
 import mapboxgl from "mapbox-gl"
 import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
 import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css';
@@ -103,6 +103,8 @@ function removeAllMapItems() {
 
 function refreshMapItems() {
     let locationIds = Array.from(mapItems.keys())
+    if(locationIds.length == 0) return // part of the design doc.
+
     getLocationsByList(locationIds).then((locations) => {
         if (!locations) return // don't refresh if data is undefined AKA error could be received
         locations.forEach((value, index) => {
@@ -275,8 +277,8 @@ function initMap() {
         center: [-111.876183, 40.758701], // Default to SLC 
         zoom: 11
     })
-    
-    getMap().flyTo({animate:false})
+
+    getMap().flyTo({ animate: false })
     map.value.doubleClickZoom.disable()
     // stank sector
     map.value.on('style.load', () => {
@@ -345,17 +347,17 @@ function initGeoloc() {
                 getMap().setCenter(lngLat)
                 refreshMapItemsByCenter();
             },
-            () => {
-                fetch('https://ipinfo.io/json?token=85abbc5f029d93')
-                    .then(response => response.json())
-                    .then(data => {
-                        let [latitude, longitude] = data.loc.split(',');
-                        let lngLat = new mapboxgl.LngLat(parseFloat(longitude), parseFloat(latitude));
-                        getMap().setCenter(lngLat);
-                        refreshMapItemsByCenter();
-                    })
-                    .catch(error => console.log(error));
-            }
+                () => {
+                    fetch('https://ipinfo.io/json?token=85abbc5f029d93')
+                        .then(response => response.json())
+                        .then(data => {
+                            let [latitude, longitude] = data.loc.split(',');
+                            let lngLat = new mapboxgl.LngLat(parseFloat(longitude), parseFloat(latitude));
+                            getMap().setCenter(lngLat);
+                            refreshMapItemsByCenter();
+                        })
+                        .catch(error => console.log(error));
+                }
             );
         });
     }
@@ -472,8 +474,14 @@ $transition: "popup-transition";
 
 .main-page {
     @extend %flex-col-center;
-    height: 100vh;
+    height: 100svh;
     overflow: hidden;
+
+    @include responsive($mobile-size) {
+        touch-action: none;
+
+        
+    }
 }
 
 .popup {
