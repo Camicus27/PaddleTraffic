@@ -1,21 +1,23 @@
 <script setup lang="ts">
 import { ics } from "calendar-link";
 import type { CalendarEvent } from "calendar-link"
+import type { UnitType } from "dayjs"
+import type { Location } from "@/api/types"
 
 const props = defineProps<{
     title: string
     start: Date
-    end: Date
-    description: string
-    location: string
+    duration?: [number, UnitType]
+    description?: string
+    location?: Location
 }>()
 
 const calendarEvent: CalendarEvent = {
     title: props.title,
     description: props.description,
     start: props.start,
-    end: props.end,
-    location: props.location
+    duration: props.duration,
+    location: props.location?.name
 }
 
 const icsUrl = ics(calendarEvent)
@@ -24,7 +26,7 @@ const icsUrl = ics(calendarEvent)
 
 <template>
     <a :href="icsUrl" class="calendar-button" target="_blank">
-        <img src="https://icons8.com/icon/112370/file" alt="ICS File" class="logo">
+        <img src="https://cdn.icon-icons.com/icons2/1462/PNG/512/095file_99989.png" alt="ICS File" class="logo">
         <slot></slot>
     </a>
 
@@ -41,7 +43,7 @@ const icsUrl = ics(calendarEvent)
     color: black;
     text-decoration: none;
     padding: 10px 20px;
-    border-radius: 6px;
+    border-radius: 4px;
     box-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
     /* Subtle shadow */
     transition: background-color 0.3s;
@@ -49,7 +51,7 @@ const icsUrl = ics(calendarEvent)
 }
 
 .calendar-button:hover {
-    background-color: $pickle-100;
+    background-color: $pickle-200;
     /* Slightly darker color on hover */
 }
 
