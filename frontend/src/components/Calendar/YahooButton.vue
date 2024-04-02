@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { outlook } from "calendar-link";
+import { yahoo } from "calendar-link";
 import type { CalendarEvent } from "calendar-link"
 
 const props = defineProps<{
@@ -18,14 +18,14 @@ const calendarEvent: CalendarEvent = {
     location: props.location
 }
 
-const outlookUrl = outlook(calendarEvent)
+const yahooUrl = yahoo(calendarEvent)
 </script>
 
 
 <template>
-    <a :href="outlookUrl" class="calendar-button" target="_blank">
-        <img src="https://res-1.cdn.office.net/shellux/outlook_24x.59692ba8e1f344194426952916c16896.svg" alt="Outlook Logo"
-            class="logo">
+    <a :href="yahooUrl" class="calendar-button" target="_blank">
+        <img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS27JXnFG35pfN-FrDLofbFrZjg2zCEMKJbrtnS-PKT6g&s"
+            alt="Yahoo Logo" class="logo">
         <slot></slot>
     </a>
 

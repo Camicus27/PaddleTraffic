@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { outlook } from "calendar-link";
+import { ics } from "calendar-link";
 import type { CalendarEvent } from "calendar-link"
 
 const props = defineProps<{
@@ -18,14 +18,13 @@ const calendarEvent: CalendarEvent = {
     location: props.location
 }
 
-const outlookUrl = outlook(calendarEvent)
+const icsUrl = ics(calendarEvent)
 </script>
 
 
 <template>
-    <a :href="outlookUrl" class="calendar-button" target="_blank">
-        <img src="https://res-1.cdn.office.net/shellux/outlook_24x.59692ba8e1f344194426952916c16896.svg" alt="Outlook Logo"
-            class="logo">
+    <a :href="icsUrl" class="calendar-button" target="_blank">
+        <img src="https://icons8.com/icon/112370/file" alt="ICS File" class="logo">
         <slot></slot>
     </a>
 
