@@ -132,7 +132,7 @@ $padding-size: 8px;
 
 .location-info {
     justify-content: start;
-    align-items: start;
+    align-self: stretch;
     flex-direction: column;
     flex-grow: 1;
     flex-basis: 100%;
@@ -186,6 +186,7 @@ $padding-size: 8px;
     flex-direction: column;
     justify-content: start;
     font-size: small;
+    align-self: stretch;
 
     p {
         text-wrap: nowrap;
@@ -194,6 +195,7 @@ $padding-size: 8px;
     a {
         @extend .dark-solid-button;
         margin-bottom: 20px;
+        align-self: stretch;
 
         @include responsive($mobile-size) {
             height: 8px;
@@ -210,6 +212,8 @@ form {
     background-color: #dddddd;
     flex-grow: 1;
     flex-basis: 50%;
+    width:auto;
+    border-radius: 0;
 }
 
 .input-box {

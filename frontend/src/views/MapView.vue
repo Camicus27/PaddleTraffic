@@ -476,6 +476,7 @@ $transition: "popup-transition";
     @extend %flex-col-center;
     height: 100svh;
     overflow: hidden;
+    align-self: stretch;
 
     @include responsive($mobile-size) {
         touch-action: none;
