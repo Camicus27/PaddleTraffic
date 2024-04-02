@@ -2,6 +2,7 @@
 import { onMounted, ref, type ComputedRef, type Ref, toRef } from 'vue';
 import type { Location, Report } from '@/api/types';
 import { postLocationReport } from '@/api/functions';
+import { formatDistanceToNow } from 'date-fns';
 
 // const props = defineProps(['location', 'onSubmitCallback'])
 const props = defineProps<{
@@ -38,22 +39,8 @@ function formatTime(timeNum: number): string {
 }
 
 function formatDateTime(dateTimeString: string) : string {
-    // Create a Date object from the ISO string
-    const date = new Date(dateTimeString);
-
-    // Options for date and time formatting
-    const options: Intl.DateTimeFormatOptions = {
-        year: 'numeric',
-        month: 'long',
-        day: 'numeric',
-        hour: '2-digit',
-        minute: '2-digit',
-        second: '2-digit',
-        hour12: true // You can set this to false if you prefer 24-hour time
-    };
-
-    // Format the date using the user's locale
-    return date.toLocaleString('en-US', options);
+    const reportDate = new Date(dateTimeString)
+    return formatDistanceToNow(reportDate, {addSuffix: true})
 }
 
 function submitForm() {
@@ -84,7 +71,7 @@ function submitForm() {
                 <p>Est. Courts Occupied: {{ props.location?.value.courts_occupied }}</p>
                 <p>Est. Groups Waiting: {{ props.location?.value.number_waiting }}</p>
                 <p>Est. Wait: {{ formatTime(props.location?.value.estimated_wait_time ?? 0) }}</p>
-                <sub>Last Report Sent: {{ formatDateTime(props.location?.value.calculated_time ?? "")}}</sub>
+                <sub>Last updated {{ formatDateTime(props.location?.value.calculated_time ?? "")}}</sub>
                 <a :href="`https://maps.google.com/?q=${props.location?.value.latitude},${props.location?.value.longitude}`" target="_blank">Get Directions</a>
             </div>
         </div>
