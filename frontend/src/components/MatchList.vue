@@ -3,6 +3,8 @@ import { ref, onActivated, onMounted, type Ref } from 'vue';
 import { getAllUsers, getCurrentUser, getAllEvents, createJoinGame, createLeaveGame } from '@/api/functions';
 import type { PickleUser } from '@/api/types';
 
+import CalendarButtonContainer from "@/components/Calendar/CalendarButtonContainer.vue"
+
 const isFetching = ref(true)
 const didJoin = ref(true)
 const failedToJoinID = ref(-1)
@@ -37,7 +39,7 @@ onActivated(async () => {
 
 async function tryJoinGame(eventId: number) {
   didJoin.value = await createJoinGame(eventId, URL, true)
-  
+
   if (didJoin.value) {
     allMatches.value = await getAllEvents(URL, true)
   }
@@ -49,7 +51,7 @@ async function tryJoinGame(eventId: number) {
 
 async function tryLeaveGame(eventId: number) {
   didJoin.value = await createLeaveGame(eventId, URL, true)
-  
+
   if (didJoin.value) {
     allMatches.value = await getAllEvents(URL, true)
   }
@@ -59,10 +61,15 @@ async function tryLeaveGame(eventId: number) {
   }
 }
 
+function playerInEvent(players: number[]) {
+  if (currentUser.value) {
+    return players.includes(currentUser.value.id)
+  }
+}
+
 function canJoinGame(players: number[]) {
   if (currentUser.value) {
-    const playerIsInEvent = players.includes(currentUser.value.id)
-    return !playerIsInEvent && players.length <= 3;
+    return !playerInEvent(players) && players.length <= 3;
   }
   else {
     return false;
@@ -95,8 +102,10 @@ function canLeaveGame(players: number[]) {
           {{ allPlayers[host] }}
         </RouterLink>
       </p>
-      <p class="location"> 
-        Held at <RouterLink class="link" :to="{ path: '/map/', query: { lat: location.latitude, lon: location.longitude }}"><strong>{{ location.name }}</strong></RouterLink>
+      <p class="location">
+        Held at <RouterLink class="link"
+          :to="{ path: '/map/', query: { lat: location.latitude, lon: location.longitude } }"><strong>{{ location.name
+            }}</strong></RouterLink>
       </p>
       <p class="date-time">
         on <strong>{{ date }}</strong> at <strong>{{ time }}</strong>
@@ -109,16 +118,24 @@ function canLeaveGame(players: number[]) {
         <h3>Attending Players:</h3>
         <ul>
           <li v-for="playerId in players" :key="playerId">
-            <RouterLink class="link" v-if="currentUser?.id != playerId" :to="{ path: '/profile/' + allPlayers[playerId] }">
+            <RouterLink class="link" v-if="currentUser?.id != playerId"
+              :to="{ path: '/profile/' + allPlayers[playerId] }">
               {{ allPlayers[playerId] }}
             </RouterLink>
             <p v-else>{{ allPlayers[playerId] }} (You)</p>
           </li>
         </ul>
       </div>
+      <div v-if="playerInEvent(players)">
+        <h4 class="mb-1">You've joined this event! Add it to you calendar:</h4>
+        <CalendarButtonContainer class="mb-4" :title="name" :description="description" :start-date="date" :start-time="time" :duration="[1, 'hour']"
+          :location="location" />
+      </div>
       <div>
-        <button class="dark-solid-button" v-if="canJoinGame(players)" id="join-game" @click="tryJoinGame(id)">Join game</button>
-        <button class="dark-solid-button" v-if="canLeaveGame(players)" id="leave-game" @click="tryLeaveGame(id)">Leave game</button>
+        <button class="dark-solid-button" v-if="canJoinGame(players)" id="join-game" @click="tryJoinGame(id)">Join
+          game</button>
+        <button class="dark-solid-button" v-if="canLeaveGame(players)" id="leave-game" @click="tryLeaveGame(id)">Leave
+          game</button>
       </div>
       <p id="error-msg" v-if="!didJoin && failedToJoinID === id">
         <strong>* Failed to join match.</strong>
@@ -179,5 +196,13 @@ function canLeaveGame(players: number[]) {
 li {
   font-size: 1.15rem;
   margin-block: .2rem;
+}
+
+.mb-4 {
+  margin-bottom: 16px;
+}
+
+.mb-1 {
+  margin-bottom: 4px;
 }
 </style>
