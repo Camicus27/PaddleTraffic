@@ -33,7 +33,7 @@ onMounted(async () => {
     else {
         allFriends.value = currentUser.value.friends
     }
-    allLocations.value = await getAllLocations(URL, true)
+    allLocations.value = await getAllLocations(true)
 })
 
 onActivated(async () => {
