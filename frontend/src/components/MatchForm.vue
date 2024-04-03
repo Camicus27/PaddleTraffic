@@ -155,6 +155,9 @@ function clearForm() {
 
             <section class="radio-select">
                 <label for="isAttending">Are You Participating?</label>
+                <p>
+                    (We'll add you to the roster of players automatically)
+                </p>
                 <div>
                     <input type="radio" name="participating" id="yes-participation" value="yes" v-model="isHostPlaying" tabindex="9" required>
                     <label for="yes-participation">Yes</label>
@@ -183,10 +186,16 @@ function clearForm() {
 
 <style scoped lang="scss">
 @use '../styles/components';
+@use '@/styles/abstracts' as *;
+$mobile-size: 800px;
 
 #event-form-wrapper {
   @extend %main-page;
   width: 85%;
+
+  @include responsive($mobile-size) {
+    width: 90%;
+  }
 }
 
 .radio-select {
@@ -204,6 +213,15 @@ function clearForm() {
         padding-left: .5rem;
         margin-block: 0;
     }
+    p {
+        color: #272727;
+        font-size: .85rem;
+        margin: 0;
+    }
+}
+
+#location, #date, #time {
+    width: fit-content;
 }
 
 #back-link {
@@ -220,18 +238,4 @@ function clearForm() {
         font-size: 1.33rem;
     }
 }
-
-
-// @media only screen and (max-width: 850px) {
-//     #event-form-wrapper {
-//             width: 100%;
-//     }
-// }
-
-// #event-form-wrapper {
-//     display: flex;
-//     justify-content: center;
-//     margin-top: 1.5rem;
-//     width: 80%;
-// }
 </style>
