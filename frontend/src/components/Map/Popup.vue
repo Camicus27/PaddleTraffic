@@ -1,26 +1,19 @@
 <script setup lang="ts">
-import axios from 'axios';
-import { ref, type Ref } from 'vue';
-import type Location from './Location';
+import { onMounted, ref, type ComputedRef, type Ref, toRef } from 'vue';
+import type { Location, Report } from '@/api/types';
+import { postLocationReport } from '@/api/functions';
+import { formatDistanceToNow } from 'date-fns';
 
-let URL: string
-// This is the collection of environment variables.
-const env = import.meta.env
-if (env.MODE === 'production')
-    URL = env.VITE_PROD_URL
-else
-    URL = env.VITE_DEV_URL
+// const props = defineProps(['location', 'onSubmitCallback'])
+const props = defineProps<{
+    location: Ref<Location> | undefined,
+    onSubmitCallback: (locationId: number) => void,
+}>()
 
-const props = defineProps(['location', 'onSubmitCallback', 'currSelection'])
-const onSubmitCallback: (l: Location) => void = props.onSubmitCallback
-const currSelection: Ref<Location> = props.currSelection
-
-const locForm = ref({
+const locForm: Ref<Report> = ref({
     courts_occupied: 0,
     number_waiting: 0
 })
-
-const location = ref<Location>(props.location)
 
 const submitDataDisabled = ref<boolean>(false)
 
@@ -45,46 +38,55 @@ function formatTime(timeNum: number): string {
     return formattedString
 }
 
+function formatDateTime(dateTimeString: string) : string {
+    const reportDate = new Date(dateTimeString)
+    return formatDistanceToNow(reportDate, {addSuffix: true})
+}
+
 function submitForm() {
+    if (!props.location) return
+    // timeout the button
     submitDataDisabled.value = true
     setTimeout(() => {
         submitDataDisabled.value = false
     }, 3000)
-    axios.post(`${URL}/locations/${location.value.id}/report/`, { report: locForm.value })
-        .then(response => {
-            // Handle the response here. For example, logging the new location ID.
-            currSelection.value = response.data.location
-            location.value = response.data.location
-            onSubmitCallback(location.value)
-        })
-        .catch(error => {
-            // Handle errors here
-            console.error('Error:', error)
-        })
+    console.log(`calculated time booga: ${props.location.value.calculated_time}`)
+    postLocationReport(props.location.value.id, locForm.value).then((l) => {
+        if (props.location) {
+            if (l) props.location.value = l
+            props.onSubmitCallback(props.location?.value.id)
+        }
+    })
 }
 </script>
 
 <template>
     <div class="popup">
-        <div class="left-side">
+        <div class="location-info">
             <div class="location-title">
-                <h4>{{ location.name }}</h4>
-                <sub>Courts: {{ location.court_count }}</sub>
+                <h4>{{ props.location?.value.name }}</h4>
+                <sub>Courts: {{ props.location?.value.court_count }}</sub>
             </div>
-            <div class="info">
-                <p>Est. Courts Occupied: {{ location.courts_occupied }}</p>
-                <p>Est. Groups Waiting: {{ location.number_waiting }}</p>
-                <p>Est. Wait: {{ formatTime(location.estimated_wait_time) }}</p>
+            <div class="data-info">
+                <p>Est. Courts Occupied: {{ props.location?.value.courts_occupied }}</p>
+                <p>Est. Groups Waiting: {{ props.location?.value.number_waiting }}</p>
+                <p>Est. Wait: {{ formatTime(props.location?.value.estimated_wait_time ?? 0) }}</p>
+                <sub>Last updated {{ formatDateTime(props.location?.value.calculated_time ?? "")}}</sub>
+                <a :href="`https://maps.google.com/?q=${props.location?.value.latitude},${props.location?.value.longitude}`" target="_blank">Get Directions</a>
             </div>
         </div>
         <form @submit.prevent="submitForm">
-            <label for="courtsOccupied">Courts Occupied:</label>
-            <input type="number" id="courtsOccupied" name="courtsOccupied" min="0" :max="location.court_count"
-                v-model="locForm.courts_occupied" required>
-            <label for="numberWaiting">Number Waiting:</label>
-            <input type="number" id="numberWaiting" name="numberWaiting" min="0"
-                :max="(locForm.courts_occupied < location.court_count) ? 0 : 10" v-model="locForm.number_waiting"
-                required>
+            <div class="input-box">
+                <label for="courtsOccupied">Courts Occupied:</label>
+                <input type="number" id="courtsOccupied" name="courtsOccupied" min="0"
+                    :max="props.location?.value.court_count" v-model="locForm.courts_occupied" required>
+            </div>
+            <div class="input-box">
+                <label for="numberWaiting">Groups Waiting:</label>
+                <input type="number" id="numberWaiting" name="numberWaiting" min="0"
+                    :max="(locForm.courts_occupied < (props.location?.value.court_count ?? 0)) ? 0 : 10"
+                    v-model="locForm.number_waiting" required>
+            </div>
             <button :disabled="submitDataDisabled">
                 Update Status
             </button>
@@ -93,7 +95,9 @@ function submitForm() {
 </template>
 
 <style scoped lang="scss">
-@use '../../styles/components';
+@use '@/styles/components';
+@use '@/styles/abstracts' as *;
+
 * {
     display: flex;
 }
@@ -104,25 +108,71 @@ input::-webkit-inner-spin-button {
     margin: 0;
 }
 
+$mobile-size: 800px;
+$border: 2px solid $pickle-500;
+$no-border: 0 solid transparent;
+
 .popup {
-    flex-direction: row;
-    justify-content: space-between;
-    padding: 2px;
-    align-items: center;
-    width: auto;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0;
+    align-items: start;
+    background-color: $pickle-50;
+    border-top: $no-border;
+    border-right: $border;
+
+    @include responsive($mobile-size) {
+        flex-direction: row;
+        border-right: $no-border;
+        border-top: $border;
+    }
 }
 
-.left-side {
-    justify-content: space-around;
+$padding-size: 8px;
+
+.location-info {
+    justify-content: start;
+    align-self: stretch;
     flex-direction: column;
+    flex-grow: 1;
+    flex-basis: 100%;
+    padding: 0 $padding-size;
+
     h4 {
         margin: 0;
+        margin-top: 1rem;
+        margin-bottom: 0.2rem;
+        font-size: xx-large;
+        line-height: 2rem;
+        text-wrap: wrap;
+
+        @include responsive($mobile-size) {
+            font-size: x-large;
+            line-height: 1.8rem;
+        }
     }
 
     p {
         margin: 0;
+        font-size: large;
+        line-height: 2rem;
+
+        @include responsive($mobile-size) {
+            font-size: medium;
+            line-height: 1.5rem;
+        }
     }
-    padding-right: 2rem;
+
+    sub {
+        margin-bottom: 1rem;
+        font-size: small;
+        color: #888888;
+
+        @include responsive($mobile-size) {
+            font-size: small;
+            margin-bottom: 0.7rem;
+        }
+    }
 }
 
 .location-title {
@@ -131,26 +181,53 @@ input::-webkit-inner-spin-button {
     justify-content: start;
 }
 
-.info {
+.data-info {
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: start;
     font-size: small;
+    align-self: stretch;
+
     p {
         text-wrap: nowrap;
+    }
+
+    a {
+        @extend .dark-solid-button;
+        margin-bottom: 20px;
+        align-self: stretch;
+
+        @include responsive($mobile-size) {
+            height: 8px;
+        }
     }
 }
 
 form {
     flex-direction: column;
     justify-content: space-around;
-    align-items: center;
-    background-color: #f9f9f9;
-    border-radius: 8px;
+    align-items: start;
+    align-self: stretch;
+    padding: 0 8px;
+    background-color: #dddddd;
+    flex-grow: 1;
+    flex-basis: 50%;
+    width:auto;
+    border-radius: 0;
+}
+
+.input-box {
+    flex-direction: column;
+    align-self: stretch;
+
+    label {
+        margin-bottom: 4px;
+    }
 
     input {
         border: none;
-        width: 90%;
+        align-self: stretch;
+        height: 30px;
     }
 }
 
@@ -158,9 +235,9 @@ button {
     @extend .dark-solid-button;
     font-size: x-small;
     height: 2rem;
-    width: 90%;
     margin-top: 1rem;
     line-height: 1rem;
+    align-self: stretch;
 }
 
 button:disabled {

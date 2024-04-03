@@ -123,6 +123,7 @@ class LocationSerializer(serializers.ModelSerializer):
             "courts_occupied",
             "number_waiting",
             "estimated_wait_time",
+            "calculated_time"
         ]
 
 

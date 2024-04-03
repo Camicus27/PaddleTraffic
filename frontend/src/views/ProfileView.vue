@@ -35,7 +35,7 @@ const usersAreFriends: Ref<Relationship> = ref(Relationship.Invalid)
 
 const doneLoading: Ref<boolean> = ref(false)
 
-let URL: string
+let URL: string // TODO change to be @/api/functions
 // This is the collection of environment variables.
 const env = import.meta.env
 if (env.MODE === 'production') URL = env.VITE_PROD_URL

@@ -2,7 +2,6 @@
 import CommonHeader from '@/components/CommonHeader.vue';
 import { RouterView } from 'vue-router'
 import './styles/globals/_index.scss'
-
 </script>
 
 <template>

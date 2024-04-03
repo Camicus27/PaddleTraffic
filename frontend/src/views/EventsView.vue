@@ -10,7 +10,7 @@ import MatchList from '@/components/MatchList.vue'
 </template>
 
 <style scoped lang="scss">
-@use '../styles/abstracts';
+@use '@/styles/abstracts';
 
 h1 {
   margin-bottom: 1.5rem;

@@ -63,6 +63,11 @@ export interface Location {
   calculated_time: string
 }
 
+export interface Report {
+    courts_occupied: number,
+    number_waiting: number
+}
+
 export interface Event {
   id: number
   name: string

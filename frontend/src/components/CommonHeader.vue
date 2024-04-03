@@ -20,7 +20,7 @@ onMounted(() => {
   getCurrentUser()
 })
 
-function getCurrentUser() {
+function getCurrentUser() { // TODO change to be from @/api/functions
   axios.get(`${URL}/current-user/`)
     .then((response) => {
       if (response.data.user)
@@ -63,8 +63,8 @@ function getCurrentUser() {
 </template>
 
 <style scoped lang="scss">
-@use '../styles/components';
-@use '../styles/abstracts' as *;
+@use '@/styles/components';
+@use '@/styles/abstracts' as *;
 
 $mobile-size : 800px;
 
@@ -98,7 +98,7 @@ header {
   justify-content: center;
   border-bottom: 3px solid $pickle-500;
   padding-bottom: 5px;
-  background-image: linear-gradient(to top, rgba(159, 177, 132, 0), rgba(159, 177, 132, 1));
+  background-image: linear-gradient(to top, $pickle-600, $pickle-100);
 
   nav {
     display: flex;

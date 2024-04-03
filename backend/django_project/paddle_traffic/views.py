@@ -341,6 +341,21 @@ def locations(request):
 
 
 @csrf_exempt
+def location_list(request):
+    def post(data):
+        locIds = data.get("locationIds", None)
+        if not locIds:
+            return JsonResponse({"locations": []})
+        locations = m.Location.objects.filter(id__in=locIds)
+        locations = lazy_decay(locations)
+        serializer = ser.LocationSerializer(locations, many=True)
+        return JsonResponse({"locations": serializer.data})
+        
+    funs = {"POST": post}
+    return get_response(request, funs)
+
+
+@csrf_exempt
 def locations_id(request, id):
     """
     /locations/{id}
@@ -379,7 +394,7 @@ def locations_id(request, id):
     return get_response(request, funs)
 
 
-def lazy_decay(lat, lon):
+def get_locations_by_lat_lon(lat, lon):
     LAT_DIF = 0.24
     LON_DIF = 1.4
 
@@ -388,13 +403,16 @@ def lazy_decay(lat, lon):
     lon_l = lon - (LON_DIF / 2)
     lon_r = lon + (LON_DIF / 2)
 
-    m_location = m.Location.objects\
+    m_locations = m.Location.objects\
         .filter(latitude__lt=lat_h)\
         .filter(latitude__gt=lat_l)\
         .filter(longitude__lt=lon_r)\
         .filter(longitude__gt=lon_l)
+    return m_locations
 
-    for loc in m_location:
+
+def lazy_decay(locations):
+    for loc in locations:
         current_time = datetime.now(timezone.utc)
         time_passed = current_time - loc.calculated_time
         stay_time = 3600  # 1 hour in seconds, for equal groups waiting to number of courts
@@ -418,18 +436,17 @@ def lazy_decay(lat, lon):
 
             if (leftover > 0):
                 loc.courts_occupied = max(loc.courts_occupied - leftover, 0)
-            # loc = calculate_wait_time(loc)
+            loc = calculate_wait_time(loc)
             loc.calculated_time = current_time
             loc.save()
         elif loc.courts_occupied > 0:
             loc.courts_occupied = max(loc.courts_occupied - groups_leaving, 0)
-            # loc = calculate_wait_time(loc)
-            loc.calculated_time = current_time
+            loc = calculate_wait_time(loc)
+            loc.calculated_time = current_time        
             loc.save()
-    return m_location
+    return locations
 
-
-def calculate_wait_time(location: m.Location):
+def calculate_wait_time(location : m.Location):
     # Using
     # court_count
     # courts_occupied
@@ -461,7 +478,8 @@ def location_latlon(request):
         if None in [lat, lon]:
             return http_bad_argument("Malformed Latlon")
 
-        m_locations = lazy_decay(lat, lon)
+        m_locations = get_locations_by_lat_lon(lat, lon)
+        m_locations = lazy_decay(m_locations)
         m_location = m_locations.annotate(
             distance=ExpressionWrapper(
                 (F('latitude') - lat) ** 2 +
@@ -496,9 +514,10 @@ def location_bounds(request):
         if None in [lat, lon]:
             return http_bad_argument("Malformed Latlon")
 
-        m_location = lazy_decay(lat, lon)
+        m_locations = get_locations_by_lat_lon(lat, lon)
+        m_locations = lazy_decay(m_locations)
 
-        serializer = ser.LocationSerializer(m_location, many=True)
+        serializer = ser.LocationSerializer(m_locations, many=True)
         # return the json formatted as an HTTP response
         return JsonResponse({"locations": serializer.data})
 
