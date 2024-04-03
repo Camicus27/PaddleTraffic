@@ -4,9 +4,9 @@ import { useRoute } from 'vue-router'
 
 import axios from 'axios'
 
-import { getCurrentUser, getFriendRequests } from '@/api/functions';
-import type { FriendRequest, PickleUser, RestrictedUser } from '@/api/types';
-import PublicProfile from '@/components/Profile/PublicProfile.vue';
+import { getCurrentUser, getFriendRequests } from '@/api/functions'
+import type { FriendRequest, PickleUser, RestrictedUser } from '@/api/types'
+import PublicProfile from '@/components/Profile/PublicProfile.vue'
 
 const route = useRoute()
 // This should be undefined when there is no user currently logged in.
@@ -43,12 +43,12 @@ else URL = env.VITE_DEV_URL
 
 onMounted(async () => {
   myUser.value = await getCurrentUser(true)
-  if (!myUser.value && !username.value)
-    redirect("/login")
+  if (!myUser.value && !username.value) redirect('/login')
   if (myUser.value) {
     const requests = await getFriendRequests(true) // Refresh the list of friend requests
     if (requests)
-      ({ incoming_requests: incomingRequests.value, outgoing_requests: outgoingRequests.value } = requests)
+      ({ incoming_requests: incomingRequests.value, outgoing_requests: outgoingRequests.value } =
+        requests)
     else {
       incomingRequests.value = []
       outgoingRequests.value = []
@@ -83,7 +83,8 @@ async function acceptFriendRequest(requestId: number) {
     console.log(myUser.value)
     const requests = await getFriendRequests(true) // Refresh the list of friend requests
     if (requests)
-      ({ incoming_requests: incomingRequests.value, outgoing_requests: outgoingRequests.value } = requests)
+      ({ incoming_requests: incomingRequests.value, outgoing_requests: outgoingRequests.value } =
+        requests)
     else {
       incomingRequests.value = []
       outgoingRequests.value = []
@@ -100,7 +101,8 @@ async function createFriendRequest(receiverId: number) {
     await axios.post(`${URL}/friend-requests/${receiverId}/`, {}, { withCredentials: true })
     const requests = await getFriendRequests(true) // Refresh the list of friend requests
     if (requests)
-      ({ incoming_requests: incomingRequests.value, outgoing_requests: outgoingRequests.value } = requests)
+      ({ incoming_requests: incomingRequests.value, outgoing_requests: outgoingRequests.value } =
+        requests)
     else {
       incomingRequests.value = []
       outgoingRequests.value = []
@@ -117,7 +119,8 @@ async function deleteFriendRequest(reqId: number) {
     await axios.delete(`${URL}/friend-requests/${reqId}/`, { withCredentials: true })
     const requests = await getFriendRequests(true) // Refresh the list of friend requests
     if (requests)
-      ({ incoming_requests: incomingRequests.value, outgoing_requests: outgoingRequests.value } = requests)
+      ({ incoming_requests: incomingRequests.value, outgoing_requests: outgoingRequests.value } =
+        requests)
     else {
       incomingRequests.value = []
       outgoingRequests.value = []
@@ -160,15 +163,14 @@ function runFilter() {
   } else {
     const excludedUserIds = new Set([
       ...incomingRequests.value.map((request: { requester: { id: any } }) => request.requester.id),
-      ...outgoingRequests.value.map((request: { receiver: { id: any } }) => request.receiver.id),
+      ...outgoingRequests.value.map((request: { receiver: { id: any } }) => request.receiver.id)
     ])
-
 
     if (myUser.value) {
       // Add the current user's ID to exclude them from the results
       excludedUserIds.add(myUser.value.id)
       // Add all of the current user's friends' IDs to exclude them as well
-      myUser.value.friends.forEach((friend: RestrictedUser) => excludedUserIds.add(friend.id));
+      myUser.value.friends.forEach((friend: RestrictedUser) => excludedUserIds.add(friend.id))
     }
 
     searchResults.value = users.value.filter(
@@ -212,13 +214,14 @@ function checkFriendshipStatus() {
 </script>
 
 <template>
+  <CommonHeader />
   <PublicProfile />
   <div v-if="pageUser && (!username || routeUser)" class="profile-page">
     <div class="header">
       <h1>{{ pageUser.username }}</h1>
       <h3>
-        <span v-if="pageUser.first_name">{{ pageUser.first_name }}</span>&nbsp;<span v-if="pageUser.last_name">{{
-    pageUser.last_name }}</span>
+        <span v-if="pageUser.first_name">{{ pageUser.first_name }}</span
+        >&nbsp;<span v-if="pageUser.last_name">{{ pageUser.last_name }}</span>
       </h3>
       <p class="bio">{{ pageUser.bio }}</p>
     </div>
@@ -267,8 +270,8 @@ function checkFriendshipStatus() {
               <ul>
                 <li v-for="friend in pageUser.friends" :key="friend.id">
                   <a class="profile-link" :href="`/profile/${friend.username}`">{{
-    friend.username
-  }}</a>
+                    friend.username
+                  }}</a>
                 </li>
               </ul>
             </div>
@@ -285,8 +288,8 @@ function checkFriendshipStatus() {
             <ul>
               <li v-for="request in incomingRequests" :key="request.id">
                 <a class="profile-link" :href="`/profile/${request.requester.username}`">{{
-    request.requester.username
-  }}</a>
+                  request.requester.username
+                }}</a>
                 <button @click="acceptFriendRequest(request.id)" class="button accept">
                   Accept
                 </button>
@@ -301,8 +304,8 @@ function checkFriendshipStatus() {
             <ul>
               <li v-for="request in outgoingRequests" :key="request.id">
                 <a class="profile-link" :href="`/profile/${request.receiver.username}`">{{
-    request.receiver.username
-  }}</a>
+                  request.receiver.username
+                }}</a>
                 <button @click="deleteFriendRequest(request.id)" class="button delete">
                   Delete
                 </button>
@@ -315,13 +318,18 @@ function checkFriendshipStatus() {
         <div class="search-add-friends card">
           <h2>Add Friends</h2>
           <div class="search-section">
-            <input type="text" v-model="searchQuery" placeholder="Search Users..." class="search-box" />
+            <input
+              type="text"
+              v-model="searchQuery"
+              placeholder="Search Users..."
+              class="search-box"
+            />
             <div class="search-results" v-if="searchResults.length">
               <ul>
                 <li v-for="user in searchResults" :key="user.id">
                   <a class="profile-link" :href="`/profile/${user.username}`">{{
-    user.username
-                    }}</a>
+                    user.username
+                  }}</a>
                   <button @click="createFriendRequest(user.id)">Add Friend</button>
                 </li>
               </ul>
@@ -352,7 +360,7 @@ function checkFriendshipStatus() {
   display: flex;
   flex-direction: column;
   font-family: 'Open Sans', sans-serif;
-  margin-bottom: .5em;
+  margin-bottom: 0.5em;
   margin-top: 3rem;
   color: #4b5320;
   text-align: center;
@@ -366,7 +374,7 @@ function checkFriendshipStatus() {
 }
 
 .form-wrapper #logo-title h1 {
-  padding-left: .5rem;
+  padding-left: 0.5rem;
   font-size: 3rem;
   font-weight: bold;
   text-shadow: 0px 0px 1px #080f0180;
@@ -381,7 +389,7 @@ function checkFriendshipStatus() {
 .form-wrapper header p {
   font-size: 1.5rem;
   line-height: 2rem;
-  margin-top: .33rem;
+  margin-top: 0.33rem;
 }
 
 main {
@@ -394,7 +402,7 @@ main {
 #required-warning {
   margin-top: 0;
   color: #d00000d0;
-  font-size: .75rem;
+  font-size: 0.75rem;
 }
 
 .submit-button {
@@ -413,22 +421,21 @@ main {
 }
 
 .redirect-swap p {
-  margin-block: .25rem;
-  margin-right: .5rem;
+  margin-block: 0.25rem;
+  margin-right: 0.5rem;
 }
 
 output {
   color: #d00000;
   font-weight: bold;
   text-align: center;
-  margin: .5rem;
+  margin: 0.5rem;
 }
-
 
 /* Media query for narrower screens */
 @media only screen and (max-width: 1300px) {
   .form-wrapper {
-    padding-inline: .5rem;
+    padding-inline: 0.5rem;
   }
 
   .form-wrapper header {
@@ -456,7 +463,7 @@ output {
   }
 
   #required-warning {
-    font-size: .66rem;
+    font-size: 0.66rem;
   }
 
   .redirect-swap {
@@ -464,7 +471,7 @@ output {
   }
 
   .redirect-swap p {
-    margin-block: .5rem;
+    margin-block: 0.5rem;
     margin-right: 0;
   }
 }

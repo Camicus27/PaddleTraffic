@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import MatchForm from '@/components/MatchForm.vue'
+import CommonHeader from '@/components/CommonHeader.vue';
 </script>
 
 <template>
+  <CommonHeader />
   <div id="events-wrapper">
     <h1>New Matchmaking Event</h1>
     <MatchForm />
@@ -30,6 +32,6 @@ h1 {
 //     #match-wrapper {
 //         margin: .75rem;
 //         width: 85%;
-//     } 
-// } 
+//     }
+// }
 </style>

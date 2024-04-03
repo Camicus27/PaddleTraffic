@@ -657,8 +657,7 @@ def accept_friend_request(request, id):
             friend_request.requester
         )  # Since this field is symmetric, this also adds the receiver as a friend of the requester
         return http_ok(
-            f"Friends {friend_request.receiver} and {
-                friend_request.requester} are now friends"
+            f"Friends {friend_request.receiver} and {friend_request.requester} are now friends"
         )
 
     funs = {"POST": post}

@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import MatchList from '@/components/MatchList.vue'
+import CommonHeader from '@/components/CommonHeader.vue';
 </script>
 
 <template>
+  <CommonHeader />
   <div id="matchmaking-wrapper">
     <h1>Matchmaking Events</h1>
     <MatchList />
@@ -30,6 +32,6 @@ h1 {
 //     #match-wrapper {
 //         margin: .75rem;
 //         width: 85%;
-//     } 
-// } 
+//     }
+// }
 </style>

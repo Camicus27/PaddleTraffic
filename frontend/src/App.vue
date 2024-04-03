@@ -6,7 +6,6 @@ import './styles/globals/_index.scss'
 
 <template>
   <v-app>
-    <CommonHeader />
     <v-main>
       <div class="main-wrapper">
         <!-- <CommonSidebar />   This is now going to be dynamically loaded as a popup menu so it isn't always visible   -->
