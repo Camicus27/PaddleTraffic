@@ -54,9 +54,9 @@ export async function updateCurrentUser(userData: PickleUser, logError: boolean)
  * @param logError Whether or not the error should be printed, if one occurs.
  * @returns An array of RestrictedUser objects if the request is successful; undefined otherwise.
  */
-export async function getAllUsers(baseUrl: string, logError: boolean): Promise<Array<RestrictedUser> | undefined> {
+export async function getAllUsers(logError: boolean): Promise<Array<RestrictedUser> | undefined> {
     try {
-        const response = await axios.get(`${baseUrl}/users/`)
+        const response = await axios.get(`${URL}/users/`)
         if (response.data.users)
             return response.data.users as Array<RestrictedUser>
     } catch (error) {
@@ -301,9 +301,9 @@ export async function getFriendRequestId(id: number, baseUrl: string, logError: 
  * @param logError Whether or not the error should be printed, if one occurs.
  * @returns True if the request is successful; false otherwise.
  */
-export async function createFriendRequest(userId: number, baseUrl: string, logError: boolean): Promise<boolean> {
+export async function createFriendRequest(userId: number, logError: boolean): Promise<boolean> {
     try {
-        await axios.post(`${baseUrl}/friend-requests/${userId}/`)
+        await axios.post(`${URL}/friend-requests/${userId}/`)
         return true
     } catch (error) {
         if (logError)
@@ -320,9 +320,9 @@ export async function createFriendRequest(userId: number, baseUrl: string, logEr
  * @param logError Whether or not the error should be printed, if one occurs.
  * @returns True if the request is successful; false otherwise.
  */
-export async function deleteFriendRequest(id: number, baseUrl: string, logError: boolean): Promise<boolean> {
+export async function deleteFriendRequest(id: number, logError: boolean): Promise<boolean> {
     try {
-        await axios.delete(`${baseUrl}/friend-requests/${id}/`)
+        await axios.delete(`${URL}/friend-requests/${id}/`)
         return true
     } catch (error) {
         if (logError)

@@ -7,6 +7,8 @@ import axios from 'axios'
 import { getCurrentUser, getFriendRequests } from '@/api/functions'
 import type { FriendRequest, PickleUser, RestrictedUser } from '@/api/types'
 import PublicProfile from '@/components/Profile/PublicProfile.vue'
+import CommonHeader from '@/components/CommonHeader.vue'
+import PrivateProfile from '@/components/Profile/PrivateProfile.vue'
 
 const route = useRoute()
 // This should be undefined when there is no user currently logged in.
@@ -215,7 +217,7 @@ function checkFriendshipStatus() {
 
 <template>
   <CommonHeader />
-  <PublicProfile />
+  <PrivateProfile />
   <div v-if="pageUser && (!username || routeUser)" class="profile-page">
     <div class="header">
       <h1>{{ pageUser.username }}</h1>

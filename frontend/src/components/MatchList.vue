@@ -23,7 +23,7 @@ else
   URL = env.VITE_DEV_URL
 
 onMounted(async () => {
-  const allUsers = await getAllUsers(URL, true)
+  const allUsers = await getAllUsers(true)
 
   if (allUsers) {
     allUsers.forEach(player => {
