@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, type Ref, computed, onActivated, ssrContextKey } from 'vue'
+import { ref, onMounted, onUnmounted, type Ref, computed, onActivated, ssrContextKey, watch, nextTick } from 'vue'
 import mapboxgl from "mapbox-gl"
 import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
 import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css';
@@ -66,6 +66,9 @@ function addAllMapItems(locations: Location[], map: mapboxgl.Map) {
 function selectMarker(locId: number) {
     if (!mapItems.has(locId)) return
 
+    let searchBar = document.querySelector(".mapboxgl-ctrl-top-left")
+    let searchBt = document.querySelector("#search-bt")
+    
     const selectedClassName = 'selected'
     if (currSelected.value) { // if a marker is selected
         let mapItem = mapItems.get(currSelected.value)
@@ -74,9 +77,14 @@ function selectMarker(locId: number) {
             old_marker.classList.remove(selectedClassName)
             if (currSelected.value == locId) { // and it's the same one
                 currSelected.value = undefined // then none is selected in state
+                searchBar.className = searchBar.className.replace(" scooch-searchbar", "")
+                searchBt.className = searchBt.className.replace(" scooch-searchbt", "")
                 return // return
             }
         }
+    } else { // it was null before
+        searchBar.className += " scooch-searchbar"
+        searchBt.className += " scooch-searchbt"
     }
 
     // otherwise set the new one
@@ -103,7 +111,7 @@ function removeAllMapItems() {
 
 function refreshMapItems() {
     let locationIds = Array.from(mapItems.keys())
-    if(locationIds.length == 0) return // part of the design doc.
+    if (locationIds.length == 0) return // part of the design doc.
 
     getLocationsByList(locationIds).then((locations) => {
         if (!locations) return // don't refresh if data is undefined AKA error could be received
@@ -399,7 +407,10 @@ onMounted(() => {
     initGeoloc()
     locationsInterval = window.setInterval(refreshMapItems, 3000)
     document.querySelector('.mapboxgl-ctrl-bottom-right')?.remove()
+    document.querySelector('.mapboxgl-ctrl-logo')?.remove()
     document.querySelector('.mapboxgl-ctrl-bottom-left')?.setAttribute('style', 'transform: scale(0.85);')
+    let searchBar = document.querySelector(".mapboxgl-ctrl-top-left")
+    searchBar.setAttribute('style', 'transition: left 0.3s ease') // search bar animation for transition
 })
 
 onUnmounted(() => {
@@ -422,13 +433,13 @@ const selectedLocation = computed(() => {
         <CommonHeader />
         <div class="orientation">
             <div class="map-overlay-container">
-                <button id="search-bt" @click="refreshMapItemsByCenter">Search This Area</button>
                 <div ref="mapContainer" class="mapbox-container"></div>
+                <button id="search-bt" @click="refreshMapItemsByCenter">Search This Area</button>
             </div>
-            <Transition name="popup-transition">
-                <Popup class="popup" v-if="currSelected" :location="selectedLocation"
-                    :on-submit-callback="updateMarkerColor" />
-            </Transition>
+                <Transition name="popup-transition">
+                    <Popup class="popup" v-if="currSelected" :location="selectedLocation"
+                        :on-submit-callback="updateMarkerColor" />
+                </Transition>
         </div>
     </div>
 </template>
@@ -453,42 +464,56 @@ $mobile-size: 800px;
     }
 }
 
-$popup-width: 30%;
-$time: 1s;
+$popup-width: 300px;
+$popup-height: 250px;
+$time: 0.3s;
 $transition: "popup-transition";
 
 @include off-state($transition) {
-    opacity: 0;
-    width: 0;
+    transform: translateX(-100%);
+
+    @include responsive($mobile-size) {
+        transform: translateY(100%);
+    }
 }
 
 @include on-state($transition) {
-    opacity: 1;
-    width: $popup-width;
+    transform: translateX(0%);
+
+    @include responsive($mobile-size) {
+        transform: translateY(0%);
+    }
 }
 
 @include transition-state($transition) {
-    transition: opacity $time ease, width $time ease;
-    /* Smooth transition for width and opacity */
+    transition: opacity $time ease, transform $time ease;
 }
 
 .main-page {
     @extend %flex-col-center;
     height: 100svh;
-    overflow: hidden;
     align-self: stretch;
 
     @include responsive($mobile-size) {
         touch-action: none;
-
-        
     }
 }
 
 .popup {
-    flex-grow: 1;
-    flex-basis: $popup-width;
+    width: $popup-width;
+    height: 100%;
+    position: absolute;
+    left: 0%;
+    z-index: 1;
+
+    @include responsive($mobile-size) {
+        width: 100%;
+        height: $popup-height;
+        bottom: 0%;
+    }
 }
+
+
 
 .map-overlay-container {
     position: relative;
@@ -508,7 +533,9 @@ $transition: "popup-transition";
 
 #search-bt {
     position: absolute;
-    bottom: 20px; // Adjust as needed for correct placement from the bottom
+    bottom: 0; // Adjust as needed for correct placement from the bottom
+    transition: bottom $time ease, left $time ease;
+    margin-bottom: 20px;
     left: 50%;
     transform: translateX(-50%); // Center horizontally
     z-index: 1; // Ensure the button is above the map layers
@@ -523,6 +550,22 @@ $transition: "popup-transition";
 
     &:hover {
         background-color: #f8f8f8;
+    }
+}
+
+.scooch-searchbt {
+    bottom: 0;
+
+    @include responsive($mobile-size) {
+        bottom: $popup-height !important;
+    }
+}
+
+:deep(.scooch-searchbar) {
+    left: $popup-width;
+
+    @include responsive($mobile-size) {
+        left: 0;
     }
 }
 
