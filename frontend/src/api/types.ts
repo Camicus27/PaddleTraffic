@@ -61,6 +61,7 @@ export interface Location {
   number_waiting: number
   estimated_wait_time: number
   calculated_time: string
+  city_state_country: string
 }
 
 export interface Report {
