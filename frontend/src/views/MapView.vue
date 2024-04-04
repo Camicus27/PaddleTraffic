@@ -423,6 +423,7 @@ const selectedLocation = computed(() => {
         <div class="orientation">
             <div class="map-overlay-container">
                 <button id="search-bt" @click="refreshMapItemsByCenter">Search This Area</button>
+                <RouterLink to="/new-location" id="proposal-bt">Don't see a court on the map? Propose a new marker for the location!</RouterLink>
                 <div ref="mapContainer" class="mapbox-container"></div>
             </div>
             <Transition name="popup-transition">
@@ -508,11 +509,31 @@ $transition: "popup-transition";
 
 #search-bt {
     position: absolute;
-    bottom: 20px; // Adjust as needed for correct placement from the bottom
+    bottom: 1rem;
     left: 50%;
     transform: translateX(-50%); // Center horizontally
     z-index: 1; // Ensure the button is above the map layers
-    // Rest of your button styling...
+    background-color: white;
+    color: #333;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 6px 12px;
+    cursor: pointer;
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+
+    &:hover {
+        background-color: #f8f8f8;
+    }
+}
+
+#proposal-bt {
+    position: absolute;
+    bottom: 1rem;
+    right: 1rem;
+    z-index: 1; // Ensure the button is above the map layers
+    width: 15%;
+    font-size: .8rem;
+    text-decoration: none;
     background-color: white;
     color: #333;
     border: 1px solid #ccc;
