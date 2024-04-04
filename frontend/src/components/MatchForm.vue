@@ -219,7 +219,15 @@ $mobile-size: 800px;
     }
 }
 
-#location, #date, #time {
+#location {
+    width: fit-content;
+
+    @include responsive($mobile-size) {
+        width: auto;
+    }
+}
+
+#date, #time {
     width: fit-content;
 }
 
