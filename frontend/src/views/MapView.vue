@@ -68,7 +68,7 @@ function selectMarker(locId: number) {
 
     let searchBar = document.querySelector(".mapboxgl-ctrl-top-left")
     let searchBt = document.querySelector("#search-bt")
-    
+
     const selectedClassName = 'selected'
     if (currSelected.value) { // if a marker is selected
         let mapItem = mapItems.get(currSelected.value)
@@ -436,10 +436,10 @@ const selectedLocation = computed(() => {
                 <div ref="mapContainer" class="mapbox-container"></div>
                 <button id="search-bt" @click="refreshMapItemsByCenter">Search This Area</button>
             </div>
-                <Transition name="popup-transition">
-                    <Popup class="popup" v-if="currSelected" :location="selectedLocation"
-                        :on-submit-callback="updateMarkerColor" />
-                </Transition>
+            <Transition name="popup-transition">
+                <Popup class="popup" v-if="currSelected" :location="selectedLocation"
+                    :on-submit-callback="updateMarkerColor" />
+            </Transition>
         </div>
     </div>
 </template>
