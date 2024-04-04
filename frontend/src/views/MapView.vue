@@ -423,7 +423,6 @@ const selectedLocation = computed(() => {
         <div class="orientation">
             <div class="map-overlay-container">
                 <button id="search-bt" @click="refreshMapItemsByCenter">Search This Area</button>
-                <RouterLink to="/new-location" id="proposal-bt">Don't see a court on the map? Propose a new marker for the location!</RouterLink>
                 <div ref="mapContainer" class="mapbox-container"></div>
             </div>
             <Transition name="popup-transition">
