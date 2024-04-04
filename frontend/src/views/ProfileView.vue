@@ -218,6 +218,8 @@ function checkFriendshipStatus() {
 <template>
   <CommonHeader />
   <PrivateProfile />
+  <v-divider></v-divider>
+  <PublicProfile />
   <div v-if="pageUser && (!username || routeUser)" class="profile-page">
     <div class="header">
       <h1>{{ pageUser.username }}</h1>

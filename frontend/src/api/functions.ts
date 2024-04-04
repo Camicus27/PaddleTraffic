@@ -92,9 +92,9 @@ export async function getUserId(id: number, baseUrl: string, logError: boolean):
  * @param logError Whether or not the error should be printed, if one occurs.
  * @returns A RestrictedUser object if the request is successful; undefined otherwise.
  */
-export async function getUserUsername(username: string, baseUrl: string, logError: boolean): Promise<RestrictedUser | undefined> {
+export async function getUserUsername(username: string, logError: boolean): Promise<RestrictedUser | undefined> {
     try {
-        const response = await axios.get(`${baseUrl}/users/${username}/`)
+        const response = await axios.get(`${URL}/users/${username}/`)
         if (response.data.user)
             return response.data.user as RestrictedUser
     } catch (error) {
