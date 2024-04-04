@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, type Ref, computed, onActivated, ssrContextKey } from 'vue'
+import { ref, onMounted, onUnmounted, type Ref, computed, onActivated, ssrContextKey, watch, nextTick } from 'vue'
 import mapboxgl from "mapbox-gl"
 import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
 import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css';
@@ -64,8 +64,11 @@ function addAllMapItems(locations: Location[], map: mapboxgl.Map) {
 
 // Update the info section with location data
 function selectMarker(locId: number) {
-    if (!mapItems.has(locId)) return
+    let searchBar = document.querySelector(".mapboxgl-ctrl-top-left")
+    let searchBt = document.querySelector("#search-bt")
 
+    if (!mapItems.has(locId)) return
+    
     const selectedClassName = 'selected'
     if (currSelected.value) { // if a marker is selected
         let mapItem = mapItems.get(currSelected.value)
@@ -74,9 +77,14 @@ function selectMarker(locId: number) {
             old_marker.classList.remove(selectedClassName)
             if (currSelected.value == locId) { // and it's the same one
                 currSelected.value = undefined // then none is selected in state
+                searchBar?.classList.remove("scooch-searchbar")
+                searchBt?.classList.remove("scooch-searchbt")
                 return // return
             }
         }
+    } else { // it was null before
+        searchBar?.classList.add("scooch-searchbar")
+        searchBt?.classList.add("scooch-searchbt")
     }
 
     // otherwise set the new one
@@ -103,7 +111,7 @@ function removeAllMapItems() {
 
 function refreshMapItems() {
     let locationIds = Array.from(mapItems.keys())
-    if(locationIds.length == 0) return // part of the design doc.
+    if (locationIds.length == 0) return // part of the design doc.
 
     getLocationsByList(locationIds).then((locations) => {
         if (!locations) return // don't refresh if data is undefined AKA error could be received
@@ -127,8 +135,14 @@ function refreshMapItemsByCenter() {
         if (currSelected.value) {
             let tmp = currSelected.value
             currSelected.value = undefined
-            if (mapItems.has(tmp)) {
+            if (mapItems.has(tmp)) { // re-select map marker if still in view
                 selectMarker(tmp);
+            }
+            else {
+                let searchBar = document.querySelector(".mapboxgl-ctrl-top-left")
+                let searchBt = document.querySelector("#search-bt")
+                searchBar?.classList.remove("scooch-searchbar")
+                searchBt?.classList.remove("scooch-searchbt")
             }
         }
     })
@@ -162,106 +176,21 @@ else
 
 
 // TODO: Remove and add backend endpoint to get ALL location names & coords & address ORRRR figure out backend search
-interface Feature {
-    type: string;
-    properties: {
-        title: string;
-        place_name?: string;
-        center?: [number, number];
-        place_type?: string[];
-    };
-    geometry: {
-        coordinates: [number, number];
-        type: string;
-    };
-    place_name?: string;
-    center?: [number, number];
-    place_type?: string[];
-}
-
-interface CustomData {
-    features: Feature[];
-    type: string;
-}
-
-const customData: CustomData = {
-    features: [
-        {
-            type: 'Feature',
-            properties: {
-                title: 'Picklecoin HQ'
-            },
-            geometry: {
-                type: 'Point',
-                coordinates: [-111.845182, 40.767807]
-            }
-        },
-        {
-            type: 'Feature',
-            properties: {
-                title: 'Hogan Park'
-            },
-            geometry: {
-                type: 'Point',
-                coordinates: [-111.901010, 40.874055]
-            }
-        },
-        {
-            type: 'Feature',
-            properties: {
-                title: '11th Avenue Park'
-            },
-            geometry: {
-                type: 'Point',
-                coordinates: [-111.862134, 40.783488]
-            }
-        },
-        {
-            type: 'Feature',
-            properties: {
-                title: '5th Ave & C Street'
-            },
-            geometry: {
-                type: 'Point',
-                coordinates: [-111.880206, 40.774847]
-            }
-        },
-        {
-            type: 'Feature',
-            properties: {
-                title: 'West Bountiful'
-            },
-            geometry: {
-                type: 'Point',
-                coordinates: [-111.901440, 40.895123]
-            }
-        },
-        {
-            type: 'Feature',
-            properties: {
-                title: 'Twin Hollow'
-            },
-            geometry: {
-                type: 'Point',
-                coordinates: [-111.862690, 40.903635]
-            }
-        }
-    ],
-    type: 'FeatureCollection'
-};
-
 function forwardGeocoder(query: string): any[] {
     const matchingFeatures: any[] = [];
-    for (const feature of customData.features) {
-        if (feature.properties.title.toLowerCase().includes(query.toLowerCase())) {
+    let locations: Location[] = Array.from(mapItems.values()).map((mapItem) => {return mapItem.location.value})
+
+    for (const location of locations) {
+        if (location.name.toLowerCase().includes(query.toLowerCase())) {
             const result: any = {
                 type: "Feature",
                 relevance: 1,
                 geometry: {
                     type: 'Point',
-                    coordinates: feature.geometry.coordinates
+                    coordinates: [location.longitude, location.latitude]
                 },
-                place_name: `🎾 ${feature.properties.title}, Bountiful, Utah, United States`
+                place_name: `🎾 ${location.name}, ${location.city_state_country}`,
+                locationId: location.id
             };
             matchingFeatures.push(result);
         }
@@ -302,6 +231,13 @@ function initMap() {
         localGeocoder: forwardGeocoder
     });
 
+    geocoder.on('result', (e) => {
+        const locationId = e.result.locationId;
+        if (locationId && locationId !== currSelected.value)
+            selectMarker(locationId);
+        refreshMapItemsByCenter()
+    });
+
     getMap().addControl(geocoder, 'top-left');
     getMap().addControl(new mapboxgl.NavigationControl());
 }
@@ -328,12 +264,11 @@ function initGeoloc() {
     }); // when 'turning on' geolocate finishes / page is loaded anew
 
     if (props.lat && props.lon) { // QR CODE
-        let lonLatLike = new mapboxgl.LngLat(props.lon, props.lat)
-        getMap().setCenter(lonLatLike)
         getNearestLocation(props.lat, props.lon).then((location) => {
             if (location) {
                 addMapItem(location, getMap()) // this IS safe. addIfNotIn(...)
                 selectMarker(location.id)
+                getMap().setCenter(new mapboxgl.LngLat(location.longitude, location.latitude))
             }
         })
 
@@ -399,7 +334,10 @@ onMounted(() => {
     initGeoloc()
     locationsInterval = window.setInterval(refreshMapItems, 3000)
     document.querySelector('.mapboxgl-ctrl-bottom-right')?.remove()
+    document.querySelector('.mapboxgl-ctrl-logo')?.remove()
     document.querySelector('.mapboxgl-ctrl-bottom-left')?.setAttribute('style', 'transform: scale(0.85);')
+    let searchBar = document.querySelector(".mapboxgl-ctrl-top-left")
+    searchBar?.setAttribute('style', 'transition: left 0.3s ease') // search bar animation for transition
 })
 
 onUnmounted(() => {
@@ -422,8 +360,8 @@ const selectedLocation = computed(() => {
         <CommonHeader />
         <div class="orientation">
             <div class="map-overlay-container">
-                <button id="search-bt" @click="refreshMapItemsByCenter">Search This Area</button>
                 <div ref="mapContainer" class="mapbox-container"></div>
+                <button id="search-bt" @click="refreshMapItemsByCenter">Search This Area</button>
             </div>
             <Transition name="popup-transition">
                 <Popup class="popup" v-if="currSelected" :location="selectedLocation"
@@ -453,42 +391,56 @@ $mobile-size: 800px;
     }
 }
 
-$popup-width: 30%;
-$time: 1s;
+$popup-width: 300px;
+$popup-height: 250px;
+$time: 0.3s;
 $transition: "popup-transition";
 
 @include off-state($transition) {
-    opacity: 0;
-    width: 0;
+    transform: translateX(-100%);
+
+    @include responsive($mobile-size) {
+        transform: translateY(100%);
+    }
 }
 
 @include on-state($transition) {
-    opacity: 1;
-    width: $popup-width;
+    transform: translateX(0%);
+
+    @include responsive($mobile-size) {
+        transform: translateY(0%);
+    }
 }
 
 @include transition-state($transition) {
-    transition: opacity $time ease, width $time ease;
-    /* Smooth transition for width and opacity */
+    transition: opacity $time ease, transform $time ease;
 }
 
 .main-page {
     @extend %flex-col-center;
     height: 100svh;
-    overflow: hidden;
     align-self: stretch;
 
     @include responsive($mobile-size) {
         touch-action: none;
-
-        
     }
 }
 
 .popup {
-    flex-grow: 1;
-    flex-basis: $popup-width;
+    width: $popup-width;
+    height: 100%;
+    position: absolute;
+    left: 0%;
+    z-index: 1;
+
+    @include responsive($mobile-size) {
+        width: 100%;
+        height: $popup-height;
+        bottom: 0%;
+    }
 }
+
+
 
 .map-overlay-container {
     position: relative;
@@ -508,7 +460,9 @@ $transition: "popup-transition";
 
 #search-bt {
     position: absolute;
-    bottom: 1rem;
+    bottom: 0; // Adjust as needed for correct placement from the bottom
+    transition: bottom $time ease, left $time ease;
+    margin-bottom: 20px;
     left: 50%;
     transform: translateX(-50%); // Center horizontally
     z-index: 1; // Ensure the button is above the map layers
@@ -543,6 +497,22 @@ $transition: "popup-transition";
 
     &:hover {
         background-color: #f8f8f8;
+    }
+}
+
+.scooch-searchbt {
+    bottom: 0;
+
+    @include responsive($mobile-size) {
+        bottom: $popup-height !important;
+    }
+}
+
+:deep(.scooch-searchbar) {
+    left: $popup-width;
+
+    @include responsive($mobile-size) {
+        left: 0;
     }
 }
 

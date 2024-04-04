@@ -379,8 +379,8 @@ def locations_id(request, id):
 
 
 def get_locations_by_lat_lon(lat, lon):
-    LAT_DIF = 0.24
-    LON_DIF = 1.4
+    LAT_DIF = 3
+    LON_DIF = 3
 
     lat_h = lat + (LAT_DIF / 2)
     lat_l = lat - (LAT_DIF / 2)

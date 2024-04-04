@@ -56,20 +56,9 @@ class Location(models.Model):
     number_waiting = models.IntegerField()  # current number waiting
     estimated_wait_time = models.DurationField()
     calculated_time = models.DateTimeField()
+    city_state_country = models.CharField(max_length=255)
 
-    # def clean(self):
-    #     if not isinstance(self.court_count, int):
-    #         raise ValidationError({'court_count': 'Court count must be an integer.'})
 
-    #     if not isinstance(self.courts_occupied, int):
-    #         raise ValidationError({'courts_occupied': 'Courts occupied must be an integer.'})
-            
-    #     if not isinstance(self.number_waiting, int):
-    #         raise ValidationError({'number_waiting': 'Number waiting must be an integer.'})
-
-    # def save(self, *args, **kwargs):
-    #     self.full_clean()  # Call clean method before saving
-    #     super().save(*args, **kwargs)
     
 """
 Represents a newly proposed location on the map that
