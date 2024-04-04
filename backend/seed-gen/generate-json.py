@@ -50,7 +50,7 @@ def transformPickleHeads(picklehead_court):
 
 def transformAllPickleHeads(filename):
     locations = []
-    with open(filename, 'r') as file:
+    with open(filename, 'r', encoding='utf-8') as file:
         data = json.load(file)
         courts = data['courts']
         for court in courts:
@@ -68,7 +68,7 @@ def main():
 
     combined_locations = list(locations_dict.values())
 
-    with open('pickle-data.json', 'w') as file:
+    with open('pickle-data.json', 'w', encoding='utf-8') as file:
         json.dump({'locations': combined_locations}, file)
             
 if __name__ == "__main__":
