@@ -529,7 +529,24 @@ def location_proposal(request):
         
         data = all_data.get("location", None)
         if data is None:
-            return http_bad_argument("Must include a location to propose.")
+            return http_bad_request_json()
+        
+        # Cleanse data
+        lat = data.get("latitude", None)
+        long = data.get("longitude", None)
+        court_count = data.get("court_count", None)
+        
+        if lat is None or long is None or court_count is None:
+            return http_bad_request_json()
+    
+        if lat < -90 or lat > 90:
+            return http_bad_argument("Invalid latitude")
+        
+        if long < -180 or long > 180:
+            return http_bad_argument("Invalid longitude")
+        
+        if court_count < 1:
+            return http_bad_argument("Cannot have zero or negative courts at a location")
         
         serializer = ser.LocationProposalCreationSerializer(data=data)
         if not serializer.is_valid():
@@ -550,18 +567,16 @@ def location_proposal_id(request, id):
     """
 
     def post(all_data):
+        # Get information from proposal
         proposal: m.ProposedLocation = try_get_instance(m.ProposedLocation, id)
         name = proposal.name
         latitude = proposal.latitude
         longitude = proposal.longitude
         court_count = proposal.court_count
         
+        # Check if the admin made any changes to the proposal
         data = all_data.get("location", None)
         if data is not None:
-            print("\n\nLOCATION_PROPOSAL_ID [POST] 3 Got data from proposal approval\n")
-            print(all_data)
-            print("\n\n")
-            
             serializer = ser.LocationProposalSerializer(instance=proposal, data=data)
             if not serializer.is_valid():
                 return http_bad_request_json()
@@ -571,6 +586,7 @@ def location_proposal_id(request, id):
             longitude = serializer.data.get('longitude')
             court_count = serializer.data.get('court_count')
         
+        # Create a new location
         m.Location(
             name = name,
             latitude = latitude,
@@ -581,15 +597,18 @@ def location_proposal_id(request, id):
             estimated_wait_time = timedelta(minutes=0),
             calculated_time = datetime.now(timezone.utc),
         ).save()
+
+        # Remove the proposal
         proposal.delete()
         return http_ok_request_json()
     
     def delete():
-        
+        # Find the proposal
         proposal: m.ProposedLocation = try_get_instance(m.ProposedLocation, id)
         if proposal is None:
             return http_not_found(f"Proposal ${id}")
             
+        # Remove the proposal
         proposal.delete()
         return http_ok(f"Request successfully deleted")
         
