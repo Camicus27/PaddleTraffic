@@ -350,7 +350,7 @@ def location_list(request):
         locations = lazy_decay(locations)
         serializer = ser.LocationSerializer(locations, many=True)
         return JsonResponse({"locations": serializer.data})
-        
+
     funs = {"POST": post}
     return get_response(request, funs)
 
@@ -442,11 +442,12 @@ def lazy_decay(locations):
         elif loc.courts_occupied > 0:
             loc.courts_occupied = max(loc.courts_occupied - groups_leaving, 0)
             loc = calculate_wait_time(loc)
-            loc.calculated_time = current_time        
+            loc.calculated_time = current_time
             loc.save()
     return locations
 
-def calculate_wait_time(location : m.Location):
+
+def calculate_wait_time(location: m.Location):
     # Using
     # court_count
     # courts_occupied
@@ -538,14 +539,13 @@ def friend_requests(request):
 
         # Fetch incoming friend requests where the current user is the receiver
         incoming_requests = m.FriendRequest.objects.filter(
-            receiver=request.user, accepted=False
-        )
+            receiver=request.user)
         incoming_serializer = ser.FriendRequestSerializer(
             incoming_requests, many=True)
 
         # Fetch outgoing friend requests where the current user is the requester
         outgoing_requests = m.FriendRequest.objects.filter(
-            requester=request.user, accepted=False
+            requester=request.user
         )
         outgoing_serializer = ser.FriendRequestSerializer(
             outgoing_requests, many=True)
@@ -601,6 +601,8 @@ def friend_request_id(request: HttpRequest, id):
             return http_not_found(str(id))
         if other_user == request.user:
             return http_bad_argument(f"id: {id} cannot be the same as current user")
+        if id in [f.id for f in request.user.friends.all()]:
+            return http_bad_argument(f"Cannot Send a friend request to a user that you are already friends with")
         m.FriendRequest(
             requester=request.user,
             receiver=other_user,
@@ -651,13 +653,13 @@ def accept_friend_request(request, id):
             friend_request.receiver != request.user
         ):  # A user should not be able to accept a friend request if they are not the receiver
             return http_unauthorized()
-        friend_request.accepted = True
-        friend_request.save()
+        friend_request.delete()
         friend_request.receiver.friends.add(
             friend_request.requester
         )  # Since this field is symmetric, this also adds the receiver as a friend of the requester
         return http_ok(
-            f"Friends {friend_request.receiver} and {friend_request.requester} are now friends"
+            f"Friends {friend_request.receiver} and {
+                friend_request.requester} are now friends"
         )
 
     funs = {"POST": post}

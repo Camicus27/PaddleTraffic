@@ -339,9 +339,9 @@ export async function deleteFriendRequest(id: number, logError: boolean): Promis
  * @param logError Whether or not the error should be printed, if one occurs.
  * @returns True if the request is successful; false otherwise.
  */
-export async function acceptFriendRequest(id: number, baseUrl: string, logError: boolean): Promise<boolean> {
+export async function acceptFriendRequest(id: number, logError: boolean): Promise<boolean> {
     try {
-        await axios.post(`${baseUrl}/friend-requests/accept/${id}/`)
+        await axios.post(`${URL}/friend-requests/accept/${id}/`, {})
         return true
     } catch (error) {
         if (logError)

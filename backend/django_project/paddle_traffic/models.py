@@ -116,7 +116,6 @@ class FriendRequest(models.Model):
         null=False,
     )
     date_created = models.DateTimeField(default=timezone.now, blank=True)
-    accepted = models.BooleanField(default=False)
 
     class Meta:
         unique_together = ["requester", "receiver"]
