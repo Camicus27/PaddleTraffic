@@ -77,14 +77,14 @@ function selectMarker(locId: number) {
             old_marker.classList.remove(selectedClassName)
             if (currSelected.value == locId) { // and it's the same one
                 currSelected.value = undefined // then none is selected in state
-                searchBar.className = searchBar.className.replace(" scooch-searchbar", "")
-                searchBt.className = searchBt.className.replace(" scooch-searchbt", "")
+                searchBar?.classList.remove("scooch-searchbar")
+                searchBt?.classList.remove("scooch-searchbt")
                 return // return
             }
         }
     } else { // it was null before
-        searchBar.className += " scooch-searchbar"
-        searchBt.className += " scooch-searchbt"
+        searchBar?.classList.add("scooch-searchbar")
+        searchBt?.classList.add("scooch-searchbt")
     }
 
     // otherwise set the new one
@@ -170,106 +170,21 @@ else
 
 
 // TODO: Remove and add backend endpoint to get ALL location names & coords & address ORRRR figure out backend search
-interface Feature {
-    type: string;
-    properties: {
-        title: string;
-        place_name?: string;
-        center?: [number, number];
-        place_type?: string[];
-    };
-    geometry: {
-        coordinates: [number, number];
-        type: string;
-    };
-    place_name?: string;
-    center?: [number, number];
-    place_type?: string[];
-}
-
-interface CustomData {
-    features: Feature[];
-    type: string;
-}
-
-const customData: CustomData = {
-    features: [
-        {
-            type: 'Feature',
-            properties: {
-                title: 'Picklecoin HQ'
-            },
-            geometry: {
-                type: 'Point',
-                coordinates: [-111.845182, 40.767807]
-            }
-        },
-        {
-            type: 'Feature',
-            properties: {
-                title: 'Hogan Park'
-            },
-            geometry: {
-                type: 'Point',
-                coordinates: [-111.901010, 40.874055]
-            }
-        },
-        {
-            type: 'Feature',
-            properties: {
-                title: '11th Avenue Park'
-            },
-            geometry: {
-                type: 'Point',
-                coordinates: [-111.862134, 40.783488]
-            }
-        },
-        {
-            type: 'Feature',
-            properties: {
-                title: '5th Ave & C Street'
-            },
-            geometry: {
-                type: 'Point',
-                coordinates: [-111.880206, 40.774847]
-            }
-        },
-        {
-            type: 'Feature',
-            properties: {
-                title: 'West Bountiful'
-            },
-            geometry: {
-                type: 'Point',
-                coordinates: [-111.901440, 40.895123]
-            }
-        },
-        {
-            type: 'Feature',
-            properties: {
-                title: 'Twin Hollow'
-            },
-            geometry: {
-                type: 'Point',
-                coordinates: [-111.862690, 40.903635]
-            }
-        }
-    ],
-    type: 'FeatureCollection'
-};
-
 function forwardGeocoder(query: string): any[] {
     const matchingFeatures: any[] = [];
-    for (const feature of customData.features) {
-        if (feature.properties.title.toLowerCase().includes(query.toLowerCase())) {
+    let locations: Location[] = Array.from(mapItems.values()).map((mapItem) => {return mapItem.location.value})
+
+    for (const location of locations) {
+        if (location.name.toLowerCase().includes(query.toLowerCase())) {
             const result: any = {
                 type: "Feature",
                 relevance: 1,
                 geometry: {
                     type: 'Point',
-                    coordinates: feature.geometry.coordinates
+                    coordinates: [location.longitude, location.latitude]
                 },
-                place_name: `🎾 ${feature.properties.title}, Bountiful, Utah, United States`
+                place_name: `🎾 ${location.name}, ${location.city_state_country}`,
+                locationId: location.id
             };
             matchingFeatures.push(result);
         }
@@ -310,6 +225,12 @@ function initMap() {
         localGeocoder: forwardGeocoder
     });
 
+    geocoder.on('result', (e) => {
+        const locationId = e.result.locationId;
+        if (locationId)
+            selectMarker(locationId);
+    });
+
     getMap().addControl(geocoder, 'top-left');
     getMap().addControl(new mapboxgl.NavigationControl());
 }
@@ -336,12 +257,11 @@ function initGeoloc() {
     }); // when 'turning on' geolocate finishes / page is loaded anew
 
     if (props.lat && props.lon) { // QR CODE
-        let lonLatLike = new mapboxgl.LngLat(props.lon, props.lat)
-        getMap().setCenter(lonLatLike)
         getNearestLocation(props.lat, props.lon).then((location) => {
             if (location) {
                 addMapItem(location, getMap()) // this IS safe. addIfNotIn(...)
                 selectMarker(location.id)
+                getMap().setCenter(new mapboxgl.LngLat(location.longitude, location.latitude))
             }
         })
 
@@ -410,7 +330,7 @@ onMounted(() => {
     document.querySelector('.mapboxgl-ctrl-logo')?.remove()
     document.querySelector('.mapboxgl-ctrl-bottom-left')?.setAttribute('style', 'transform: scale(0.85);')
     let searchBar = document.querySelector(".mapboxgl-ctrl-top-left")
-    searchBar.setAttribute('style', 'transition: left 0.3s ease') // search bar animation for transition
+    searchBar?.setAttribute('style', 'transition: left 0.3s ease') // search bar animation for transition
 })
 
 onUnmounted(() => {
