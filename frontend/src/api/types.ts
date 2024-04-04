@@ -63,6 +63,15 @@ export interface Location {
   calculated_time: string
 }
 
+export interface ProposedLocation {
+  id: number
+  name: string
+  latitude: number
+  longitude: number
+  court_count: number
+  proposer: RestrictedUser
+}
+
 export interface Report {
     courts_occupied: number,
     number_waiting: number

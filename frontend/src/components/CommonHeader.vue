@@ -58,6 +58,7 @@ function getCurrentUser() { // TODO change to be from @/api/functions
       <RouterLink to="/map" class="nav-bt">MAP</RouterLink>
       <RouterLink to="/matchmaking" class="nav-bt">MATCHMAKING</RouterLink>
       <RouterLink to="/about" class="nav-bt">ABOUT</RouterLink>
+      <RouterLink to="/new-location" class="nav-bt">PROPOSALS</RouterLink>
     </nav>
   </header>
 </template>

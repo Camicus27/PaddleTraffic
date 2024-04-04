@@ -5,6 +5,7 @@ import MapView from '../views/MapView.vue'
 import EventsView from '../views/EventsView.vue'
 import EventFormView from '../views/EventFormView.vue'
 import ProfileView from '../views/ProfileView.vue'
+import ProposalsView from '@/views/ProposalsView.vue'
 
 const router = createRouter({
     history: createWebHistory(),
@@ -23,6 +24,11 @@ const router = createRouter({
             path: '/map',
             name: 'map',
             component: MapView
+        },
+        {
+            path: '/new-location',
+            name: 'new-location',
+            component: ProposalsView
         },
         {
             path: '/matchmaking',

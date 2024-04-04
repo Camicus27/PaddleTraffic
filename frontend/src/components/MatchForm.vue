@@ -70,8 +70,7 @@ function submitForm() {
     eventForm.value.isPublic = matchVisibility.value === 'public'
     axios.post(`${URL}/events/`, { event: eventForm.value })
         .then(response => {
-            // Handle the response here. For example, logging the new location ID.
-            console.log('New event ID:', response.data);
+            console.log('New event:', response.data);
             submittedSuccessfully.value = true;
         })
         .catch(error => {

@@ -70,6 +70,25 @@ class Location(models.Model):
     # def save(self, *args, **kwargs):
     #     self.full_clean()  # Call clean method before saving
     #     super().save(*args, **kwargs)
+    
+"""
+Represents a newly proposed location on the map that
+has courts, like a park or rec center. Identified by a lat/long coordinate.
+"""
+
+
+class ProposedLocation(models.Model):
+    name = models.CharField(max_length=255)
+    latitude = models.DecimalField(
+        max_digits=9, decimal_places=6
+    )  # max_digits can change but we can't not have them
+    longitude = models.DecimalField(max_digits=9, decimal_places=6)
+    court_count = models.IntegerField()
+    proposer = models.ForeignKey(
+        PickleUser, on_delete=models.CASCADE, related_name="proposed_locations", null=False
+    )
+    
+    
 '''
 Represents a match or larger scale event/tournament that can be held at a location.
 Must have a location and host, and many players can sign up to attend.

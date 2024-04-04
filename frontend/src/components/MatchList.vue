@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onActivated, onMounted, type Ref } from 'vue';
-import { getAllUsers, getCurrentUser, getAllEvents, createJoinGame, createLeaveGame } from '@/api/functions';
+import { URL, getAllUsers, getCurrentUser, getAllEvents, createJoinGame, createLeaveGame } from '@/api/functions';
 import type { PickleUser } from '@/api/types';
 
 import CalendarButtonContainer from "@/components/Calendar/CalendarButtonContainer.vue"
@@ -12,15 +12,6 @@ const failedToJoinID = ref(-1)
 const currentUser: Ref<PickleUser | undefined> = ref(undefined)
 const allMatches: Ref<any> = ref([])
 const allPlayers: Ref<Record<number, string>> = ref({});
-
-// TODO change to be @/api/functions
-let URL: string
-// This is the collection of environment variables.
-const env = import.meta.env
-if (env.MODE === 'production')
-  URL = env.VITE_PROD_URL
-else
-  URL = env.VITE_DEV_URL
 
 onMounted(async () => {
   const allUsers = await getAllUsers(URL, true)
@@ -34,15 +25,15 @@ onMounted(async () => {
 
 onActivated(async () => {
   currentUser.value = await getCurrentUser(URL, true)
-  allMatches.value = await getAllEvents(URL, true)
+  allMatches.value = await getAllEvents(true)
   isFetching.value = false
 })
 
 async function tryJoinGame(eventId: number) {
-  didJoin.value = await createJoinGame(eventId, URL, true)
+  didJoin.value = await createJoinGame(eventId, true)
 
   if (didJoin.value) {
-    allMatches.value = await getAllEvents(URL, true)
+    allMatches.value = await getAllEvents(true)
   }
   else {
     failedToJoinID.value = eventId
@@ -51,10 +42,10 @@ async function tryJoinGame(eventId: number) {
 }
 
 async function tryLeaveGame(eventId: number) {
-  didJoin.value = await createLeaveGame(eventId, URL, true)
+  didJoin.value = await createLeaveGame(eventId, true)
 
   if (didJoin.value) {
-    allMatches.value = await getAllEvents(URL, true)
+    allMatches.value = await getAllEvents(true)
   }
   else {
     failedToJoinID.value = eventId

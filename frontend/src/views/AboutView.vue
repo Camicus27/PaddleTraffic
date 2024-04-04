@@ -60,37 +60,24 @@ import CommonHeader from '@/components/CommonHeader.vue';
 </template>
 
 <style scoped lang="scss">
-@use '@/styles/abstracts';
+@use '@/styles/abstracts' as *;
+$mobile-size: 800px;
+
 .about {
     @extend %main-page;
-    width: 55%;
+    width: 60%;
+
+    @include responsive($mobile-size) {
+        width: 90%;
+    }
     p {
         font-size: 1.2rem;
         line-height: 1.5rem;
+
+        @include responsive($mobile-size) {
+            font-size: .85rem;
+            line-height: 1.15rem;
+        }
     }
 }
-// #about-wrapper {
-//     margin-inline: 15%;
-//     width: 80%;
-//     margin-top: 4rem;
-// }
-
-// #about-wrapper p {
-//     font-size: 1.2rem;
-//     line-height: 1.5rem;
-//     color: #333;
-//     text-align: justify;
-//     margin-bottom: 1rem;
-// }
-
-// @media screen and (max-width: 800px) {
-//     #about-wrapper {
-//         margin-inline: .5rem;
-//     }
-
-//     #about-wrapper p {
-//         font-size: 1rem;
-//         line-height: 1.25rem;
-//     }
-// }
 </style>
