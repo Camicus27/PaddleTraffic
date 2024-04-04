@@ -161,7 +161,7 @@ export async function getLocationsByBounds(lat: number, lon: number, logError: b
 
 export async function getLocationsByList(locIdList: number[], logError: boolean = false): Promise<Location[] | undefined> {
     try {
-        const response = await axios.post(`${URL}/locations/list`, {locationIds : locIdList})
+        const response = await axios.post(`${URL}/locations/list`, { locationIds: locIdList })
         if (response.data.locations)
             return response.data.locations as Location[]
     } catch (error) {
@@ -176,7 +176,7 @@ export async function getNearestLocation(lat: number, lon: number, logError: boo
         const response = await axios.get(`${URL}/location/latlon?lat=${lat}&lon=${lon}`)
         if (response.data.location)
             return response.data.location as Location
-    } catch(error) {
+    } catch (error) {
         if (logError)
             console.error(error)
     }
@@ -188,7 +188,7 @@ export async function postLocationReport(locationId: number, reportData: Report,
         const response = await axios.post(`${URL}/locations/${locationId}/report/`, { report: reportData })
         if (response.data.location)
             return response.data.location as Location
-    } catch(error) {
+    } catch (error) {
         if (logError)
             console.error(error)
     }
@@ -303,7 +303,7 @@ export async function getFriendRequestId(id: number, baseUrl: string, logError: 
  */
 export async function createFriendRequest(userId: number, logError: boolean): Promise<boolean> {
     try {
-        await axios.post(`${URL}/friend-requests/${userId}/`)
+        await axios.post(`${URL}/friend-requests/${userId}/`, {})
         return true
     } catch (error) {
         if (logError)
