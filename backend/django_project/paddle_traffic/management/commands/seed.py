@@ -4,6 +4,7 @@ import json
 from datetime import datetime, timedelta, timezone
 import os
 
+# Test Ooga
 class Command(BaseCommand):
     help = 'Creates dummy data in the database. Clears all existing data from the database.'
 
