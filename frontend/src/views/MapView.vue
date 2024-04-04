@@ -64,11 +64,11 @@ function addAllMapItems(locations: Location[], map: mapboxgl.Map) {
 
 // Update the info section with location data
 function selectMarker(locId: number) {
-    if (!mapItems.has(locId)) return
-
     let searchBar = document.querySelector(".mapboxgl-ctrl-top-left")
     let searchBt = document.querySelector("#search-bt")
 
+    if (!mapItems.has(locId)) return
+    
     const selectedClassName = 'selected'
     if (currSelected.value) { // if a marker is selected
         let mapItem = mapItems.get(currSelected.value)
@@ -135,8 +135,14 @@ function refreshMapItemsByCenter() {
         if (currSelected.value) {
             let tmp = currSelected.value
             currSelected.value = undefined
-            if (mapItems.has(tmp)) {
+            if (mapItems.has(tmp)) { // re-select map marker if still in view
                 selectMarker(tmp);
+            }
+            else {
+                let searchBar = document.querySelector(".mapboxgl-ctrl-top-left")
+                let searchBt = document.querySelector("#search-bt")
+                searchBar?.classList.remove("scooch-searchbar")
+                searchBt?.classList.remove("scooch-searchbt")
             }
         }
     })
@@ -227,8 +233,9 @@ function initMap() {
 
     geocoder.on('result', (e) => {
         const locationId = e.result.locationId;
-        if (locationId)
+        if (locationId && locationId !== currSelected.value)
             selectMarker(locationId);
+        refreshMapItemsByCenter()
     });
 
     getMap().addControl(geocoder, 'top-left');
