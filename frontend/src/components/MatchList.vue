@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, onActivated, onMounted, type Ref } from 'vue';
-import { getAllUsers, getCurrentUser, getAllEvents, createJoinGame, createLeaveGame } from '@/api/functions';
+import { URL, getAllUsers, getCurrentUser, getAllEvents, createJoinGame, createLeaveGame } from '@/api/functions';
 import type { PickleUser } from '@/api/types';
 
 import CalendarButtonContainer from "@/components/Calendar/CalendarButtonContainer.vue"
@@ -12,15 +12,6 @@ const failedToJoinID = ref(-1)
 const currentUser: Ref<PickleUser | undefined> = ref(undefined)
 const allMatches: Ref<any> = ref([])
 const allPlayers: Ref<Record<number, string>> = ref({});
-
-// TODO change to be @/api/functions
-let URL: string
-// This is the collection of environment variables.
-const env = import.meta.env
-if (env.MODE === 'production')
-  URL = env.VITE_PROD_URL
-else
-  URL = env.VITE_DEV_URL
 
 onMounted(async () => {
   const allUsers = await getAllUsers(true)
@@ -39,10 +30,10 @@ onActivated(async () => {
 })
 
 async function tryJoinGame(eventId: number) {
-  didJoin.value = await createJoinGame(eventId, URL, true)
+  didJoin.value = await createJoinGame(eventId, true)
 
   if (didJoin.value) {
-    allMatches.value = await getAllEvents(URL, true)
+    allMatches.value = await getAllEvents(true)
   }
   else {
     failedToJoinID.value = eventId
@@ -51,10 +42,10 @@ async function tryJoinGame(eventId: number) {
 }
 
 async function tryLeaveGame(eventId: number) {
-  didJoin.value = await createLeaveGame(eventId, URL, true)
+  didJoin.value = await createLeaveGame(eventId, true)
 
   if (didJoin.value) {
-    allMatches.value = await getAllEvents(URL, true)
+    allMatches.value = await getAllEvents(true)
   }
   else {
     failedToJoinID.value = eventId
@@ -94,12 +85,14 @@ function canLeaveGame(players: number[]) {
   </h3>
   <RouterLink v-else class="dark-solid-button" to="/matchmaking/create-event">Create Your Own Event</RouterLink>
   <div v-if="!isFetching" id="event-list-wrapper">
-    <div class="match p-2" v-for="{ id, name, location, host, players, description, date, time } in allMatches"
-      :key="id">
-      <h2 class="mb-4">
+    <div class="match" v-for="{ id, name, location, host, players, description, date, time, isPublic } in allMatches" :key="id">
+      <h2>
         {{ name }}
       </h2>
-      <p class="host mb-4">
+      <p class="declare-private" v-if="!isPublic">
+        (This is a private event)
+      </p>
+      <p class="host">
         Hosted by <RouterLink class="link" :to="{ path: '/profile/' + allPlayers[host] }">
           {{ allPlayers[host] }}
         </RouterLink>
@@ -151,11 +144,22 @@ function canLeaveGame(players: number[]) {
 
 <style scoped lang="scss">
 @use '../styles/components';
-@use '../styles/abstracts/_colors' as *;
+@use '@/styles/abstracts' as *;
+$mobile-size: 800px;
 
 #event-list-wrapper {
   @extend %main-page;
   width: 60%;
+
+  @include responsive($mobile-size) {
+    width: 90%;
+  }
+}
+
+h3 {
+  @include responsive($mobile-size) {
+    font-size: 1.15rem;
+  }
 }
 
 #error-msg {
@@ -179,32 +183,59 @@ function canLeaveGame(players: number[]) {
 
 .host {
   font-size: 1.25rem;
+
+  @include responsive($mobile-size) {
+    font-size: 1rem;
+  }
 }
 
 .location {
   font-size: 1.1rem;
   margin-bottom: .1rem;
+
+  @include responsive($mobile-size) {
+    font-size: .85rem;
+  }
 }
 
 .date-time {
   font-size: 1.1rem;
   margin-block: .1rem;
+
+  @include responsive($mobile-size) {
+    font-size: .85rem;
+  }
 }
 
 .description {
-  color: #272727
+  color: #272727;
 }
 
 li {
-  font-size: 1.15rem;
   margin-block: .2rem;
 }
 
+.declare-private {
+  display: flex;
+  justify-content: center;
+  margin: 0;
+  color: #272727;
+  font-size: .85rem;
+}
+
 .mb-4 {
-  margin-bottom: 16px;
+  margin-bottom: 1rem;
+
+  @include responsive($mobile-size) {
+    margin-bottom: .5rem;
+  }
 }
 
 .mb-1 {
-  margin-bottom: 4px;
+  margin-bottom: .25rem;
+
+  @include responsive($mobile-size) {
+    margin-bottom: .15rem;
+  }
 }
 </style>

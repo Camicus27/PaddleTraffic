@@ -41,6 +41,8 @@ urlpatterns = [
     path('locations/<int:id>/report/', views.report),
     path('locations/bounds/', views.location_bounds),
     path('location/latlon/', views.location_latlon),
+    path('location/new/', views.location_proposal),
+    path('location/new/<int:id>/', views.location_proposal_id),
     path('locations/list', views.location_list),
     path('events/', views.events),
     path('events/<int:id>/', views.events_id),
