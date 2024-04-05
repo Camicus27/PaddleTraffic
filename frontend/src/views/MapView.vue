@@ -255,14 +255,6 @@ function initGeoloc() {
     })
     getMap().addControl(geolocateControl);
 
-    // change bc mapSearchedCenter
-    geolocateControl.on('geolocate', (e: any) => {
-        // bc it's every time the page loads, probably not this here.
-        // let userLocation = new mapboxgl.LngLat(e.coords.longitude, e.coords.latitude);
-        // mapVal.setCenter(userLocation);
-        console.log(`CENTER ON GEOLOCATE CALLBACK ${getMap().getCenter()}`)
-    }); // when 'turning on' geolocate finishes / page is loaded anew
-
     if (props.lat && props.lon) { // QR CODE
         getNearestLocation(props.lat, props.lon).then((location) => {
             if (location) {
