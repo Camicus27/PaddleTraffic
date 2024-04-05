@@ -64,15 +64,15 @@ function submitForm() {
     <div class="popup">
         <div class="location-info">
             <div class="location-title">
-                <h4>{{ props.location?.value.name }}</h4>
-                <sub>Courts: {{ props.location?.value.court_count }}</sub>
+                <h4 class="my-3">{{ props.location?.value.name }}</h4>
+                <sub class="mb-6">Courts: {{ props.location?.value.court_count }}</sub>
             </div>
             <div class="data-info">
                 <p>Est. Courts Occupied: {{ props.location?.value.courts_occupied }}</p>
                 <p>Est. Groups Waiting: {{ props.location?.value.number_waiting }}</p>
-                <p>Est. Wait: {{ formatTime(props.location?.value.estimated_wait_time ?? 0) }}</p>
+                <p class="mb-2">Est. Wait: {{ formatTime(props.location?.value.estimated_wait_time ?? 0) }}</p>
                 <sub>Last updated {{ formatDateTime(props.location?.value.calculated_time ?? "")}}</sub>
-                <a :href="`https://maps.google.com/?q=${props.location?.value.latitude},${props.location?.value.longitude}`" target="_blank">Get Directions</a>
+                <a class="mt-4" :href="`https://maps.google.com/?q=${props.location?.value.latitude},${props.location?.value.longitude}`" target="_blank">Get Directions</a>
             </div>
         </div>
         <form @submit.prevent="submitForm">

@@ -26,7 +26,7 @@ const isHostPlaying = ref("yes");
 
 
 onMounted(async () => {
-    currentUser.value = await getCurrentUser(URL, true)
+    currentUser.value = await getCurrentUser(true)
     if (!currentUser.value) {
         window.location.href = '/login'
     }
@@ -39,7 +39,7 @@ onMounted(async () => {
 onActivated(async () => {
     submittedSuccessfully.value = false
     clearForm()
-    currentUser.value = await getCurrentUser(URL, true)
+    currentUser.value = await getCurrentUser(true)
     if (!currentUser.value) {
         window.location.href = '/login'
     }

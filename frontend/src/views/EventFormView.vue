@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import CommonHeader from '@/components/CommonHeader.vue';
 import MatchForm from '@/components/MatchForm.vue'
+import CommonHeader from '@/components/CommonHeader.vue';
 </script>
 
 <template>

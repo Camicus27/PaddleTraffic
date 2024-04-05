@@ -73,7 +73,8 @@ def register_view(request):
         # Check if user entered valid username, email, password
         if not username:
             return render(
-                request, "register.html", {"error": "Please enter a valid username"}
+                request, "register.html", {
+                    "error": "Please enter a valid username"}
             )
         if not re.search("[a-zA-Z]", username):
             return render(
@@ -85,13 +86,15 @@ def register_view(request):
             )
         if not password:
             return render(
-                request, "register.html", {"error": "Please enter a valid password"}
+                request, "register.html", {
+                    "error": "Please enter a valid password"}
             )
         if not email or not re.fullmatch(
             r"\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b", email
         ):
             return render(
-                request, "register.html", {"error": "Please enter a valid email"}
+                request, "register.html", {
+                    "error": "Please enter a valid email"}
             )
         # Check if the email is unique
         if email and get_user_model().objects.filter(email=email).exists():
@@ -131,7 +134,8 @@ def login_view(request):
 
         if "" in [username, password]:
             return render(
-                request, "login.html", {"error": "Invalid username and password"}
+                request, "login.html", {
+                    "error": "Invalid username and password"}
             )
 
         user = authenticate(request, username=username, password=password)
@@ -140,7 +144,8 @@ def login_view(request):
             return redirect("/")
         else:  # Failure
             return render(
-                request, "login.html", {"error": "Username and password do not match"}
+                request, "login.html", {
+                    "error": "Username and password do not match"}
             )
     else:
         if request.user.is_authenticated:
@@ -158,6 +163,7 @@ def logout_view(request):
 # Authentication required
 
 
+@csrf_exempt
 def current_user(request):
     def get():
         if not request.user.is_authenticated:
@@ -165,7 +171,23 @@ def current_user(request):
         serializer = ser.UserSerializer(request.user)
         return JsonResponse({"user": serializer.data})
 
-    funs = {"GET": get}
+    def patch(all_data):
+        if not request.user.is_authenticated:
+            return http_unauthorized()
+        data = all_data.get("user", None)
+        if data is None:
+            return http_bad_request_json()
+        if data.get("id") != request.user.id:
+            return http_unauthorized()
+        serializer = ser.UserUpdateSerializer(
+            instance=request.user, data=data)
+        if serializer.is_valid():
+            updated_user = serializer.save()
+        else:
+            return http_bad_request_json()
+        return http_ok_request_json()
+
+    funs = {"GET": get, "PATCH": patch}
     return get_response(request, funs)
 
 
@@ -226,13 +248,15 @@ def users_username(request, username):
 def calculate_exponential(reports, percentage, time_passed):
     # Calculate weights using exponential decay
     values = [r.number_waiting + r.courts_occupied for r in reports]
-    times = [((datetime.now(timezone.utc) - r.submission_time).total_seconds() / 3600) for r in reports]
+    times = [((datetime.now(timezone.utc) -
+              r.submission_time).total_seconds() / 3600) for r in reports]
 
-    lambda_value = -math.log(percentage) / time_passed  # Decay rate for 0.1=e^lambda*6 ln(0.1)/6 = lambda
+    # Decay rate for 0.1=e^lambda*6 ln(0.1)/6 = lambda
+    lambda_value = -math.log(percentage) / time_passed
     weights_exp = [math.exp(-lambda_value * t) for t in times]
-    
+
     weighted_values_exp = [w * v for w, v in zip(weights_exp, values)]
-    
+
     weighted_average_exp = sum(weighted_values_exp) / sum(weights_exp)
     return round(weighted_average_exp)
 
@@ -284,12 +308,13 @@ def report(request, id):
 
         # todo do calculations and set location occupied and waiting
         four_hours_ago = datetime.now(timezone.utc) - timedelta(hours=4)
-        reports_for_calculation = m.Report.objects.filter(location=location).filter(submission_time__gt=four_hours_ago)
-
+        reports_for_calculation = m.Report.objects.filter(
+            location=location).filter(submission_time__gt=four_hours_ago)
 
         percentage = 0.25
-        time_passed = 4 # IN HOURS IT'S SIMPLE WHOOOOOOOOOOOOOO
-        new_total_groups = calculate_exponential(reports_for_calculation, percentage, time_passed)
+        time_passed = 4  # IN HOURS IT'S SIMPLE WHOOOOOOOOOOOOOO
+        new_total_groups = calculate_exponential(
+            reports_for_calculation, percentage, time_passed)
 
         if new_total_groups <= location.court_count:
             location.courts_occupied = new_total_groups
@@ -333,7 +358,7 @@ def location_list(request):
         locations = lazy_decay(locations)
         serializer = ser.LocationSerializer(locations, many=True)
         return JsonResponse({"locations": serializer.data})
-        
+
     funs = {"POST": post}
     return get_response(request, funs)
 
@@ -405,19 +430,20 @@ def lazy_decay(locations):
         total_groups = loc.number_waiting + loc.courts_occupied
         busyness_ratio = (total_groups / loc.court_count)
         SOFTEN_CONSTANT = 4
-        softened_busyness_ratio = (busyness_ratio + SOFTEN_CONSTANT - 1) / SOFTEN_CONSTANT
+        softened_busyness_ratio = (
+            busyness_ratio + SOFTEN_CONSTANT - 1) / SOFTEN_CONSTANT
         stay_time /= softened_busyness_ratio
 
         groups_leaving = math.floor(time_passed.seconds / stay_time)
         if groups_leaving <= 0:
             continue
-        
+
         if loc.number_waiting > 0:
             leftover = groups_leaving - loc.number_waiting
 
             loc.number_waiting = max(loc.number_waiting - groups_leaving, 0)
 
-            if(leftover > 0):
+            if (leftover > 0):
                 loc.courts_occupied = max(loc.courts_occupied - leftover, 0)
             loc = calculate_wait_time(loc)
             loc.calculated_time = current_time
@@ -425,26 +451,29 @@ def lazy_decay(locations):
         elif loc.courts_occupied > 0:
             loc.courts_occupied = max(loc.courts_occupied - groups_leaving, 0)
             loc = calculate_wait_time(loc)
-            loc.calculated_time = current_time        
+            loc.calculated_time = current_time
             loc.save()
     return locations
 
-def calculate_wait_time(location : m.Location):
+
+def calculate_wait_time(location: m.Location):
     # Using
-    # court_count 
+    # court_count
     # courts_occupied
-    # number_waiting 
+    # number_waiting
     # (AVG_GAME_TIME / court_count) * (number_waiting + 1)
     # if total < court_count => 0
-    if(location.number_waiting + location.courts_occupied < location.court_count):
+    if (location.number_waiting + location.courts_occupied < location.court_count):
         location.estimated_wait_time = timedelta(minutes=0)
         return location
 
     AVG_GAME_TIME = 20
-    est_wait_time = (AVG_GAME_TIME / location.court_count) * (location.number_waiting + 1)
+    est_wait_time = (AVG_GAME_TIME / location.court_count) * \
+        (location.number_waiting + 1)
     t_delta = timedelta(minutes=est_wait_time)
     location.estimated_wait_time = t_delta
     return location
+
 
 @csrf_exempt
 def location_latlon(request):
@@ -462,12 +491,12 @@ def location_latlon(request):
         m_locations = get_locations_by_lat_lon(lat, lon)
         m_locations = lazy_decay(m_locations)
         m_location = m_locations.annotate(
-                distance=ExpressionWrapper(
-                    (F('latitude') - lat) ** 2 +
-                    (F('longitude') - lon) ** 2,
-                    output_field=FloatField()
-                )
-            ) \
+            distance=ExpressionWrapper(
+                (F('latitude') - lat) ** 2 +
+                (F('longitude') - lon) ** 2,
+                output_field=FloatField()
+            )
+        ) \
             .order_by('distance').first()
 
         serializer = ser.LocationSerializer(m_location, many=False)
@@ -476,7 +505,6 @@ def location_latlon(request):
 
     funs = {"GET": get}
     return get_response(request, funs)
-    
 
 
 @csrf_exempt
@@ -630,15 +658,16 @@ def friend_requests(request):
 
         # Fetch incoming friend requests where the current user is the receiver
         incoming_requests = m.FriendRequest.objects.filter(
-            receiver=request.user, accepted=False
-        )
-        incoming_serializer = ser.FriendRequestSerializer(incoming_requests, many=True)
+            receiver=request.user)
+        incoming_serializer = ser.FriendRequestSerializer(
+            incoming_requests, many=True)
 
         # Fetch outgoing friend requests where the current user is the requester
         outgoing_requests = m.FriendRequest.objects.filter(
-            requester=request.user, accepted=False
+            requester=request.user
         )
-        outgoing_serializer = ser.FriendRequestSerializer(outgoing_requests, many=True)
+        outgoing_serializer = ser.FriendRequestSerializer(
+            outgoing_requests, many=True)
 
         # Return both lists as JSON
         return JsonResponse(
@@ -691,6 +720,8 @@ def friend_request_id(request: HttpRequest, id):
             return http_not_found(str(id))
         if other_user == request.user:
             return http_bad_argument(f"id: {id} cannot be the same as current user")
+        if id in [f.id for f in request.user.friends.all()]:
+            return http_bad_argument(f"Cannot Send a friend request to a user that you are already friends with")
         m.FriendRequest(
             requester=request.user,
             receiver=other_user,
@@ -741,13 +772,13 @@ def accept_friend_request(request, id):
             friend_request.receiver != request.user
         ):  # A user should not be able to accept a friend request if they are not the receiver
             return http_unauthorized()
-        friend_request.accepted = True
-        friend_request.save()
+        friend_request.delete()
         friend_request.receiver.friends.add(
             friend_request.requester
         )  # Since this field is symmetric, this also adds the receiver as a friend of the requester
         return http_ok(
-            f"Friends {friend_request.receiver} and {friend_request.requester} are now friends"
+            f"Friends {friend_request.receiver} and {
+                friend_request.requester} are now friends"
         )
 
     funs = {"POST": post}
@@ -762,16 +793,18 @@ def events(request):
 
     def get():
         m_events = None
-        
+
         # Public events & private events the user is participating in
         if request.user.is_authenticated:
-            user_events = m.Event.objects.filter(django_model.Q(host=request.user) | django_model.Q(players=request.user))
-            m_events = m.Event.objects.filter(django_model.Q(isPublic=True) | django_model.Q(id__in=user_events))
-        
+            user_events = m.Event.objects.filter(django_model.Q(
+                host=request.user) | django_model.Q(players=request.user))
+            m_events = m.Event.objects.filter(django_model.Q(
+                isPublic=True) | django_model.Q(id__in=user_events))
+
         # No logged in user, only public events
         else:
             m_events = m.Event.objects.filter(isPublic=True)
-            
+
         serializer = ser.EventSerializer(m_events, many=True)
         return JsonResponse({"events": serializer.data})
 
@@ -806,32 +839,32 @@ def events_id(request, id):
         serializer = ser.EventSerializer(instance=m_event, many=False)
         # return the json formatted as an HTTP response
         return JsonResponse({"event": serializer.data})
-    
+
     """
     This is the endpoint to create a new join event request.
     """
-    
+
     def post(data):
         if not request.user.is_authenticated:
             return http_unauthorized()
-        
+
         # Get the event and verify it exists
         m_event = try_get_instance(m.Event, id)
         if m_event is None:
             return http_not_found(f"Event was not found ({str(id)}).")
-        
+
         isJoining = data.get("joining")
         if isJoining is None:
             return HttpResponse(
                 "Invalid JSON data", status=400, content_type="text/plain"
             )
-        
+
         # Joining an event
         if isJoining:
             # Verify the user is not already in the event
             if m_event.players.filter(id=request.user.id).exists():
                 return http_bad_argument(f"User already is participating in event ({str(id)}).")
-            
+
             # Add player to event and save
             try:
                 m_event.players.add(request.user)
@@ -844,7 +877,7 @@ def events_id(request, id):
             # Verify the user is not already not in the event
             if not m_event.players.filter(id=request.user.id).exists():
                 return http_bad_argument(f"User is already not participating in event ({str(id)}).")
-            
+
             # Remove player from event and save
             try:
                 m_event.players.remove(request.user)
@@ -852,7 +885,7 @@ def events_id(request, id):
                 return http_ok(f"User removed from event ({str(id)}) successfully.")
             except:
                 return http_bad_argument(f"Error removing user from event ({str(id)}).")
-        
+
     def patch(data):
         existing_event = try_get_instance(m.Event, id)
         if existing_event is None:

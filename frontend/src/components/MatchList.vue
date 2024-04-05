@@ -14,7 +14,7 @@ const allMatches: Ref<any> = ref([])
 const allPlayers: Ref<Record<number, string>> = ref({});
 
 onMounted(async () => {
-  const allUsers = await getAllUsers(URL, true)
+  const allUsers = await getAllUsers(true)
 
   if (allUsers) {
     allUsers.forEach(player => {
@@ -24,8 +24,8 @@ onMounted(async () => {
 })
 
 onActivated(async () => {
-  currentUser.value = await getCurrentUser(URL, true)
-  allMatches.value = await getAllEvents(true)
+  currentUser.value = await getCurrentUser(true)
+  allMatches.value = await getAllEvents(URL, true)
   isFetching.value = false
 })
 
@@ -102,16 +102,16 @@ function canLeaveGame(players: number[]) {
           :to="{ path: '/map/', query: { lat: location.latitude, lon: location.longitude } }"><strong>{{ location.name
             }}</strong></RouterLink>
       </p>
-      <p class="date-time">
+      <p class="date-time mb-4">
         on <strong>{{ date }}</strong> at <strong>{{ time }}</strong>
       </p>
-      <p class="description">
+      <p class="description mb-3">
         {{ description }}
       </p>
-      <hr />
-      <div class="players">
-        <h3>Attending Players:</h3>
-        <ul>
+      <hr class="mb-4" />
+      <div class="players mb-4">
+        <h3 class="mb-4">Attending Players:</h3>
+        <ul class="m-4 ml-10">
           <li v-for="playerId in players" :key="playerId">
             <RouterLink class="link" v-if="currentUser?.id != playerId"
               :to="{ path: '/profile/' + allPlayers[playerId] }">

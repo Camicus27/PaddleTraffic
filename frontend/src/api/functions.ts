@@ -19,9 +19,9 @@ export const URL = _URL
  * @param logError Whether or not the error should be printed, if one occurs.
  * @returns a PickleUser object if the request is successful; undefined otherwise
  */
-export async function getCurrentUser(baseUrl: string, logError: boolean): Promise<PickleUser | undefined> {
+export async function getCurrentUser(logError: boolean): Promise<PickleUser | undefined> {
     try {
-        const response = await axios.get(`${baseUrl}/current-user/`)
+        const response = await axios.get(`${URL}/current-user/`)
         if (response.data.user)
             return response.data.user as PickleUser
     } catch (error) {
@@ -32,14 +32,31 @@ export async function getCurrentUser(baseUrl: string, logError: boolean): Promis
 }
 
 /**
+ * This function fetches the information of the currently authenticated user.
+ * @param userData The updated user object.
+ * @param logError Whether or not the error should be printed, if one occurs.
+ * @returns a PickleUser object if the request is successful; undefined otherwise
+ */
+export async function updateCurrentUser(userData: PickleUser, logError: boolean): Promise<boolean> {
+    try {
+        await axios.patch(`${URL}/current-user/`, { user: userData })
+        return true
+    } catch (error) {
+        if (logError)
+            console.error(error)
+        return false
+    }
+}
+
+/**
  * This function fetches all users from the server.
  * @param baseUrl The base URL for the HTTP request.
  * @param logError Whether or not the error should be printed, if one occurs.
  * @returns An array of RestrictedUser objects if the request is successful; undefined otherwise.
  */
-export async function getAllUsers(baseUrl: string, logError: boolean): Promise<Array<RestrictedUser> | undefined> {
+export async function getAllUsers(logError: boolean): Promise<Array<RestrictedUser> | undefined> {
     try {
-        const response = await axios.get(`${baseUrl}/users/`)
+        const response = await axios.get(`${URL}/users/`)
         if (response.data.users)
             return response.data.users as Array<RestrictedUser>
     } catch (error) {
@@ -75,9 +92,9 @@ export async function getUserId(id: number, baseUrl: string, logError: boolean):
  * @param logError Whether or not the error should be printed, if one occurs.
  * @returns A RestrictedUser object if the request is successful; undefined otherwise.
  */
-export async function getUserUsername(username: string, baseUrl: string, logError: boolean): Promise<RestrictedUser | undefined> {
+export async function getUserUsername(username: string, logError: boolean): Promise<RestrictedUser | undefined> {
     try {
-        const response = await axios.get(`${baseUrl}/users/${username}/`)
+        const response = await axios.get(`${URL}/users/${username}`)
         if (response.data.user)
             return response.data.user as RestrictedUser
     } catch (error) {
@@ -144,7 +161,7 @@ export async function getLocationsByBounds(lat: number, lon: number, logError: b
 
 export async function getLocationsByList(locIdList: number[], logError: boolean = false): Promise<Location[] | undefined> {
     try {
-        const response = await axios.post(`${URL}/locations/list`, {locationIds : locIdList})
+        const response = await axios.post(`${URL}/locations/list`, { locationIds: locIdList })
         if (response.data.locations)
             return response.data.locations as Location[]
     } catch (error) {
@@ -159,7 +176,7 @@ export async function getNearestLocation(lat: number, lon: number, logError: boo
         const response = await axios.get(`${URL}/location/latlon?lat=${lat}&lon=${lon}`)
         if (response.data.location)
             return response.data.location as Location
-    } catch(error) {
+    } catch (error) {
         if (logError)
             console.error(error)
     }
@@ -171,7 +188,7 @@ export async function postLocationReport(locationId: number, reportData: Report,
         const response = await axios.post(`${URL}/locations/${locationId}/report/`, { report: reportData })
         if (response.data.location)
             return response.data.location as Location
-    } catch(error) {
+    } catch (error) {
         if (logError)
             console.error(error)
     }
@@ -277,9 +294,9 @@ export async function createLeaveGame(eventId: number, logError: boolean): Promi
  * @param logError Whether or not the error should be printed, if one occurs.
  * @returns A PendingFriendRequests object if the request is successful; undefined otherwise.
  */
-export async function getFriendRequests(baseUrl: string, logError: boolean): Promise<PendingFriendRequests | undefined> {
+export async function getFriendRequests(logError: boolean): Promise<PendingFriendRequests | undefined> {
     try {
-        const response = await axios.get(`${baseUrl}/friend-requests/`, { withCredentials: true })
+        const response = await axios.get(`${URL}/friend-requests/`, { withCredentials: true })
         return response.data as PendingFriendRequests
     } catch (error) {
         if (logError)
@@ -316,9 +333,9 @@ export async function getFriendRequestId(id: number, baseUrl: string, logError: 
  * @param logError Whether or not the error should be printed, if one occurs.
  * @returns True if the request is successful; false otherwise.
  */
-export async function createFriendRequest(userId: number, baseUrl: string, logError: boolean): Promise<boolean> {
+export async function createFriendRequest(userId: number, logError: boolean): Promise<boolean> {
     try {
-        await axios.post(`${baseUrl}/friend-requests/${userId}/`)
+        await axios.post(`${URL}/friend-requests/${userId}/`, {})
         return true
     } catch (error) {
         if (logError)
@@ -335,9 +352,9 @@ export async function createFriendRequest(userId: number, baseUrl: string, logEr
  * @param logError Whether or not the error should be printed, if one occurs.
  * @returns True if the request is successful; false otherwise.
  */
-export async function deleteFriendRequest(id: number, baseUrl: string, logError: boolean): Promise<boolean> {
+export async function deleteFriendRequest(id: number, logError: boolean): Promise<boolean> {
     try {
-        await axios.delete(`${baseUrl}/friend-requests/${id}/`)
+        await axios.delete(`${URL}/friend-requests/${id}/`)
         return true
     } catch (error) {
         if (logError)
@@ -354,9 +371,9 @@ export async function deleteFriendRequest(id: number, baseUrl: string, logError:
  * @param logError Whether or not the error should be printed, if one occurs.
  * @returns True if the request is successful; false otherwise.
  */
-export async function acceptFriendRequest(id: number, baseUrl: string, logError: boolean): Promise<boolean> {
+export async function acceptFriendRequest(id: number, logError: boolean): Promise<boolean> {
     try {
-        await axios.post(`${baseUrl}/friend-requests/accept/${id}/`)
+        await axios.post(`${URL}/friend-requests/accept/${id}/`, {})
         return true
     } catch (error) {
         if (logError)
