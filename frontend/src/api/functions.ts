@@ -94,7 +94,7 @@ export async function getUserId(id: number, baseUrl: string, logError: boolean):
  */
 export async function getUserUsername(username: string, logError: boolean): Promise<RestrictedUser | undefined> {
     try {
-        const response = await axios.get(`${URL}/users/${username}/`)
+        const response = await axios.get(`${URL}/users/${username}`)
         if (response.data.user)
             return response.data.user as RestrictedUser
     } catch (error) {
