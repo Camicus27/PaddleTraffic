@@ -16,6 +16,9 @@ const locForm: Ref<Report> = ref({
 })
 
 const submitDataDisabled = ref<boolean>(false)
+const dialog = ref<boolean>(false)
+const success_snackbar = ref<boolean>(false)
+const outofrange_snackbar = ref<boolean>(false)
 
 function pluralize(word: string, num: number): string {
     if (num != 1) {
@@ -44,20 +47,26 @@ function formatDateTime(dateTimeString: string): string {
 }
 
 const navigatorSuccessCallback = (position: GeolocationPosition, location: Ref<Location>) => {
-    console.log("Location callback running")
     postLocationReport(
         location.value.id,
         locForm.value,
         position.coords.latitude,
         position.coords.longitude)
-        .then((l) => {
-            console.log("report callback")
-            if (l) {
-                location.value = l
-                props.onSubmitCallback(location.value.id)
+        .then(
+            (l) => {
+                if (l) {
+                    location.value = l
+                    props.onSubmitCallback(location.value.id)
+                    success_snackbar.value = true
+                } else {
+                    outofrange_snackbar.value = true
+                }
             }
-        }
         )
+}
+
+const navigatorFailCallback = () => {
+    dialog.value = true
 }
 
 function submitForm() {
@@ -78,11 +87,11 @@ function submitForm() {
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
             (position) => navigatorSuccessCallback(position, location),
-            () => { console.log("LMAO WHAT THE FRICCKKK 🍳🐛🍳🐛💀💀💀💀💀") },
+            () => navigatorFailCallback(), // geolocation NOT ENABLED
             options
         )
     } else {
-        // do the thing
+        navigatorFailCallback() // geolocation NOT ENABLED
     }
 
 }
@@ -117,6 +126,28 @@ function submitForm() {
                     :max="(locForm.courts_occupied < (props.location?.value.court_count ?? 0)) ? 0 : 10"
                     v-model="locForm.number_waiting" required>
             </div>
+
+            <v-dialog v-model="dialog" persistent max-width="290">
+                <v-card>
+                    <v-card-title class="headline">Location Required</v-card-title>
+                    <v-card-text>
+                        This service requires access to your location. Please enable location services in your browser
+                        settings.
+                    </v-card-text>
+                    <v-card-actions>
+                        <v-btn @click="dialog = false">OK</v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
+
+            <v-snackbar :timeout="1500" v-model="success_snackbar">
+                Report Successfully Sent
+            </v-snackbar>
+
+            <v-snackbar :timeout="1500" v-model="outofrange_snackbar">
+                You are too far from the court to submit a report
+            </v-snackbar>
+
             <button :disabled="submitDataDisabled">
                 Update Status
             </button>
