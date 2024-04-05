@@ -82,8 +82,14 @@ async function getCurrentUserOrRedirect() {
 }
 
 async function updateFriendState() {
-    myUser.value = await getCurrentUserOrRedirect()
-    pendingRequests.value = await getFriendRequestsOrEmpty()
+    if (!myUser)
+        myUser = ref(await getCurrentUserOrRedirect())
+    else
+        myUser.value = await getCurrentUserOrRedirect()
+    if (!pendingRequests)
+        pendingRequests = ref(await getFriendRequestsOrEmpty())
+    else
+        pendingRequests.value = await getFriendRequestsOrEmpty()
     filteredUserList.value = getUpdatedFilteredUserList()
 }
 
@@ -174,7 +180,7 @@ function getUpdatedFilteredUserList() {
 
                         <p class="text-subtitle-1 text--primary px-md-16 w-100"
                             style="height: 100px; align-self: flex-start;">{{
-        myUser.bio }}</p>
+                            myUser.bio }}</p>
                     </v-card-text>
                     <v-card-actions>
                         <v-btn color="#4b5320" variant="text" @click="revealBio = true">
@@ -241,7 +247,8 @@ function getUpdatedFilteredUserList() {
                     <v-card-text class="d-flex flex-column">
                         <div class="statistics">
                             <h2 class="align-self-center">Match Statistics</h2>
-                            <p class="text-h6 text--primary">Matches Attended: <span>{{ myUser.matches_attended }}</span></p>
+                            <p class="text-h6 text--primary">Matches Attended: <span>{{ myUser.matches_attended
+                                    }}</span></p>
                             <p class="text-h6 text--primary">Matches Created: <span>{{ myUser.matches_created }}</span>
                             </p>
                         </div>
@@ -262,8 +269,8 @@ function getUpdatedFilteredUserList() {
                             <v-list-item v-for="incoming in pendingRequests.incoming_requests" :key="incoming.id">
                                 <v-list-item-title>
                                     <a class="user-link" :href="`/profile/${incoming.requester.username}`">{{
-        incoming.requester.username
-    }}</a>
+                                        incoming.requester.username
+                                        }}</a>
                                 </v-list-item-title>
                                 <template v-slot:append>
                                     <v-btn icon="mdi-check" variant="text"
@@ -279,8 +286,8 @@ function getUpdatedFilteredUserList() {
                             <v-list-item v-for="outgoing in pendingRequests.outgoing_requests" :key="outgoing.id">
                                 <v-list-item-title>
                                     <a class="user-link" :href="`/profile/${outgoing.receiver.username}`">{{
-        outgoing.receiver.username
-    }}</a>
+                                        outgoing.receiver.username
+                                        }}</a>
                                 </v-list-item-title>
                                 <template v-slot:append>
                                     <v-btn icon="mdi-close" variant="text"
@@ -339,8 +346,8 @@ function getUpdatedFilteredUserList() {
                                         <v-btn color="#4b5320" variant="text"
                                             @click="revealAddFriends = false">Cancel</v-btn>
                                         <v-btn color="#4b5320" variant="text"
-                                            @click="{createAllFriendRequests(); revealAddFriends = false}">{{
-                                            friendReqButtonText }}</v-btn>
+                                            @click="{ createAllFriendRequests(); revealAddFriends = false }">{{
+                                                friendReqButtonText }}</v-btn>
                                     </v-card-actions>
                                 </div>
                             </v-card-text>
