@@ -10,7 +10,7 @@ import type { PickleUser } from '@/api/types';
 const currentUser: Ref<PickleUser | undefined> = ref(undefined)
 
 onActivated(async () => {
-    currentUser.value = await getCurrentUser(URL, true)
+    currentUser.value = await getCurrentUser(true)
 })
 </script>
 

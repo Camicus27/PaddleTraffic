@@ -17,7 +17,7 @@ const newLocationForm = ref({
 })
 
 onMounted(async () => {
-    currentUser.value = await getCurrentUser(URL, true)
+    currentUser.value = await getCurrentUser(true)
 })
 
 onActivated(async () => {

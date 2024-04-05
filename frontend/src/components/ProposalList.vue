@@ -12,9 +12,9 @@ const allProposals: Ref<any> = ref([])
 const allPlayers: Ref<Record<number, string>> = ref({});
 
 onMounted(async () => {
-  currentUser.value = await getCurrentUser(URL, true)
+  currentUser.value = await getCurrentUser(true)
 
-  const allUsers = await getAllUsers(URL, true)
+  const allUsers = await getAllUsers(true)
 
   if (allUsers) {
     allUsers.forEach(player => {
@@ -28,7 +28,7 @@ onMounted(async () => {
 
 onActivated(async () => {
   isFetching.value = true
-  currentUser.value = await getCurrentUser(URL, true)
+  currentUser.value = await getCurrentUser(true)
 
   // if (!currentUser.value || !currentUser.value.groups.includes('Basic')) {
   //   window.location.href = "/login"
