@@ -273,8 +273,8 @@ def verify_location(lat, lon, location):
     court_lon = location.longitude
     distance_to_location = math.sqrt(
         (lat - float(court_lat)) ** 2 + (lon - float(court_lon)) ** 2)
-    # 0.5 miles in lat/lon coords (at equator lol)
-    VERIFICATION_DISTANCE = 0.00725 * 4
+    # 0.00725 is 0.5 miles in lat/lon coords (at equator lol)
+    VERIFICATION_DISTANCE = 0.00725 * 4  # TODO: Decrease dist to realistic value
     return distance_to_location < VERIFICATION_DISTANCE
 
 
