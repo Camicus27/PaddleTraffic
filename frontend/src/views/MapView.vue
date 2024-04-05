@@ -178,7 +178,7 @@ else
 // TODO: Remove and add backend endpoint to get ALL location names & coords & address ORRRR figure out backend search
 function forwardGeocoder(query: string): any[] {
     const matchingFeatures: any[] = [];
-    let locations: Location[] = Array.from(mapItems.values()).map((mapItem) => {return mapItem.location.value})
+    let locations: Location[] = Array.from(mapItems.values()).map(mapItem => mapItem.location.value)
 
     for (const location of locations) {
         if (location.name.toLowerCase().includes(query.toLowerCase())) {

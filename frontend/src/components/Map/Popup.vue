@@ -38,25 +38,53 @@ function formatTime(timeNum: number): string {
     return formattedString
 }
 
-function formatDateTime(dateTimeString: string) : string {
+function formatDateTime(dateTimeString: string): string {
     const reportDate = new Date(dateTimeString)
-    return formatDistanceToNow(reportDate, {addSuffix: true})
+    return formatDistanceToNow(reportDate, { addSuffix: true })
+}
+
+const navigatorSuccessCallback = (position: GeolocationPosition, location: Ref<Location>) => {
+    console.log("Location callback running")
+    postLocationReport(
+        location.value.id,
+        locForm.value,
+        position.coords.latitude,
+        position.coords.longitude)
+        .then((l) => {
+            console.log("report callback")
+            if (l) {
+                location.value = l
+                props.onSubmitCallback(location.value.id)
+            }
+        }
+        )
 }
 
 function submitForm() {
-    if (!props.location) return
+    let location = props.location
+    if (!location) return
     // timeout the button
     submitDataDisabled.value = true
     setTimeout(() => {
         submitDataDisabled.value = false
     }, 3000)
-    console.log(`calculated time booga: ${props.location.value.calculated_time}`)
-    postLocationReport(props.location.value.id, locForm.value).then((l) => {
-        if (props.location) {
-            if (l) props.location.value = l
-            props.onSubmitCallback(props.location?.value.id)
-        }
-    })
+
+    var options = {
+        enableHighAccuracy: true,
+        timeout: 5000,
+        maximumAge: 1000 * 60 * 5 // 5 mins in ms
+    }
+
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            (position) => navigatorSuccessCallback(position, location),
+            () => { console.log("LMAO WHAT THE FRICCKKK 🍳🐛🍳🐛💀💀💀💀💀") },
+            options
+        )
+    } else {
+        // do the thing
+    }
+
 }
 </script>
 
@@ -71,8 +99,10 @@ function submitForm() {
                 <p>Est. Courts Occupied: {{ props.location?.value.courts_occupied }}</p>
                 <p>Est. Groups Waiting: {{ props.location?.value.number_waiting }}</p>
                 <p class="mb-2">Est. Wait: {{ formatTime(props.location?.value.estimated_wait_time ?? 0) }}</p>
-                <sub>Last updated {{ formatDateTime(props.location?.value.calculated_time ?? "")}}</sub>
-                <a class="mt-4" :href="`https://maps.google.com/?q=${props.location?.value.latitude},${props.location?.value.longitude}`" target="_blank">Get Directions</a>
+                <sub>Last updated {{ formatDateTime(props.location?.value.calculated_time ?? "") }}</sub>
+                <a class="mt-4"
+                    :href="`https://maps.google.com/?q=${props.location?.value.latitude},${props.location?.value.longitude}`"
+                    target="_blank">Get Directions</a>
             </div>
         </div>
         <form @submit.prevent="submitForm">
@@ -212,7 +242,7 @@ form {
     background-color: #dddddd;
     flex-grow: 1;
     flex-basis: 50%;
-    width:auto;
+    width: auto;
     border-radius: 0;
 }
 
