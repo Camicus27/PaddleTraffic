@@ -21,7 +21,7 @@ class Command(BaseCommand):
         administrator = PickleUser.objects.create_superuser("PaddleTrafficCEO", "pickle.coin.ceo@paddletraffic.net", "picklers4life")
         
         organizer1 = PickleUser.objects.create_user("pickle_gym1", "organizer1@paddletraffic.net", "a1")
-        organizer2 = PickleUser.objects.create_user("community_organizer39", "organizer2@paddletraffic.net", "a2")
+        organizer2 = PickleUser.objects.create_user("organizer39", "organizer2@paddletraffic.net", "a2")
         event_organizers.user_set.add(organizer1, organizer2)
 
         p1 = PickleUser.objects.create_user("jim4500", "p1@paddletraffic.net", "p1")
@@ -46,6 +46,17 @@ class Command(BaseCommand):
                     city_state_country = loc['city_state_country']
                 )
 
+        paddleTraffic = Location.objects.create(
+            name="PaddleTraffic Demo Day",
+            latitude=40.765993,
+            longitude=-111.843702,
+            court_count=12,
+            courts_occupied=0,
+            number_waiting=0,
+            estimated_wait_time=timezone.timedelta(minutes=0),
+            calculated_time = timezone.now()
+        )
+
         """
          = Location.objects.create(
             name="",
@@ -69,16 +80,16 @@ class Command(BaseCommand):
         #     isPublic=True
         # )
         # match1.players.add(organizer1, p3)
-        # match2 = Event.objects.create(
-        #     name="PaddleTraffic Charity Event",
-        #     description="Raising money to fund the extended development of PaddleTraffic!",
-        #     location=picklecoin_hq,
-        #     host=administrator,
-        #     date=timezone.now().date(),
-        #     time=timezone.now().time(),
-        #     isPublic=True
-        # )
-        # match2.players.add(p1, p2)
+        match1 = Event.objects.create(
+            name="PaddleTraffic Charity Event",
+            description="Raising money to fund the extended development of PaddleTraffic!",
+            location=picklecoin_hq,
+            host=administrator,
+            date=timezone.now().date(),
+            time=timezone.now().time(),
+            isPublic=True
+        )
+        match1.players.add(p1, p2)
 
 
         '''
