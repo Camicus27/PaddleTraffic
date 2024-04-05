@@ -1,5 +1,5 @@
 import axios from 'axios'
-import type { FriendRequest, Location, PendingFriendRequests, PickleUser, RestrictedUser, Report } from './types'
+import type { FriendRequest, Location, ProposedLocation, PendingFriendRequests, PickleUser, RestrictedUser, Report } from './types'
 
 let _URL: string
 // This is the collection of environment variables.
@@ -178,17 +178,51 @@ export async function postLocationReport(locationId: number, reportData: Report,
     return undefined
 }
 
+export async function getAllProposals(logError: boolean = false): Promise<Array<ProposedLocation> | undefined> {
+    try {
+        const response = await axios.get(`${URL}/location/new/`)
+        if (response.data.new_locations)
+            return response.data.new_locations as Array<ProposedLocation>
+    } catch (error) {
+        if (logError)
+            console.error(error)
+    }
+    return undefined
+}
+
+export async function createApproveLocation(proposalID: number, locationChanges: ProposedLocation | undefined, logError: boolean): Promise<boolean> {
+    try {
+        await axios.post(`${URL}/location/new/${proposalID}/`, { location: locationChanges }, { withCredentials: true })
+        return true
+    } catch (error) {
+        if (logError)
+            console.error(error)
+        return false
+    }
+}
+
+export async function createDenyLocation(proposalID: number, logError: boolean): Promise<boolean> {
+    try {
+        await axios.delete(`${URL}/location/new/${proposalID}/`, { withCredentials: true })
+        return true
+    } catch (error) {
+        if (logError)
+            console.error(error)
+        return false
+    }
+}
+
+
 // EVENT FUNCTIONS //
 
 /**
  * This function fetches all available events from the server.
- * @param baseUrl The base URL for the HTTP request.
  * @param logError Whether or not the error should be printed, if one occurs.
  * @returns An array of Event objects if the request is successful; undefined otherwise.
  */
-export async function getAllEvents(baseUrl: string, logError: boolean): Promise<Array<Event> | undefined> {
+export async function getAllEvents(logError: boolean): Promise<Array<Event> | undefined> {
     try {
-        const response = await axios.get(`${baseUrl}/events/`)
+        const response = await axios.get(`${URL}/events/`)
         if (response.data.events)
             return response.data.events.reverse() as Array<Event>
     } catch (error) {
@@ -202,13 +236,12 @@ export async function getAllEvents(baseUrl: string, logError: boolean): Promise<
 /**
  * This function creates a join event request from the currently authenticated user to the event with eventId.
  * @param eventId The ID of the event that will receive the join request.
- * @param baseUrl The base URL for the HTTP request.
  * @param logError Whether or not the error should be printed, if one occurs.
  * @returns True if the request is successful; false otherwise.
  */
-export async function createJoinGame(eventId: number, baseUrl: string, logError: boolean): Promise<boolean> {
+export async function createJoinGame(eventId: number, logError: boolean): Promise<boolean> {
     try {
-        await axios.post(`${baseUrl}/events/${eventId}/`, { joining: true }, { withCredentials: true })
+        await axios.post(`${URL}/events/${eventId}/`, { joining: true }, { withCredentials: true })
         return true
     } catch (error) {
         if (logError)
@@ -221,13 +254,12 @@ export async function createJoinGame(eventId: number, baseUrl: string, logError:
 /**
  * This function creates a leave event request from the currently authenticated user to the event with eventId.
  * @param eventId The ID of the event that will receive the leave request.
- * @param baseUrl The base URL for the HTTP request.
  * @param logError Whether or not the error should be printed, if one occurs.
  * @returns True if the request is successful; false otherwise.
  */
-export async function createLeaveGame(eventId: number, baseUrl: string, logError: boolean): Promise<boolean> {
+export async function createLeaveGame(eventId: number, logError: boolean): Promise<boolean> {
     try {
-        await axios.post(`${baseUrl}/events/${eventId}/`, { joining: false }, { withCredentials: true })
+        await axios.post(`${URL}/events/${eventId}/`, { joining: false }, { withCredentials: true })
         return true
     } catch (error) {
         if (logError)

@@ -113,8 +113,8 @@ class GroupUpdateSerializer(serializers.ModelSerializer):
 
 class LocationSerializer(serializers.ModelSerializer):
     class Meta:  # Serializers just return a Meta class
-        model = Location  # which hold the class as the type of the model
-        fields = [  # and fields of said model
+        model = Location
+        fields = [
             "id",
             "name",
             "latitude",
@@ -126,7 +126,7 @@ class LocationSerializer(serializers.ModelSerializer):
             "calculated_time",
             "city_state_country"
         ]
-
+        
 
 class LocationUpdateSerializer(serializers.ModelSerializer):
     class Meta:
@@ -139,17 +139,54 @@ class LocationUpdateSerializer(serializers.ModelSerializer):
             "courts_occupied",
             "number_waiting",
             "estimated_wait_time",
+            "calculated_time"
         ]
-        # Make certain fields optional for updates
         extra_kwargs = {
-            "name": {"required": False},
-            "latitude": {"required": False},
-            "longitude": {"required": False},
-            "court_count": {"required": False},
+            "name": {"required": True},
+            "latitude": {"required": True},
+            "longitude": {"required": True},
+            "court_count": {"required": True},
             "courts_occupied": {"required": False},
             "number_waiting": {"required": False},
             "estimated_wait_time": {"required": False},
+            "calculated_time": {"required": False},
         }
+        
+        
+class LocationProposalSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProposedLocation
+        fields = [
+            "id",
+            "name",
+            "latitude",
+            "longitude",
+            "court_count",
+            "proposer",
+        ]
+
+
+class LocationProposalCreationSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ProposedLocation
+        fields = [
+            "name",
+            "latitude",
+            "longitude",
+            "court_count",
+            "proposer",
+        ]
+        # Make certain fields optional for updates
+        extra_kwargs = {
+            "name": {"required": True},
+            "latitude": {"required": True},
+            "longitude": {"required": True},
+            "court_count": {"required": True},
+            "proposer": {"required": True},
+        }
+        
+        
+
 
 
 """

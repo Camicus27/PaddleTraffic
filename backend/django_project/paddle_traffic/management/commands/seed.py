@@ -15,8 +15,8 @@ class Command(BaseCommand):
         Group.objects.all().delete()
 
         # Predefined lists of names
-        event_organizers, _ = Group.objects.get_or_create(name='Event Organizers')
-        players, _ = Group.objects.get_or_create(name='Players')
+        event_organizers, _ = Group.objects.get_or_create(name='Organizers')
+        players, _ = Group.objects.get_or_create(name='Basic')
 
         administrator = PickleUser.objects.create_superuser("PaddleTrafficCEO", "pickle.coin.ceo@paddletraffic.net", "picklers4life")
         

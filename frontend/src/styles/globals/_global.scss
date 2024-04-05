@@ -1,4 +1,5 @@
 @use '../abstracts' as *;
+$mobile-size: 800px;
 
 * {
   font-family: 'Open Sans', sans-serif;
@@ -25,10 +26,21 @@ h1 {
   font-size: 2.75rem;
   line-height: 3rem;
   color: $pickle-500;
+  text-align: center;
+
+  @include responsive($mobile-size) {
+    margin-bottom: .25rem;
+    font-size: 2rem;
+    line-height: 2.25rem;
+  }
 }
 
 header p {
   font-size: 1.5rem;
+
+  @include responsive($mobile-size) {
+    font-size: 1.2rem;
+  }
 }
 
 h2 {
@@ -37,24 +49,17 @@ h2 {
   font-size: 2rem;
   line-height: 2.5rem;
   margin-block: .33rem;
-}
 
-
-@media screen and (max-width: 800px) {
-  /* Global general styles -----------------------------------------------------------------------------------------------------*/
-  .main-wrapper h1 {
-    margin-bottom: .25rem;
-    font-size: 2rem;
-    line-height: 2.25rem;
-  }
-
-  .main-wrapper header p {
-    font-size: 1rem;
-  }
-
-  .main-wrapper h2 {
+  @include responsive($mobile-size) {
     font-size: 1.33rem;
     line-height: 1.5rem;
     margin-block: .25rem;
+  }
+}
+
+p {
+  @include responsive($mobile-size) {
+    font-size: 0.85rem;
+    line-height: 1.1rem;
   }
 }

@@ -12,7 +12,8 @@ import MatchList from '@/components/MatchList.vue'
 </template>
 
 <style scoped lang="scss">
-@use '@/styles/abstracts';
+@use '@/styles/abstracts' as *;
+$mobile-size: 800px;
 
 h1 {
   margin-bottom: 1.5rem;
@@ -21,17 +22,9 @@ h1 {
 #matchmaking-wrapper {
   @extend %main-page;
   width: 85%;
+
+  @include responsive($mobile-size) {
+    width: 90%;
+  }
 }
-
-// /* Media query for narrower screens */
-// @media only screen and (max-width: 850px) {
-//     #match-wrapper #event-form-wrapper {
-//         width: 100%;
-//     }
-
-//     #match-wrapper {
-//         margin: .75rem;
-//         width: 85%;
-//     } 
-// } 
 </style>
