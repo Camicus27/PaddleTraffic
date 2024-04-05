@@ -808,16 +808,29 @@ def events(request):
         return JsonResponse({"events": serializer.data})
 
     def post(all_data):
+        if not request.user.is_authenticated:
+            return http_unauthorized()
+
         data = all_data.get("event", None)
         if data is None:
             return http_bad_request_json()
+        
         serializer = ser.EventUpdateSerializer(data=data)
         if not serializer.is_valid():
             return http_bad_request_json()
         serializer.save()
+
+        request.user.matches_created += 1
+        if data.get("players").includes(request.user.id):
+            request.user.matches_attended += 1
+        request.user.save()
+
         return http_ok_request_json()
 
     def patch(data):
+        if not request.user.is_authenticated:
+            return http_unauthorized()
+
         serializer = ser.EventSerializer(data=data)
         if not serializer.is_valid():
             return http_bad_request_json()
@@ -854,9 +867,7 @@ def events_id(request, id):
 
         isJoining = data.get("joining")
         if isJoining is None:
-            return HttpResponse(
-                "Invalid JSON data", status=400, content_type="text/plain"
-            )
+            return http_bad_request_json()
 
         # Joining an event
         if isJoining:
@@ -868,6 +879,8 @@ def events_id(request, id):
             try:
                 m_event.players.add(request.user)
                 m_event.save()
+                request.user.matches_attended += 1
+                request.user.save()
                 return http_ok(f"User added to event ({str(id)}) successfully.")
             except:
                 return http_bad_argument(f"Error adding user to event ({str(id)}).")
@@ -881,6 +894,8 @@ def events_id(request, id):
             try:
                 m_event.players.remove(request.user)
                 m_event.save()
+                request.user.matches_attended -= 1
+                request.user.save()
                 return http_ok(f"User removed from event ({str(id)}) successfully.")
             except:
                 return http_bad_argument(f"Error removing user from event ({str(id)}).")

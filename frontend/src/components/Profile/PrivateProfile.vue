@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import { ref, onMounted, watch, type Ref } from 'vue'
+import { ref, onMounted, onActivated, watch, type Ref } from 'vue'
 import { redirect } from '@/api/utils'
 
 import { getCurrentUser, updateCurrentUser, getFriendRequests, deleteFriendRequest, createFriendRequest, acceptFriendRequest, getAllUsers } from '@/api/functions'
@@ -63,6 +63,14 @@ onMounted(async () => {
     bio.value = myUser.value.bio
 
     // Let the UI know we have finished loading
+    loading.value = false
+})
+
+onActivated(async () => {
+    loading.value = true
+
+    await updateFriendState()
+
     loading.value = false
 })
 
@@ -233,9 +241,8 @@ function getUpdatedFilteredUserList() {
                     <v-card-text class="d-flex flex-column">
                         <div class="statistics">
                             <h2 class="align-self-center">Match Statistics</h2>
-                            <p class="text-h6 text--primary">Matches Attended: <span>{{ myUser.matches_attended
-                                    }}</span></p>
-                            <p class="text-h6 text--primary">Matches Created: <span>{{ myUser.matches_attended }}</span>
+                            <p class="text-h6 text--primary">Matches Attended: <span>{{ myUser.matches_attended }}</span></p>
+                            <p class="text-h6 text--primary">Matches Created: <span>{{ myUser.matches_created }}</span>
                             </p>
                         </div>
                     </v-card-text>
