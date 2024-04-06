@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import { ref, onMounted, onActivated, watch, type Ref } from 'vue'
+import { ref, onMounted, watch, type Ref, type TextareaHTMLAttributes } from 'vue'
 import { redirect } from '@/api/utils'
 
 import { getCurrentUser, updateCurrentUser, getFriendRequests, deleteFriendRequest, createFriendRequest, acceptFriendRequest, getAllUsers } from '@/api/functions'
@@ -40,6 +40,13 @@ const skillLvl: Ref<"Beginner" | "Advanced Beginner" | "Intermediate Beginner" |
 
 const revealBio: Ref<boolean> = ref(false)
 const bio: Ref<string> = ref("")
+function limitBio(e: InputEvent) {
+    const target = e.target as TextareaHTMLAttributes
+    if (bio.value.split('\n').length > 4) {
+        bio.value = target.value?.toString().slice(0, -1) || ""
+        target.value = bio.value
+    }
+}
 
 onMounted(async () => {
     // Get current user
@@ -66,30 +73,18 @@ onMounted(async () => {
     loading.value = false
 })
 
-onActivated(async () => {
-    loading.value = true
-
-    await updateFriendState()
-
-    loading.value = false
-})
-
 async function getCurrentUserOrRedirect() {
     const user = await getCurrentUser(true)
-    if (!user)
-        redirect('/login')
+    if (!user) {
+        console.log("REDIRECTING!")
+        // redirect('/login')
+    }
     return user as PickleUser
 }
 
 async function updateFriendState() {
-    if (!myUser)
-        myUser = ref(await getCurrentUserOrRedirect())
-    else
-        myUser.value = await getCurrentUserOrRedirect()
-    if (!pendingRequests)
-        pendingRequests = ref(await getFriendRequestsOrEmpty())
-    else
-        pendingRequests.value = await getFriendRequestsOrEmpty()
+    myUser.value = await getCurrentUserOrRedirect()
+    pendingRequests.value = await getFriendRequestsOrEmpty()
     filteredUserList.value = getUpdatedFilteredUserList()
 }
 
@@ -178,9 +173,8 @@ function getUpdatedFilteredUserList() {
                     <v-card-text class="d-flex flex-column align-center">
                         <h2>Bio</h2>
 
-                        <p class="text-subtitle-1 text--primary px-md-16 w-100"
-                            style="height: 100px; align-self: flex-start;">{{
-                            myUser.bio }}</p>
+                        <pre class="text-subtitle-1 text--primary px-md-16 w-100"
+                            style="height: 100px; align-self: flex-start;">{{ myUser.bio }}</pre>
                     </v-card-text>
                     <v-card-actions>
                         <v-btn color="#4b5320" variant="text" @click="revealBio = true">
@@ -191,8 +185,8 @@ function getUpdatedFilteredUserList() {
                     <v-expand-transition>
                         <v-card v-if="revealBio" class="v-card--reveal" style="height: 100%;">
                             <v-card-text class="pb-0">
-                                <v-textarea v-model="bio" label="Update your bio" maxlength="200" counter
-                                    single-line></v-textarea>
+                                <v-textarea v-model="bio" label="Update your bio" maxlength="200" counter single-line
+                                    @input.prevent="limitBio"></v-textarea>
                             </v-card-text>
                             <v-card-actions class="pt-0">
                                 <v-btn color="#4b5320" variant="text" @click="revealBio = false">
