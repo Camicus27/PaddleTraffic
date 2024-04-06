@@ -340,6 +340,10 @@ onMounted(() => {
     searchBar?.setAttribute('style', 'transition: left 0.3s ease') // search bar animation for transition
 })
 
+onActivated(() => {
+    getMap().resize()
+})
+
 onUnmounted(() => {
     map.value?.remove()
     map.value = undefined
