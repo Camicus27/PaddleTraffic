@@ -21,6 +21,7 @@
     "date-fns": "^3.6.0",
     "mapbox-gl": "^2.15.0",
     "pinia": "^2.1.7",
+    "qr-code-styling": "^1.6.0-rc.1",
     "vue": "^3.3.4",
     "vue-router": "^4.2.5",
     "vuetify": "^3.5.13"

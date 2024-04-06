@@ -364,7 +364,7 @@ const selectedLocation = computed(() => {
                 <button id="search-bt" @click="refreshMapItemsByCenter">Search This Area</button>
             </div>
             <Transition name="popup-transition">
-                <Popup class="popup" v-if="currSelected" :location="selectedLocation"
+                <Popup class="popup" v-if="currSelected" :location="selectedLocation!"
                     :on-submit-callback="updateMarkerColor" />
             </Transition>
         </div>
