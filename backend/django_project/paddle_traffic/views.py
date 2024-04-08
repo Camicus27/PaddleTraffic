@@ -582,8 +582,6 @@ def location_bounds(request):
         if None in [lat1, lon1, lat2, lon2]:
             return http_bad_argument("Malformed Latlon")
 
-        # m_locations = get_locations_by_lat_lon(lat, lon)
-        total = m.Location.objects.all()
         m_locations = get_locations_by_boundary(lat1, lon1, lat2, lon2)
         m_locations = lazy_decay(m_locations)
 
