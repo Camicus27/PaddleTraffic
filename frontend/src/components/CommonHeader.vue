@@ -109,10 +109,12 @@ $mobile-size : 800px;
   background-color: $pickle-50;
   padding: 0.8rem 0;
   border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
   
   a {
     font-size: x-large;
     line-height: 1.6rem;
+    padding-bottom: 0.1em;
   }
 
   @include responsive($mobile-size) {
