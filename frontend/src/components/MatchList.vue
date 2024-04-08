@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onActivated, onMounted, type Ref } from 'vue';
+import { ref, onMounted, type Ref } from 'vue';
 import { URL, getAllUsers, getCurrentUser, getAllEvents, createJoinGame, createLeaveGame } from '@/api/functions';
 import type { PickleUser } from '@/api/types';
 
@@ -14,7 +14,18 @@ const allMatches: Ref<any> = ref([])
 const allPlayers: Ref<Record<number, string>> = ref({});
 
 onMounted(async () => {
+  console.log("Mounted")
+  currentUser.value = await getCurrentUser(true)
+  console.log(`user got ${currentUser.value}`)
+
+  allMatches.value = await getAllEvents(true)
+  console.log(`matches got ${allMatches.value}`)
+
+  isFetching.value = false
+  console.log(`isFetching changed ${isFetching.value}`)
+
   const allUsers = await getAllUsers(true)
+  console.log(`all dang users got ${allUsers}`)
 
   if (allUsers) {
     allUsers.forEach(player => {
@@ -23,13 +34,8 @@ onMounted(async () => {
   }
 })
 
-onActivated(async () => {
-  currentUser.value = await getCurrentUser(true)
-  allMatches.value = await getAllEvents(true)
-  isFetching.value = false
-})
-
 async function tryJoinGame(eventId: number) {
+  console.log("Try Join Game")
   didJoin.value = await createJoinGame(eventId, true)
 
   if (didJoin.value) {
@@ -42,6 +48,7 @@ async function tryJoinGame(eventId: number) {
 }
 
 async function tryLeaveGame(eventId: number) {
+  console.log("Try Leave Game")
   didJoin.value = await createLeaveGame(eventId, true)
 
   if (didJoin.value) {
