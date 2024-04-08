@@ -254,12 +254,13 @@ $no-border: 0 solid transparent;
 .qr-icon {
     border-radius: 4px;
     background-color: $pickle-300;
-    width: fit-content;
+    width: 44px;
     height: 44px;
     cursor: pointer;
 
     @include responsive($mobile-size) {
         height: 32px;
+        width: 32px;
     }
 }
 
@@ -343,12 +344,13 @@ h4.location-title {
   overflow: hidden; /* Hide any overflowing text */
   text-overflow: ellipsis; /* Display ellipsis for text overflow */
   -webkit-line-clamp: 2; /* Limit number of lines */
-  max-height: 2em; /* Set maximum height */
+  max-height: 2.5em; /* Set maximum height */
   line-height: 1em; /* Set line height to control vertical spacing */
   font-size: 2em;
+  padding-bottom: 0.12em; // make space for y & g characters
 
   @include responsive($mobile-size) {
-    font-size: 1.8em;
+    font-size: 1.6em;
   }
   
 }
