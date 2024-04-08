@@ -92,7 +92,7 @@ function submitForm() {
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
             (position) => navigatorSuccessCallback(position, location),
-            (e) => {navigatorFailCallback(); console.log(e.message)}, // geolocation NOT ENABLED or an ERROR occurred
+            (e) => { navigatorFailCallback(); console.log(e.message) }, // geolocation NOT ENABLED or an ERROR occurred
             options
         )
     } else {
@@ -108,7 +108,7 @@ const location_url = computed(() => {
 
 const download = () => {
     let d = qrcode_cmp.value.download
-    if(d) {
+    if (d) {
         d()
     }
     // console.log("SIX CONSOLES CAT CAM TREE CAM CAT TREE")
@@ -118,10 +118,8 @@ const download = () => {
 <template>
     <div class="popup">
         <div class="location-info">
-            <div class="location-title">
-                <h4 class="my-3">{{ props.location.value.name }}</h4>
-                <sub class="mb-6">Courts: {{ props.location.value.court_count }}</sub>
-            </div>
+            <h4 class="location-title mb-2">{{ props.location.value.name }}</h4>
+            <sub class="mb-6">Courts: {{ props.location.value.court_count }}</sub>
             <div class="data-info">
                 <p>Est. Courts Occupied: {{ props.location.value.courts_occupied }}</p>
                 <p>Est. Groups Waiting: {{ props.location.value.number_waiting }}</p>
@@ -147,7 +145,7 @@ const download = () => {
             </div>
         </div>
         <form @submit.prevent="submitForm">
-            <div class="title">Report The Status</div>
+            <div class="title">Report Status</div>
             <div class="input-box">
                 <label for="courtsOccupied">Courts Occupied:</label>
                 <input type="number" id="courtsOccupied" name="courtsOccupied" min="0"
@@ -209,7 +207,7 @@ $border: 2px solid $pickle-500;
 $no-border: 0 solid transparent;
 
 .title {
-    font-weight: bold;   
+    font-weight: bold;
     font-size: large;
     border-bottom: 1px solid grey;
     align-self: stretch;
@@ -285,7 +283,7 @@ $no-border: 0 solid transparent;
     width: $img-size;
     padding: 0;
     margin: 0;
-    
+
 }
 
 .direction-bt {
@@ -339,11 +337,22 @@ $padding-size: 8px;
     }
 }
 
-.location-title {
-    display: flex;
-    flex-direction: column;
-    justify-content: start;
+h4.location-title {
+  display: -webkit-box; /* Set display mode to box */
+  -webkit-box-orient: vertical; /* Set box orientation to vertical */
+  overflow: hidden; /* Hide any overflowing text */
+  text-overflow: ellipsis; /* Display ellipsis for text overflow */
+  -webkit-line-clamp: 2; /* Limit number of lines */
+  max-height: 2em; /* Set maximum height */
+  line-height: 1em; /* Set line height to control vertical spacing */
+  font-size: 2em;
+
+  @include responsive($mobile-size) {
+    font-size: 1.8em;
+  }
+  
 }
+
 
 .data-info {
     display: flex;
