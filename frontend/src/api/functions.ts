@@ -147,9 +147,9 @@ export async function getLocationId(id: number, logError: boolean = false): Prom
     return undefined
 }
 
-export async function getLocationsByBounds(lat: number, lon: number, logError: boolean = true): Promise<Location[] | undefined> {
+export async function getLocationsByBounds(lat1: number, lon1: number, lat2: number, lon2: number, logError: boolean = true): Promise<Location[] | undefined> {
     try {
-        const response = await axios.get(`${URL}/locations/bounds?lat=${lat}&lon=${lon}`)
+        const response = await axios.get(`${URL}/locations/bounds?lat1=${lat1}&lon1=${lon1}&lat2=${lat2}&lon2=${lon2}`)
         if (response.data.locations)
             return response.data.locations as Location[]
     } catch (error) {

@@ -447,8 +447,8 @@ def get_locations_by_lat_lon(lat, lon):
 def get_locations_by_boundary(lat1, lon1, lat2, lon2):
     lat_h = lat2 if lat2 > lat1 else lat1
     lat_l = lat2 if lat2 < lat1 else lat1
-    lon_l = lon2 if lon2 > lon1 else lon1
-    lon_r = lon2 if lon2 < lon1 else lon1
+    lon_l = lon2 if lon2 < lon1 else lon1
+    lon_r = lon2 if lon2 > lon1 else lon1
 
     m_locations = m.Location.objects\
         .filter(latitude__lt=lat_h)\
@@ -460,6 +460,9 @@ def get_locations_by_boundary(lat1, lon1, lat2, lon2):
 
 def lazy_decay(locations):
     for loc in locations:
+        if(loc.court_count == 0):  # lmao bc divide by zero 💀 great. I love it. JS
+            loc.delete()
+            continue
         current_time = datetime.now(timezone.utc)
         time_passed = current_time - loc.calculated_time
         stay_time = 3600  # 1 hour in seconds, for equal groups waiting to number of courts
@@ -569,15 +572,19 @@ def location_bounds(request):
     def get():
 
         try:
-            lat = float(request.GET.get("lat", None))
-            lon = float(request.GET.get("lon", None))
+            lat1 = float(request.GET.get("lat1", None))
+            lon1 = float(request.GET.get("lon1", None))
+            lat2 = float(request.GET.get("lat2", None))
+            lon2 = float(request.GET.get("lon2", None))
         except ValueError:
             return http_bad_argument("Malformed Latlon")
 
-        if None in [lat, lon]:
+        if None in [lat1, lon1, lat2, lon2]:
             return http_bad_argument("Malformed Latlon")
 
-        m_locations = get_locations_by_lat_lon(lat, lon)
+        # m_locations = get_locations_by_lat_lon(lat, lon)
+        total = m.Location.objects.all()
+        m_locations = get_locations_by_boundary(lat1, lon1, lat2, lon2)
         m_locations = lazy_decay(m_locations)
 
         NUM_CLUSTERS = 20

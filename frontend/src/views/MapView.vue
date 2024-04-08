@@ -126,8 +126,12 @@ function refreshMapItems() {
 }
 
 function refreshMapItemsByCenter() {
-    let { lat, lng } = getMap().getCenter()
-    getLocationsByBounds(lat, lng).then((locations) => {
+    var bounds = getMap().getBounds();
+
+    // Extract the coordinates of the corners
+    var ne = bounds.getNorthEast(); // Northeast corner
+    var sw = bounds.getSouthWest(); // Southwest corner
+    getLocationsByBounds(ne.lat, ne.lng, sw.lat, sw.lng).then((locations) => {
         if (!locations) return // don't refresh if no new data could be received
         removeAllMapItems()
         addAllMapItems(locations, getMap())
