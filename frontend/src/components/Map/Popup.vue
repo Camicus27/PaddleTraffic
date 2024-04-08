@@ -84,7 +84,7 @@ function submitForm() {
     }, 3000)
 
     var options = {
-        enableHighAccuracy: false,
+        enableHighAccuracy: true,
         timeout: 3000,
         maximumAge: 1000 * 60 * 5 // 5 mins in ms
     }
