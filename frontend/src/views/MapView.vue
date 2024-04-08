@@ -68,7 +68,7 @@ function selectMarker(locId: number) {
     let searchBt = document.querySelector("#search-bt")
 
     if (!mapItems.has(locId)) return
-    
+
     const selectedClassName = 'selected'
     if (currSelected.value) { // if a marker is selected
         let mapItem = mapItems.get(currSelected.value)
@@ -208,8 +208,16 @@ function initMap() {
         container: mapContainer.value,
         style: 'mapbox://styles/mapbox/streets-v12',
         center: [-111.876183, 40.758701], // Default to SLC 
-        zoom: 11
-    })
+        zoom: 11,
+    });
+
+
+    try {
+        // Disable quick zoom gesture, annoying drag and zoom thing
+        (map.value as any).touchZoomRotate._tapDragZoom._enabled = false;
+    } catch (error) {
+        console.error('Error occurred while disabling quick zoom gesture:', error);
+    }
 
     getMap().flyTo({ animate: false })
     map.value.doubleClickZoom.disable()
@@ -328,7 +336,7 @@ let locationsInterval: number | undefined
 onMounted(() => {
     initMap()
     initGeoloc()
-    
+
     document.querySelector('.mapboxgl-ctrl-bottom-right')?.remove()
     document.querySelector('.mapboxgl-ctrl-logo')?.remove()
     document.querySelector('.mapboxgl-ctrl-bottom-left')?.setAttribute('style', 'transform: scale(0.85);')
@@ -351,7 +359,7 @@ onDeactivated(() => {
 onUnmounted(() => {
     map.value?.remove()
     map.value = undefined
-    
+
 })
 
 const selectedLocation = computed(() => {
