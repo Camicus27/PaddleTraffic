@@ -14,7 +14,17 @@ qrObj.update({
     data: props.url
 })
 
-const download = () => qrObj.download()
+const download = (name: string | undefined) => {
+    const download_options: any = { // or hatever, JS
+        name: 'qr-code',
+        extension: 'png'
+    }
+
+    if (name) {
+        download_options.name = name
+    }
+    qrObj.download(download_options)
+}
 defineExpose({
     download
 })

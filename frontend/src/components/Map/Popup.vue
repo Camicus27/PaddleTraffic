@@ -109,7 +109,7 @@ const location_url = computed(() => {
 const download = () => {
     let d = qrcode_cmp.value.download
     if (d) {
-        d()
+        d(`${props.location.value.name}-QRCode`)
     }
     // console.log("SIX CONSOLES CAT CAM TREE CAM CAT TREE")
 }
