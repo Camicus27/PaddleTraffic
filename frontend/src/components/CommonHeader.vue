@@ -41,7 +41,7 @@ function getCurrentUser() { // TODO change to be from @/api/functions
       <img src="@/assets/logo.png" class="logo" alt="PaddleTraffic Logo" width="64" height="64">
       <h1>PaddleTraffic</h1>
     </RouterLink>
-    <v-menu>
+    <v-menu transition="scale-transition">
       <template v-slot:activator="{ props }">
         <v-btn class="hamburger" icon="mdi-menu" v-bind="props"></v-btn>
       </template>
