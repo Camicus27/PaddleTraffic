@@ -11,7 +11,7 @@ import './styles/globals/_index.scss'
         <!-- <CommonSidebar />   This is now going to be dynamically loaded as a popup menu so it isn't always visible   -->
         <!-- This allows us to keep all pages loaded, and avoids too many API calls -->
         <RouterView v-slot="{ Component }">
-          <KeepAlive>
+          <KeepAlive include="MapView">
             <component :is="Component" />
           </KeepAlive>
         </RouterView>

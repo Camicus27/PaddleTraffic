@@ -53,8 +53,8 @@ class Command(BaseCommand):
             court_count=12,
             courts_occupied=0,
             number_waiting=0,
-            estimated_wait_time=timezone.timedelta(minutes=0),
-            calculated_time = timezone.now()
+            estimated_wait_time=timedelta(minutes=0),
+            calculated_time = datetime.now(timezone.utc)
         )
 
         """
@@ -63,10 +63,10 @@ class Command(BaseCommand):
             latitude=,
             longitude=,
             court_count=,
-            courts_occupied=0,
-            number_waiting=0,
-            estimated_wait_time=timezone.timedelta(minutes=0),
-            calculated_time = timezone.now()
+            courts_occupied=,
+            number_waiting=,
+            estimated_wait_time=timedelta(minutes=0),
+            calculated_time=datetime.now(timezone.utc)
         )
         """
 
@@ -83,13 +83,21 @@ class Command(BaseCommand):
         match1 = Event.objects.create(
             name="PaddleTraffic Charity Event",
             description="Raising money to fund the extended development of PaddleTraffic!",
-            location=picklecoin_hq,
+            location=paddleTraffic,
             host=administrator,
-            date=timezone.now().date(),
-            time=timezone.now().time(),
+            date=datetime.now().date(),
+            time=datetime.now().time(),
             isPublic=True
         )
         match1.players.add(p1, p2)
+        p1.matches_attended = 1
+        p1.matches_created = 0
+        p2.matches_attended = 1
+        p2.matches_created = 0
+        administrator.matches_created = 1
+        p1.save()
+        p2.save()
+        administrator.save()
 
 
         '''
