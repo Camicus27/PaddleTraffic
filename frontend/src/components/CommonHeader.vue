@@ -42,25 +42,30 @@ function getCurrentUser() { // TODO change to be from @/api/functions
         <img src="@/assets/logo.png" class="logo" alt="PaddleTraffic Logo" width="64" height="64">
         <!-- <h1>PaddleTraffic</h1> add back when hamburger menu for header -->
       </RouterLink>
-      <nav>
+      <v-menu>
+        <template v-slot:activator="{ props }">
+          <v-btn icon="mdi-menu" v-bind="props"></v-btn>
+        </template>
+
         <RouterLink to="/map" class="nav-bt">MAP</RouterLink>
         <RouterLink to="/matchmaking" class="nav-bt">MATCHMAKING</RouterLink>
         <RouterLink to="/about" class="nav-bt">ABOUT</RouterLink>
         <RouterLink to="/new-location" class="nav-bt">PROPOSALS</RouterLink>
-      </nav>
+        <div class="user-buttons">
+          <template v-if="myUser">
+            <RouterLink to="/profile" class="nav-bt">
+              <img src="@/assets/default_user.png" class="pfp" alt="User profile" width="32" height="32">
+            </RouterLink>
+            <a href="/logout/" class="nav-bt">Logout</a>
+          </template>
+          <template v-else>
+            <a href="/login/" class="nav-bt">Login</a>
+            <a href="/register/" class="nav-bt">Register</a>
+          </template>
+        </div>
+      </v-menu>
     </div>
-    <div class="user-buttons">
-      <template v-if="myUser">
-        <RouterLink to="/profile" class="nav-bt">
-          <img src="@/assets/default_user.png" class="pfp" alt="User profile" width="32" height="32">
-        </RouterLink>
-        <a href="/logout/" class="nav-bt">Logout</a>
-      </template>
-      <template v-else>
-        <a href="/login/" class="nav-bt">Login</a>
-        <a href="/register/" class="nav-bt">Register</a>
-      </template>
-    </div>
+
   </header>
 </template>
 
