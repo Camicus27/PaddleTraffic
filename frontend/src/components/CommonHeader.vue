@@ -37,20 +37,21 @@ function getCurrentUser() { // TODO change to be from @/api/functions
 
 <template>
   <header>
-    <div class="left-side">
-      <RouterLink to="/" class="logo">
-        <img src="@/assets/logo.png" class="logo" alt="PaddleTraffic Logo" width="64" height="64">
-        <!-- <h1>PaddleTraffic</h1> add back when hamburger menu for header -->
-      </RouterLink>
-      <v-menu>
-        <template v-slot:activator="{ props }">
-          <v-btn icon="mdi-menu" v-bind="props"></v-btn>
-        </template>
+    <RouterLink to="/" class="logo">
+      <img src="@/assets/logo.png" class="logo" alt="PaddleTraffic Logo" width="64" height="64">
+      <h1>PaddleTraffic</h1>
+    </RouterLink>
+    <v-menu>
+      <template v-slot:activator="{ props }">
+        <v-btn class="hamburger" icon="mdi-menu" v-bind="props"></v-btn>
+      </template>
 
+      <div class="burger-contents">
         <RouterLink to="/map" class="nav-bt">MAP</RouterLink>
         <RouterLink to="/matchmaking" class="nav-bt">MATCHMAKING</RouterLink>
-        <RouterLink to="/about" class="nav-bt">ABOUT</RouterLink>
         <RouterLink to="/new-location" class="nav-bt">PROPOSALS</RouterLink>
+        <RouterLink to="/about" class="nav-bt">ABOUT</RouterLink>
+        <div class="burger-spacer"></div>
         <div class="user-buttons">
           <template v-if="myUser">
             <RouterLink to="/profile" class="nav-bt">
@@ -63,9 +64,8 @@ function getCurrentUser() { // TODO change to be from @/api/functions
             <a href="/register/" class="nav-bt">Register</a>
           </template>
         </div>
-      </v-menu>
-    </div>
-
+      </div>
+    </v-menu>
   </header>
 </template>
 
@@ -81,6 +81,48 @@ $mobile-size : 800px;
   @include responsive($mobile-size) {
     padding: 0 0.3rem;
     font-size: 0.8rem;
+  }
+}
+
+.hamburger {
+  border-radius: 0;
+  background-color: transparent;
+  box-shadow: none !important; // it's all weird if you don't do important lol. vuetify.
+  transition: background-color 0.3 ease;
+
+  &:hover {
+    box-shadow: none;
+  }
+
+  &:active {
+    box-shadow: none;
+  }
+}
+
+.burger-spacer {
+  height: 1rem;
+}
+
+.burger-contents {
+  display: flex;
+  flex-direction: column;
+  background-color: $pickle-50;
+  padding: 0.8rem 0;
+  border-radius: 4px;
+  
+  a {
+    font-size: x-large;
+    line-height: 1.6rem;
+  }
+
+  @include responsive($mobile-size) {
+    padding: 0.3rem 0;
+    border-radius: 4px;
+    
+    a {
+      font-size: large;
+      line-height: 1.6rem;
+    }
   }
 }
 
@@ -103,7 +145,6 @@ header {
 .user-buttons {
   display: flex;
   flex-direction: row;
-  justify-content: end;
 }
 
 nav {
