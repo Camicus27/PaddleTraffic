@@ -270,13 +270,13 @@ function initGeoloc() {
     if (props.lat && props.lon) { // QR CODE
         getNearestLocation(props.lat, props.lon).then((location) => {
             if (location) {
+                console.log('props gotten')
+                getMap().setCenter(new mapboxgl.LngLat(location.longitude, location.latitude))
+                refreshMapItemsByCenter()
                 addMapItem(location, getMap()) // this IS safe. addIfNotIn(...)
                 selectMarker(location.id)
-                getMap().setCenter(new mapboxgl.LngLat(location.longitude, location.latitude))
             }
         })
-
-        refreshMapItemsByCenter()
     } else if (navigator.geolocation) { // GEOLOCATE ON
         getMap().on('load', () => {
             geolocateControl.trigger() // Basically 'turn on geolocate'
