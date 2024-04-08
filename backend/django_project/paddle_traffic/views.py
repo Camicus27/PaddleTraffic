@@ -544,13 +544,12 @@ def location_latlon(request):
     funs = {"GET": get}
     return get_response(request, funs)
 
-def cluster(m_locations):
+def cluster(m_locations, NUM_CLUSTERS):
     # Example data (replace this with your data)
     locations = list(m_locations)
     coordinates = [(loc.latitude, loc.longitude) for loc in locations]    
     coordinates_array = np.array(coordinates)
 
-    NUM_CLUSTERS = 20
     kmeans = KMeans(n_clusters=NUM_CLUSTERS)
 
     kmeans.fit(coordinates_array)
@@ -580,7 +579,10 @@ def location_bounds(request):
 
         m_locations = get_locations_by_lat_lon(lat, lon)
         m_locations = lazy_decay(m_locations)
-        m_locations = cluster(m_locations=m_locations)
+
+        NUM_CLUSTERS = 20
+        if(len(m_locations) >= NUM_CLUSTERS):
+            m_locations = cluster(m_locations, NUM_CLUSTERS)
 
         serializer = ser.LocationSerializer(m_locations, many=True)
         # return the json formatted as an HTTP response
