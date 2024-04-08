@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, type Ref, computed, onActivated, ssrContextKey, watch, nextTick } from 'vue'
+import { ref, onMounted, onUnmounted, type Ref, computed, onActivated, ssrContextKey, watch, nextTick, onDeactivated } from 'vue'
 import mapboxgl from "mapbox-gl"
 import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
 import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css';
@@ -324,7 +324,7 @@ let locationsInterval: number | undefined
 onMounted(() => {
     initMap()
     initGeoloc()
-    locationsInterval = window.setInterval(refreshMapItems, 3000)
+    
     document.querySelector('.mapboxgl-ctrl-bottom-right')?.remove()
     document.querySelector('.mapboxgl-ctrl-logo')?.remove()
     document.querySelector('.mapboxgl-ctrl-bottom-left')?.setAttribute('style', 'transform: scale(0.85);')
@@ -334,15 +334,20 @@ onMounted(() => {
 
 onActivated(() => {
     getMap().resize()
+    locationsInterval = window.setInterval(refreshMapItems, 3000)
+})
+
+onDeactivated(() => {
+    if (locationsInterval) {
+        window.clearInterval(locationsInterval)
+    }
+    locationsInterval = undefined
 })
 
 onUnmounted(() => {
     map.value?.remove()
     map.value = undefined
-    if (locationsInterval) {
-        window.clearInterval(locationsInterval)
-    }
-    locationsInterval = undefined
+    
 })
 
 const selectedLocation = computed(() => {
