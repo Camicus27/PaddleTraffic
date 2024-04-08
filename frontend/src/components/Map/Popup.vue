@@ -17,7 +17,9 @@ const locForm: Ref<Report> = ref({
 })
 
 const submitDataDisabled = ref<boolean>(false)
-const dialog = ref<boolean>(false)
+const qr_dialog = ref<boolean>(false)
+const loc_dialog = ref<boolean>(false)
+
 const success_snackbar = ref<boolean>(false)
 const outofrange_snackbar = ref<boolean>(false)
 
@@ -69,7 +71,7 @@ const navigatorSuccessCallback = (position: GeolocationPosition, location: Ref<L
 }
 
 const navigatorFailCallback = () => {
-    dialog.value = true
+    loc_dialog.value = true
 }
 
 function submitForm() {
@@ -82,15 +84,15 @@ function submitForm() {
     }, 3000)
 
     var options = {
-        enableHighAccuracy: true,
-        timeout: 5000,
+        enableHighAccuracy: false,
+        timeout: 3000,
         maximumAge: 1000 * 60 * 5 // 5 mins in ms
     }
 
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
             (position) => navigatorSuccessCallback(position, location),
-            () => navigatorFailCallback(), // geolocation NOT ENABLED
+            (e) => {navigatorFailCallback(); console.log(e.message)}, // geolocation NOT ENABLED or an ERROR occurred
             options
         )
     } else {
@@ -129,14 +131,14 @@ const download = () => {
                     <a class="direction-bt"
                         :href="`https://maps.google.com/?q=${props.location.value.latitude},${props.location.value.longitude}`"
                         target="_blank">Get Directions</a>
-                    <img @click="dialog = true" class="qr-icon" src="@/assets/IconQR.png" />
+                    <img @click="qr_dialog = true" class="qr-icon" src="@/assets/IconQR.png" />
                 </div>
 
-                <v-dialog class="qr-dialog" v-model="dialog" max-width="290">
+                <v-dialog class="qr-dialog" v-model="qr_dialog" max-width="290">
                     <v-card>
                         <QRCode ref="qrcode_cmp" :url="location_url" />
                         <v-card-actions class="qr-actions">
-                            <v-btn @click="dialog = false">BACK</v-btn>
+                            <v-btn @click="qr_dialog = false">BACK</v-btn>
                             <img class="download-bt" @click="download" src="@\assets\downloadIconGreen.png">
                         </v-card-actions>
                     </v-card>
@@ -145,6 +147,7 @@ const download = () => {
             </div>
         </div>
         <form @submit.prevent="submitForm">
+            <div class="title">Report The Status</div>
             <div class="input-box">
                 <label for="courtsOccupied">Courts Occupied:</label>
                 <input type="number" id="courtsOccupied" name="courtsOccupied" min="0"
@@ -157,7 +160,7 @@ const download = () => {
                     v-model="locForm.number_waiting" required>
             </div>
 
-            <v-dialog v-model="dialog" persistent max-width="290">
+            <v-dialog v-model="loc_dialog" persistent max-width="290">
                 <v-card>
                     <v-card-title class="headline">Location Required</v-card-title>
                     <v-card-text>
@@ -165,16 +168,18 @@ const download = () => {
                         settings.
                     </v-card-text>
                     <v-card-actions>
-                        <v-btn @click="dialog = false">OK</v-btn>
+                        <v-btn @click="loc_dialog = false">OK</v-btn>
                     </v-card-actions>
                 </v-card>
             </v-dialog>
 
-            <v-snackbar :timeout="1500" v-model="success_snackbar">
+            <v-snackbar color="success" :timeout="3000" v-model="success_snackbar">
+                <v-icon icon="mdi-check-bold" />
                 Report Successfully Sent
             </v-snackbar>
 
-            <v-snackbar :timeout="1500" v-model="outofrange_snackbar">
+            <v-snackbar color="red-darken-2" :timeout="3000" v-model="outofrange_snackbar">
+                <v-icon icon="mdi-alert-circle" />
                 You are too far from the court to submit a report
             </v-snackbar>
 
@@ -202,6 +207,18 @@ input::-webkit-inner-spin-button {
 $mobile-size: 800px;
 $border: 2px solid $pickle-500;
 $no-border: 0 solid transparent;
+
+.title {
+    font-weight: bold;   
+    font-size: large;
+    border-bottom: 1px solid grey;
+    align-self: stretch;
+
+    @include responsive($mobile-size) {
+        font-size: medium;
+        line-height: 1rem;
+    }
+}
 
 .popup {
     flex-direction: column;
@@ -370,12 +387,23 @@ form {
 
     label {
         margin-bottom: 4px;
+        font-size: smaller;
+        font-weight: 600;
     }
 
     input {
         border: none;
         align-self: stretch;
         height: 30px;
+    }
+
+    @include responsive($mobile-size) {
+        font-size: small;
+        line-height: 1rem;
+
+        label {
+            margin-bottom: 0;
+        }
     }
 }
 
