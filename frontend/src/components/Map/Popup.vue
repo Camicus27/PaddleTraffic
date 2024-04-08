@@ -16,9 +16,10 @@ const locForm: Ref<Report> = ref({
     number_waiting: 0
 })
 
-const dialog = ref<boolean>(false)
-
 const submitDataDisabled = ref<boolean>(false)
+const dialog = ref<boolean>(false)
+const success_snackbar = ref<boolean>(false)
+const outofrange_snackbar = ref<boolean>(false)
 
 const qrcode_cmp = ref()
 
@@ -48,20 +49,53 @@ function formatDateTime(dateTimeString: string): string {
     return formatDistanceToNow(reportDate, { addSuffix: true })
 }
 
+const navigatorSuccessCallback = (position: GeolocationPosition, location: Ref<Location>) => {
+    postLocationReport(
+        location.value.id,
+        locForm.value,
+        position.coords.latitude,
+        position.coords.longitude)
+        .then(
+            (l) => {
+                if (l) {
+                    location.value = l
+                    props.onSubmitCallback(location.value.id)
+                    success_snackbar.value = true
+                } else {
+                    outofrange_snackbar.value = true
+                }
+            }
+        )
+}
+
+const navigatorFailCallback = () => {
+    dialog.value = true
+}
+
 function submitForm() {
-    if (!props.location) return
+    let location = props.location
+    if (!location) return
     // timeout the button
     submitDataDisabled.value = true
     setTimeout(() => {
         submitDataDisabled.value = false
     }, 3000)
-    console.log(`calculated time booga: ${props.location.value.calculated_time}`)
-    postLocationReport(props.location.value.id, locForm.value).then((l) => {
-        if (props.location) {
-            if (l) props.location.value = l
-            props.onSubmitCallback(props.location.value.id)
-        }
-    })
+
+    var options = {
+        enableHighAccuracy: true,
+        timeout: 5000,
+        maximumAge: 1000 * 60 * 5 // 5 mins in ms
+    }
+
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            (position) => navigatorSuccessCallback(position, location),
+            () => navigatorFailCallback(), // geolocation NOT ENABLED
+            options
+        )
+    } else {
+        navigatorFailCallback() // geolocation NOT ENABLED
+    }
 }
 
 const location_url = computed(() => {
@@ -122,6 +156,28 @@ const download = () => {
                     :max="(locForm.courts_occupied < (props.location.value.court_count ?? 0)) ? 0 : 10"
                     v-model="locForm.number_waiting" required>
             </div>
+
+            <v-dialog v-model="dialog" persistent max-width="290">
+                <v-card>
+                    <v-card-title class="headline">Location Required</v-card-title>
+                    <v-card-text>
+                        This service requires access to your location. Please enable location services in your browser
+                        settings.
+                    </v-card-text>
+                    <v-card-actions>
+                        <v-btn @click="dialog = false">OK</v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
+
+            <v-snackbar :timeout="1500" v-model="success_snackbar">
+                Report Successfully Sent
+            </v-snackbar>
+
+            <v-snackbar :timeout="1500" v-model="outofrange_snackbar">
+                You are too far from the court to submit a report
+            </v-snackbar>
+
             <button :disabled="submitDataDisabled">
                 Update Status
             </button>

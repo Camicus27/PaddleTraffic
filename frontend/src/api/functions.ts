@@ -183,9 +183,16 @@ export async function getNearestLocation(lat: number, lon: number, logError: boo
     return undefined
 }
 
-export async function postLocationReport(locationId: number, reportData: Report, logError: boolean = false): Promise<Location | undefined> {
+export async function postLocationReport(locationId: number, reportData: Report, lat: number, lon: number, logError: boolean = false): Promise<Location | undefined> {
     try {
-        const response = await axios.post(`${URL}/locations/${locationId}/report/`, { report: reportData })
+        const payload = {
+            report: {
+                reportData,
+                lat,
+                lon
+            }
+        }
+        const response = await axios.post(`${URL}/locations/${locationId}/report/`, payload)
         if (response.data.location)
             return response.data.location as Location
     } catch (error) {

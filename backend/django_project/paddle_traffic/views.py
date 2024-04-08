@@ -48,14 +48,20 @@ User login tests to verify a user's group.
 @user_passes_test(is_basic_user)   -->  is_event_organizer    is_admin
 @login_required
 """
+
+
 def is_basic_user(user):
     return user.groups.filter(name="Basic").exists()
+
 
 def is_event_organizer(user):
     return user.groups.filter(name="Organizers").exists()
 
+
 def is_admin(user):
     return user.is_superuser
+
+
 """"""
 
 
@@ -261,6 +267,17 @@ def calculate_exponential(reports, percentage, time_passed):
     return round(weighted_average_exp)
 
 
+def verify_location(lat, lon, location):
+    # "GET PEPEDDED" -Ian McBride, 2024, 1.8 Hours of sleep
+    court_lat = location.latitude
+    court_lon = location.longitude
+    distance_to_location = math.sqrt(
+        (lat - float(court_lat)) ** 2 + (lon - float(court_lon)) ** 2)
+    # 0.00725 is 0.5 miles in lat/lon coords (at equator lol)
+    VERIFICATION_DISTANCE = 0.00725 * 4  # TODO: Decrease dist to realistic value
+    return distance_to_location < VERIFICATION_DISTANCE
+
+
 @csrf_exempt
 def report(request, id):
     """
@@ -269,15 +286,20 @@ def report(request, id):
 
     def post(all_data):
         data = all_data.get("report", None)
-        if data is None:
+        report_data = data.get("reportData", None)
+        if report_data is None:
             return http_bad_request_json()
-        courts_occupied = data.get("courts_occupied", None)
-        number_waiting = data.get("number_waiting", None)
-        
+        courts_occupied = report_data.get("courts_occupied", None)
+        number_waiting = report_data.get("number_waiting", None)
+        lat = data.get("lat", None)
+        lon = data.get("lon", None)
+
         if courts_occupied is None or number_waiting is None:
             return http_bad_request_json()
 
         location: m.Location = try_get_instance(m.Location, id)
+        if not verify_location(lat, lon, location):
+            return http_unauthorized()
 
         if number_waiting > 10:
             return http_bad_argument("Reporting too many people waiting")
@@ -374,7 +396,7 @@ def locations_id(request, id):
         if existing_location is None:
             return http_not_found(str(id))
         data = all_data.get("location", None)
-        
+
         if data is None:
             return http_bad_request_json()
 
@@ -540,49 +562,49 @@ def location_proposal(request):
     """
     /location/new
     """
-    
+
     def get():
         if not request.user.is_authenticated or not is_admin(request.user):
             return http_unauthorized()
-        
+
         m_locations = m.ProposedLocation.objects.all()
-        
+
         serializer = ser.LocationProposalSerializer(m_locations, many=True)
         return JsonResponse({"new_locations": serializer.data})
 
     def post(all_data):
-        
+
         if not request.user.is_authenticated:
             return http_unauthorized()
-        
+
         data = all_data.get("location", None)
         if data is None:
             return http_bad_request_json()
-        
+
         # Cleanse data
         lat = data.get("latitude", None)
         long = data.get("longitude", None)
         court_count = data.get("court_count", None)
-        
+
         if lat is None or long is None or court_count is None:
             return http_bad_request_json()
-    
+
         if lat < -90 or lat > 90:
             return http_bad_argument("Invalid latitude")
-        
+
         if long < -180 or long > 180:
             return http_bad_argument("Invalid longitude")
-        
+
         if court_count < 1:
             return http_bad_argument("Cannot have zero or negative courts at a location")
-        
+
         serializer = ser.LocationProposalCreationSerializer(data=data)
         if not serializer.is_valid():
             return http_bad_request_json()
         new_location = serializer.save()
-        
+
         return http_ok_request_json()
-        
+
     funs = {"GET": get, "POST": post}
     return get_response(request, funs)
 
@@ -601,48 +623,48 @@ def location_proposal_id(request, id):
         latitude = proposal.latitude
         longitude = proposal.longitude
         court_count = proposal.court_count
-        
+
         # Check if the admin made any changes to the proposal
         data = all_data.get("location", None)
         if data is not None:
-            serializer = ser.LocationProposalSerializer(instance=proposal, data=data)
+            serializer = ser.LocationProposalSerializer(
+                instance=proposal, data=data)
             if not serializer.is_valid():
                 return http_bad_request_json()
-            
+
             name = serializer.data.get('name')
             latitude = serializer.data.get('latitude')
             longitude = serializer.data.get('longitude')
             court_count = serializer.data.get('court_count')
-        
+
         # Create a new location
         m.Location(
-            name = name,
-            latitude = latitude,
-            longitude = longitude,
-            court_count = court_count,
-            courts_occupied = 0,
-            number_waiting = 0,
-            estimated_wait_time = timedelta(minutes=0),
-            calculated_time = datetime.now(timezone.utc),
+            name=name,
+            latitude=latitude,
+            longitude=longitude,
+            court_count=court_count,
+            courts_occupied=0,
+            number_waiting=0,
+            estimated_wait_time=timedelta(minutes=0),
+            calculated_time=datetime.now(timezone.utc),
         ).save()
 
         # Remove the proposal
         proposal.delete()
         return http_ok_request_json()
-    
+
     def delete():
         # Find the proposal
         proposal: m.ProposedLocation = try_get_instance(m.ProposedLocation, id)
         if proposal is None:
             return http_not_found(f"Proposal ${id}")
-            
+
         # Remove the proposal
         proposal.delete()
         return http_ok(f"Request successfully deleted")
-        
+
     funs = {"POST": post, "DELETE": delete}
     return get_response(request, funs)
-
 
 
 @csrf_exempt
@@ -908,10 +930,6 @@ def events_id(request, id):
 
     funs = {"GET": get, "POST": post, "PATCH": patch, "DELETE": delete}
     return get_response(request, funs)
-
-
-
-
 
 
 """
