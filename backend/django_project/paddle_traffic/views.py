@@ -15,6 +15,9 @@ from django.db.models import ExpressionWrapper, FloatField, F
 import json
 import re
 import math
+from sklearn.cluster import KMeans
+from sklearn.metrics import pairwise_distances_argmin_min
+import numpy as np
 # Create your views here.
 
 # todo
@@ -426,13 +429,26 @@ def locations_id(request, id):
 
 
 def get_locations_by_lat_lon(lat, lon):
-    LAT_DIF = 3
-    LON_DIF = 3
+    LAT_DIF = 1
+    LON_DIF = 1
 
     lat_h = lat + (LAT_DIF / 2)
     lat_l = lat - (LAT_DIF / 2)
     lon_l = lon - (LON_DIF / 2)
     lon_r = lon + (LON_DIF / 2)
+
+    m_locations = m.Location.objects\
+        .filter(latitude__lt=lat_h)\
+        .filter(latitude__gt=lat_l)\
+        .filter(longitude__lt=lon_r)\
+        .filter(longitude__gt=lon_l)
+    return m_locations
+
+def get_locations_by_boundary(lat1, lon1, lat2, lon2):
+    lat_h = lat2 if lat2 > lat1 else lat1
+    lat_l = lat2 if lat2 < lat1 else lat1
+    lon_l = lon2 if lon2 > lon1 else lon1
+    lon_r = lon2 if lon2 < lon1 else lon1
 
     m_locations = m.Location.objects\
         .filter(latitude__lt=lat_h)\
@@ -528,6 +544,22 @@ def location_latlon(request):
     funs = {"GET": get}
     return get_response(request, funs)
 
+def cluster(m_locations):
+    # Example data (replace this with your data)
+    locations = list(m_locations)
+    coordinates = [(loc.latitude, loc.longitude) for loc in locations]    
+    coordinates_array = np.array(coordinates)
+
+    NUM_CLUSTERS = 20
+    kmeans = KMeans(n_clusters=NUM_CLUSTERS)
+
+    kmeans.fit(coordinates_array)
+    clusters = kmeans.predict(coordinates_array)
+
+    cluster_centers = kmeans.cluster_centers_
+    closest_points_indices, _ = pairwise_distances_argmin_min(cluster_centers, coordinates_array)
+    closest_objects = [locations[index] for index in closest_points_indices]
+    return closest_objects
 
 @csrf_exempt
 def location_bounds(request):
@@ -548,6 +580,7 @@ def location_bounds(request):
 
         m_locations = get_locations_by_lat_lon(lat, lon)
         m_locations = lazy_decay(m_locations)
+        m_locations = cluster(m_locations=m_locations)
 
         serializer = ser.LocationSerializer(m_locations, many=True)
         # return the json formatted as an HTTP response
