@@ -6,6 +6,10 @@ $mobile-size: 800px;
   line-height: 1.25rem;
 }
 
+html { 
+  overflow-y: auto !important;
+}
+
 code {
   font-family: 'IBM Plex Mono', monospace;
   font-family: 'Open Sans', sans-serif;
