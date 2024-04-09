@@ -27,12 +27,12 @@ const isHostPlaying = ref("yes");
 
 onMounted(async () => {
     currentUser.value = await getCurrentUser(true)
-    if (!currentUser.value) {
-        window.location.href = '/login'
-    }
-    else {
-        allFriends.value = currentUser.value.friends
-    }
+    // if (!currentUser.value) {
+    //     window.location.href = '/login'
+    // }
+    // else {
+    //     allFriends.value = currentUser.value.friends
+    // }
     allLocations.value = await getAllLocations(true)
 })
 
@@ -94,7 +94,12 @@ function clearForm() {
 </script>
 
 <template>
-    <div v-if="currentUser" id="event-form-wrapper">
+    <!-- <div v-if="currentUser" id="event-form-wrapper"> -->
+    <div v-if="true" id="event-form-wrapper">
+        <v-form class="pickle-form">
+            <v-text-field bg-color="white" v-model="eventForm.name" autofocus label="Awesome Event Name..."></v-text-field>
+        </v-form>
+
         <form @submit.prevent="submitForm">
             <section>
                 <label for="name">Event Name:</label>
