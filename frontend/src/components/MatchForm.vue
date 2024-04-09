@@ -59,8 +59,11 @@ async function submitForm() {
     const formData = { ...eventForm.value, date: format(eventForm.value.date, "yyyy-MM-dd") }
     if (await createEvent(formData, true))
         redirect("/matchmaking/")
-    else
+    else {
         submissionError.value = true
+        if (isHostPlaying.value)
+            eventForm.value.players.pop()
+    }
 }
 
 function clearForm() {
