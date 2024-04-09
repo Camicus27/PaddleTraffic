@@ -257,6 +257,18 @@ export async function getAllEvents(logError: boolean): Promise<Array<Event> | un
 }
 
 
+export async function createEvent(eventData: any, logError: boolean): Promise<boolean> {
+    try {
+        await axios.post(`${URL}/events/`, { event: eventData }, { withCredentials: true })
+        return true
+    } catch (error) {
+        if (logError)
+            console.error(error)
+        return false
+    }
+}
+
+
 /**
  * This function creates a join event request from the currently authenticated user to the event with eventId.
  * @param eventId The ID of the event that will receive the join request.
