@@ -342,6 +342,7 @@ onMounted(() => {
     document.querySelector('.mapboxgl-ctrl-bottom-left')?.setAttribute('style', 'transform: scale(0.85);')
     let searchBar = document.querySelector(".mapboxgl-ctrl-top-left")
     searchBar?.setAttribute('style', 'transition: left 0.3s ease') // search bar animation for transition
+    getMap().resize()
 })
 
 onActivated(() => {
