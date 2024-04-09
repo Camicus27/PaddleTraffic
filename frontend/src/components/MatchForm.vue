@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onActivated, watch, type Ref } from 'vue'
+import { ref, onMounted, onActivated, type Ref } from 'vue'
 import axios from 'axios'
 import { getCurrentUser, getAllLocations, createEvent } from '@/api/functions';
 import type { PickleUser, RestrictedUser, Location } from '@/api/types';
@@ -137,12 +137,6 @@ form {
 
     @include responsive($mobile-size) {
         flex-direction: column;
-    }
-}
-
-.field {
-    input {
-        background-color: white;
     }
 }
 </style>
