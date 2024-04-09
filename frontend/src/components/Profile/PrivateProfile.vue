@@ -76,8 +76,7 @@ onMounted(async () => {
 async function getCurrentUserOrRedirect() {
     const user = await getCurrentUser(true)
     if (!user) {
-        console.log("REDIRECTING!")
-        // redirect('/login')
+        redirect('/login')
     }
     return user as PickleUser
 }
