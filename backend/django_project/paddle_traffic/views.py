@@ -270,14 +270,13 @@ def calculate_exponential(reports, percentage, time_passed):
     return round(weighted_average_exp)
 
 
-def verify_location(lat, lon, location):
-    # "GET PEPEDDED" -Ian McBride, 2024, 1.8 Hours of sleep
+def verify_distance(lat, lon, location):
     court_lat = location.latitude
     court_lon = location.longitude
     distance_to_location = math.sqrt(
         (lat - float(court_lat)) ** 2 + (lon - float(court_lon)) ** 2)
-    # 0.00725 is 0.5 miles in lat/lon coords (at equator lol)
-    VERIFICATION_DISTANCE = 0.00725 * 4  # TODO: Decrease dist to realistic value
+    # 0.00725 is 0.5 miles in lat/lon coords (at equator)
+    VERIFICATION_DISTANCE = 0.00725 * 10  # TODO: Decrease dist to realistic value
     return distance_to_location < VERIFICATION_DISTANCE
 
 
@@ -286,6 +285,7 @@ def report(request, id):
     """
     /locations/<int:id>/report/
     """
+    cookie_key = 'TIME_LIMIT'
 
     def post(all_data):
         data = all_data.get("report", None)
@@ -301,8 +301,14 @@ def report(request, id):
             return http_bad_request_json()
 
         location: m.Location = try_get_instance(m.Location, id)
-        if not verify_location(lat, lon, location):
+        if not verify_distance(lat, lon, location):
             return http_unauthorized()
+        
+        cookie = request.COOKIES.get(cookie_key, None)
+        if cookie:
+            time_of_last_request = datetime.strptime(cookie, '%Y-%m-%d %H:%M:%S').replace(tzinfo=timezone.utc)
+            if datetime.now(timezone.utc) - time_of_last_request < timedelta(seconds=20):
+                return http_too_many_requests()
 
         if number_waiting > 10:
             return http_bad_argument("Reporting too many people waiting")
@@ -337,7 +343,7 @@ def report(request, id):
             location=location).filter(submission_time__gt=four_hours_ago)
 
         percentage = 0.25
-        time_passed = 4  # IN HOURS IT'S SIMPLE WHOOOOOOOOOOOOOO
+        time_passed = 4  # IN HOURS
         new_total_groups = calculate_exponential(
             reports_for_calculation, percentage, time_passed)
 
@@ -352,7 +358,12 @@ def report(request, id):
         location.save()
 
         serializer = ser.LocationSerializer(location)
-        return JsonResponse({"location": serializer.data})
+
+        response = JsonResponse({"location": serializer.data})
+
+        report_time = datetime.now(timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
+        response.set_cookie(cookie_key, report_time)
+        return response
 
     funs = {"POST": post}
     return get_response(request, funs)
@@ -444,6 +455,7 @@ def get_locations_by_lat_lon(lat, lon):
         .filter(longitude__gt=lon_l)
     return m_locations
 
+
 def get_locations_by_boundary(lat1, lon1, lat2, lon2):
     lat_h = lat2 if lat2 > lat1 else lat1
     lat_l = lat2 if lat2 < lat1 else lat1
@@ -460,7 +472,7 @@ def get_locations_by_boundary(lat1, lon1, lat2, lon2):
 
 def lazy_decay(locations):
     for loc in locations:
-        if(loc.court_count == 0):  # lmao bc divide by zero 💀 great. I love it. JS
+        if (loc.court_count == 0):
             loc.delete()
             continue
         current_time = datetime.now(timezone.utc)
@@ -498,12 +510,7 @@ def lazy_decay(locations):
 
 
 def calculate_wait_time(location: m.Location):
-    # Using
-    # court_count
-    # courts_occupied
-    # number_waiting
     # (AVG_GAME_TIME / court_count) * (number_waiting + 1)
-    # if total < court_count => 0
     if (location.number_waiting + location.courts_occupied < location.court_count):
         location.estimated_wait_time = timedelta(minutes=0)
         return location
@@ -547,10 +554,11 @@ def location_latlon(request):
     funs = {"GET": get}
     return get_response(request, funs)
 
+
 def cluster(m_locations, NUM_CLUSTERS):
     # Example data (replace this with your data)
     locations = list(m_locations)
-    coordinates = [(loc.latitude, loc.longitude) for loc in locations]    
+    coordinates = [(loc.latitude, loc.longitude) for loc in locations]
     coordinates_array = np.array(coordinates)
 
     kmeans = KMeans(n_clusters=NUM_CLUSTERS)
@@ -559,9 +567,11 @@ def cluster(m_locations, NUM_CLUSTERS):
     clusters = kmeans.predict(coordinates_array)
 
     cluster_centers = kmeans.cluster_centers_
-    closest_points_indices, _ = pairwise_distances_argmin_min(cluster_centers, coordinates_array)
+    closest_points_indices, _ = pairwise_distances_argmin_min(
+        cluster_centers, coordinates_array)
     closest_objects = [locations[index] for index in closest_points_indices]
     return closest_objects
+
 
 @csrf_exempt
 def location_bounds(request):
@@ -586,7 +596,7 @@ def location_bounds(request):
         m_locations = lazy_decay(m_locations)
 
         NUM_CLUSTERS = 20
-        if(len(m_locations) >= NUM_CLUSTERS):
+        if (len(m_locations) >= NUM_CLUSTERS):
             m_locations = cluster(m_locations, NUM_CLUSTERS)
 
         serializer = ser.LocationSerializer(m_locations, many=True)

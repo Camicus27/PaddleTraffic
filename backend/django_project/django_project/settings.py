@@ -25,7 +25,13 @@ SECRET_KEY = 'django-insecure-a6(p+lk81-y7abxujkxu$(6$4&fkho2vu1@bm%v-880hbd)b#w
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+if not DEBUG:
+    ALLOWED_HOSTS = [
+        "localhost",
+        "127.0.0.1",
+        "[::1]"
+        ]
+
 
 # Set custom user model for authentication
 AUTH_USER_MODEL = "paddle_traffic.PickleUser"
@@ -55,14 +61,20 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-### CORS SETTINGS
-# CORS_ALLOWED_ORIGINS = [
-#     "http://localhost:5173",
-#     "http://localhost:8000",
-#     "http://paddletraffic.net"
-# ]
+## CORS SETTINGS
 
-CORS_ALLOW_ALL_ORIGINS = True
+if DEBUG:
+    CORS_ALLOW_ALL_ORIGINS = True
+else:
+    CORS_ALLOWED_ORIGINS = [
+        "http://localhost:5173",
+        "http://localhost:8000",
+        "http://paddletraffic.net",
+        "https://paddletraffic.net"
+    ]
+
+
+CORS_ALLOW_CREDENTIALS = True
 
 ROOT_URLCONF = 'django_project.urls'
 

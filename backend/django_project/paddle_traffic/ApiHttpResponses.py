@@ -41,5 +41,8 @@ def http_not_found(msg):
 def http_unauthorized():
     return HttpResponse(status=401)
 
+def http_too_many_requests():
+    return HttpResponse(status=429)
+
 def HttpIAmATeapot(msg):
     return HttpResponse("I am a teapot", status=418, content_type="text/plain")
