@@ -31,7 +31,7 @@ class Command(BaseCommand):
         players.user_set.add(p1, p2, p3)
 
         print(os.getcwd())
-        with open(pathlib.Path(__file__).parent() / 'pickle-data.json', 'r', encoding='utf-8') as file:
+        with open(pathlib.Path(__file__).parent / 'pickle-data.json', 'r', encoding='utf-8') as file:
             data = json.load(file)
             locations = data['locations']
             for loc in locations:
