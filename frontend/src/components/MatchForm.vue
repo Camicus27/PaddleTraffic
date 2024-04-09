@@ -1,191 +1,122 @@
 <script setup lang="ts">
 import { ref, onMounted, onActivated, type Ref } from 'vue'
 import axios from 'axios'
-import { getCurrentUser, getAllLocations } from '@/api/functions';
-import type { PickleUser } from '@/api/types';
+import { getCurrentUser, getAllLocations, createEvent } from '@/api/functions';
+import type { PickleUser, RestrictedUser, Location } from '@/api/types';
+import { redirect } from '@/api/utils';
+import { VTimePicker } from 'vuetify/labs/components';
+import { format } from 'date-fns'
 
-const isFetching = ref(true)
-const submittedSuccessfully = ref(false)
+const submissionError = ref(false)
 
-const currentUser: Ref<PickleUser | undefined> = ref(undefined)
-const allFriends: Ref<any> = ref([])
-const allLocations: Ref<any> = ref([])
+let currentUser: Ref<PickleUser>
+const allFriends: Ref<RestrictedUser[]> = ref([])
+const allLocations: Ref<Location[]> = ref([])
 
 const eventForm = ref({
     name: '',
     description: '',
-    location: '',
+    location: 1,
     host: -1,
     players: new Array<number>(),
-    date: '',
-    time: '',
+    date: new Date(),
+    time: format(new Date(), "HH:mm"),
     isPublic: true
 })
-const matchVisibility = ref("public")
-const isHostPlaying = ref("yes");
+const isHostPlaying = ref(true);
 
 
 onMounted(async () => {
-    currentUser.value = await getCurrentUser(true)
-    // if (!currentUser.value) {
-    //     window.location.href = '/login'
-    // }
-    // else {
-    //     allFriends.value = currentUser.value.friends
-    // }
-    allLocations.value = await getAllLocations(true)
+    currentUser = ref(await getCurrentUserOrRedirect())
+    eventForm.value.host = currentUser.value.id
+    allFriends.value = currentUser.value.friends
+    const locs = await getAllLocations(true)
+    if (locs)
+        allLocations.value = locs
 })
 
 onActivated(async () => {
-    submittedSuccessfully.value = false
+    submissionError.value = false
     clearForm()
-    currentUser.value = await getCurrentUser(true)
-    if (!currentUser.value) {
-        window.location.href = '/login'
-    }
-    else {
-        allFriends.value = currentUser.value.friends
-    }
+    currentUser.value = await getCurrentUserOrRedirect()
+    allFriends.value = currentUser.value.friends
 })
 
-let URL: string
-// This is the collection of environment variables.
-const env = import.meta.env
-if (env.MODE === 'production')
-    URL = env.VITE_PROD_URL
-else
-    URL = env.VITE_DEV_URL
+async function getCurrentUserOrRedirect() {
+    const user = await getCurrentUser(true)
+    if (!user) {
+        redirect('/login')
+    }
+    return user as PickleUser
+}
 
-function submitForm() {
-    if (currentUser.value) {
-        eventForm.value.host = currentUser.value.id
-        if (isHostPlaying.value === 'yes') {
-            eventForm.value.players.push(currentUser.value.id)
-        }
+async function submitForm() {
+    console.log("In submit!")
+    if (isHostPlaying.value) {
+        eventForm.value.players.push(currentUser.value.id)
     }
-    else {
-        eventForm.value.host = -1
-    }
-    
-    eventForm.value.isPublic = matchVisibility.value === 'public'
-    axios.post(`${URL}/events/`, { event: eventForm.value })
-        .then(response => {
-            console.log('New event:', response.data);
-            submittedSuccessfully.value = true;
-        })
-        .catch(error => {
-            // Handle errors here
-            console.error('Error:', error);
-        });
+
+    const formData = { ...eventForm.value, date: format(eventForm.value.date, "yyyy-MM-dd") }
+    if (await createEvent(formData, true))
+        redirect("/matchmaking/")
+    else
+        submissionError.value = true
 }
 
 function clearForm() {
     eventForm.value.name = ''
     eventForm.value.description = ''
-    eventForm.value.location = ''
-    eventForm.value.host = -1
+    eventForm.value.location = allLocations.value[0].id || 1
+    eventForm.value.host = currentUser.value.id
     eventForm.value.players = []
-    eventForm.value.date = ''
-    eventForm.value.time = ''
+    eventForm.value.date = new Date()
+    eventForm.value.time = format(new Date(), "HH:mm")
     eventForm.value.isPublic = true
-    matchVisibility.value = "public"
-    isHostPlaying.value = "yes"
+    isHostPlaying.value = true
 }
 </script>
 
 <template>
-    <!-- <div v-if="currentUser" id="event-form-wrapper"> -->
-    <div v-if="true" id="event-form-wrapper">
-        <v-form class="pickle-form">
-            <v-text-field bg-color="white" v-model="eventForm.name" autofocus label="Awesome Event Name..."></v-text-field>
-        </v-form>
+    <v-container>
+        <v-form class="pickle-form" @submit.prevent="submitForm">
+            <v-text-field bg-color="white" v-model="eventForm.name" autofocus
+                label="Awesome Event Name..."></v-text-field>
+            <v-textarea bg-color="white" v-model="eventForm.description"
+                label="Description of your event..."></v-textarea>
+            <v-autocomplete bg-color="white" v-model="eventForm.location" :items="allLocations" item-title="name"
+                item-value="id" label="Location">
+                <template v-slot:item="{ props, item }">
+                    <v-list-item v-bind="props" :subtitle="`${item.raw.latitude}, ${item.raw.longitude}`"
+                        :title="item.raw.name"></v-list-item>
+                </template>
+            </v-autocomplete>
+            <v-autocomplete bg-color="white" v-model="eventForm.players" :items="allFriends" item-title="username"
+                item-value="id" label="Select friends" chips closable-chips multiple counter="4"
+                :counter-value="eventForm.players.length" hide-selected
+                :menu-props="{ disabled: eventForm.players.length >= 4 }" no-data-text="No friends found">
+                <template v-slot:chip="{ props, item }">
+                    <v-chip v-bind="props" :text="item.raw.username"></v-chip>
+                </template>
 
-        <form @submit.prevent="submitForm">
-            <section>
-                <label for="name">Event Name:</label>
-                <input type="text" id="name" v-model="eventForm.name" autofocus tabindex="1" placeholder="Awesome Event Name..." required>
-            </section>
-
-            <section>
-                <label for="description">Description:</label>
-                <textarea id="description" v-model="eventForm.description" tabindex="2" placeholder="Description of your event..."></textarea>
-            </section>
-
-            <section>
-                <label for="location">Location:</label>
-                <select id="location" v-model="eventForm.location" tabindex="3" required>
-                    <option v-for="{ id, name } in allLocations" :key="id" :value="id">{{ name }}</option>
-                </select>
-            </section>
-
-            <section>
-                <div>
-                    <label for="players">Players:</label>
-                    <select id="players" multiple v-model="eventForm.players" tabindex="4">
-                        <optgroup v-if="allFriends.length === 0" label="Add friends to invite them here"></optgroup>
-                        <option v-for="{ id, username } in allFriends" :key="id" :value="id">{{ username }}</option>
-                    </select>
-                </div>
-                <div class="selected-players">
-                    <span v-for="player in eventForm.players" :key="player" class="selected-player" tabindex="6">
-                        <p v-if="player != currentUser.id">
-                            {{ allFriends.filter((p: any) => p.id === player)[0].username }}
-                        </p>
-                    </span>
-                </div>
-            </section>
-
-            <section>
-                <label for="date">Date:</label>
-                <input type="date" id="date" v-model="eventForm.date" tabindex="5" required>
-            </section>
-
-            <section>
-                <label for="time">Time:</label>
-                <input type="time" id="time" v-model="eventForm.time" tabindex="6" required>
-            </section>
-
-            <section class="radio-select">
-                <label for="isPublic">Match Privacy:</label>
-                <div>
-                    <input type="radio" name="privacy" id="public" value="public" v-model="matchVisibility" tabindex="7" required>
-                    <label for="public">Public</label>
-                </div>
-                <div>
-                    <input type="radio" name="privacy" id="private" value="private" v-model="matchVisibility" tabindex="8" required>
-                    <label for="private">Private</label>
-                </div>
-            </section>
-
-            <section class="radio-select">
-                <label for="isAttending">Are You Participating?</label>
-                <p>
-                    (We'll add you to the roster of players automatically)
-                </p>
-                <div>
-                    <input type="radio" name="participating" id="yes-participation" value="yes" v-model="isHostPlaying" tabindex="9" required>
-                    <label for="yes-participation">Yes</label>
-                </div>
-                <div>
-                    <input type="radio" name="participating" id="no-participation" value="no" v-model="isHostPlaying" tabindex="10" required>
-                    <label for="no-participation">No</label>
-                </div>
-            </section>
-
-            <button v-if="!submittedSuccessfully" class="dark-solid-button" type="submit" tabindex="11">Submit</button>
-            <div id="success-alert" v-else>
-                <p>
-                    <strong>Success!</strong> Your form has been submitted.
-                </p>
+                <template v-slot:item="{ props, item }">
+                    <v-list-item v-bind="props" :title="item.raw.username"></v-list-item>
+                </template>
+            </v-autocomplete>
+            <div class="date-container">
+                <v-date-picker v-model="eventForm.date" class="mx-2 mb-4"></v-date-picker>
+                <v-time-picker v-model="eventForm.time" class="mx-2 mb-4"></v-time-picker>
             </div>
-        </form>
-    </div>
-    <div v-else>
-        <h3>Sign in to access event creation</h3>
-    </div>
-    <div id="back-link">
-        <RouterLink to="/matchmaking">&larr; Return to Events</RouterLink>
-    </div>
+            <v-label for="isPublic">Public or private match?</v-label>
+            <v-switch id="isPublic" v-model="eventForm.isPublic" :label="`${eventForm.isPublic ? 'PUBLIC' : 'PRIVATE'}`"
+                inset></v-switch>
+            <v-label for="isAttending">Are you participating?</v-label>
+            <p>(We'll add you to the roster of players automatically)</p>
+            <v-switch id="isAttending" v-model="isHostPlaying" :label="`${isHostPlaying ? 'PLAYING' : 'NOT PLAYING'}`"
+                inset></v-switch>
+            <v-btn class="mt-2" type="submit" block>Submit</v-btn>
+        </v-form>
+        <p v-if="submissionError">There was an error submitting your event.</p>
+    </v-container>
 </template>
 
 <style scoped lang="scss">
@@ -193,61 +124,16 @@ function clearForm() {
 @use '@/styles/abstracts' as *;
 $mobile-size: 800px;
 
-#event-form-wrapper {
-  @extend %main-page;
-  width: 85%;
-
-  @include responsive($mobile-size) {
-    width: 90%;
-  }
+form {
+    width: 100%;
 }
 
-.radio-select {
-    div {
-        display: flex;
-        flex-direction: row;
-        margin-block: 0;
-    }
-    input {
-        width: auto;
-        appearance: auto;
-    }
-    div label {
-        font-weight: normal;
-        padding-left: .5rem;
-        margin-block: 0;
-    }
-    p {
-        color: #272727;
-        font-size: .85rem;
-        margin: 0;
-    }
-}
-
-#location {
-    width: fit-content;
+.date-container {
+    display: flex;
+    justify-content: space-around;
 
     @include responsive($mobile-size) {
-        width: auto;
-    }
-}
-
-#date, #time {
-    width: fit-content;
-}
-
-#back-link {
-    margin-bottom: 5rem;
-    a {
-        font-size: 1.25rem;
-    }
-}
-
-#success-alert {
-    display: flex;
-    justify-content: center;
-    p {
-        font-size: 1.33rem;
+        flex-direction: column;
     }
 }
 </style>

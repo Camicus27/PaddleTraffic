@@ -1,6 +1,7 @@
 <script setup lang="ts">
 
 import { ref, onMounted, watch, type Ref, type TextareaHTMLAttributes } from 'vue'
+import { redirect } from '@/api/utils'
 
 import { getCurrentUser, updateCurrentUser, getFriendRequests, deleteFriendRequest, createFriendRequest, acceptFriendRequest, getAllUsers } from '@/api/functions'
 import type { PendingFriendRequests, PickleUser, RestrictedUser } from '@/api/types'
@@ -75,8 +76,7 @@ onMounted(async () => {
 async function getCurrentUserOrRedirect() {
     const user = await getCurrentUser(true)
     if (!user) {
-        console.log("REDIRECTING!")
-        // redirect('/login')
+        redirect('/login')
     }
     return user as PickleUser
 }
