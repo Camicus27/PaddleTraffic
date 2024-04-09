@@ -54,7 +54,8 @@ def transformAllPickleHeads(filename):
         data = json.load(file)
         courts = data['courts']
         for court in courts:
-            locations.append(transformPickleHeads(court))
+            if court.get('total_courts', None) and court['total_courts'] > 0:
+                locations.append(transformPickleHeads(court))
     return locations
 
 def main():

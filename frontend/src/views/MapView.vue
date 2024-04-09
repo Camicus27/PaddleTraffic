@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, type Ref, computed, onActivated, ssrContextKey, watch, nextTick } from 'vue'
+import { ref, onMounted, onUnmounted, type Ref, computed, onActivated, ssrContextKey, watch, nextTick, onDeactivated } from 'vue'
 import mapboxgl from "mapbox-gl"
 import MapboxGeocoder from '@mapbox/mapbox-gl-geocoder';
 import '@mapbox/mapbox-gl-geocoder/dist/mapbox-gl-geocoder.css';
@@ -68,7 +68,7 @@ function selectMarker(locId: number) {
     let searchBt = document.querySelector("#search-bt")
 
     if (!mapItems.has(locId)) return
-    
+
     const selectedClassName = 'selected'
     if (currSelected.value) { // if a marker is selected
         let mapItem = mapItems.get(currSelected.value)
@@ -126,8 +126,12 @@ function refreshMapItems() {
 }
 
 function refreshMapItemsByCenter() {
-    let { lat, lng } = getMap().getCenter()
-    getLocationsByBounds(lat, lng).then((locations) => {
+    var bounds = getMap().getBounds();
+
+    // Extract the coordinates of the corners
+    var ne = bounds.getNorthEast(); // Northeast corner
+    var sw = bounds.getSouthWest(); // Southwest corner
+    getLocationsByBounds(ne.lat, ne.lng, sw.lat, sw.lng).then((locations) => {
         if (!locations) return // don't refresh if no new data could be received
         removeAllMapItems()
         addAllMapItems(locations, getMap())
@@ -178,7 +182,7 @@ else
 // TODO: Remove and add backend endpoint to get ALL location names & coords & address ORRRR figure out backend search
 function forwardGeocoder(query: string): any[] {
     const matchingFeatures: any[] = [];
-    let locations: Location[] = Array.from(mapItems.values()).map((mapItem) => {return mapItem.location.value})
+    let locations: Location[] = Array.from(mapItems.values()).map(mapItem => mapItem.location.value)
 
     for (const location of locations) {
         if (location.name.toLowerCase().includes(query.toLowerCase())) {
@@ -204,8 +208,16 @@ function initMap() {
         container: mapContainer.value,
         style: 'mapbox://styles/mapbox/streets-v12',
         center: [-111.876183, 40.758701], // Default to SLC 
-        zoom: 11
-    })
+        zoom: 11,
+    });
+
+
+    try {
+        // Disable quick zoom gesture, annoying drag and zoom thing
+        (map.value as any).touchZoomRotate._tapDragZoom._enabled = false;
+    } catch (error) {
+        console.error('Error occurred while disabling quick zoom gesture:', error);
+    }
 
     getMap().flyTo({ animate: false })
     map.value.doubleClickZoom.disable()
@@ -255,24 +267,16 @@ function initGeoloc() {
     })
     getMap().addControl(geolocateControl);
 
-    // change bc mapSearchedCenter
-    geolocateControl.on('geolocate', (e: any) => {
-        // bc it's every time the page loads, probably not this here.
-        // let userLocation = new mapboxgl.LngLat(e.coords.longitude, e.coords.latitude);
-        // mapVal.setCenter(userLocation);
-        console.log(`CENTER ON GEOLOCATE CALLBACK ${getMap().getCenter()}`)
-    }); // when 'turning on' geolocate finishes / page is loaded anew
-
     if (props.lat && props.lon) { // QR CODE
         getNearestLocation(props.lat, props.lon).then((location) => {
             if (location) {
+                console.log('props gotten')
+                getMap().setCenter(new mapboxgl.LngLat(location.longitude, location.latitude))
+                refreshMapItemsByCenter()
                 addMapItem(location, getMap()) // this IS safe. addIfNotIn(...)
                 selectMarker(location.id)
-                getMap().setCenter(new mapboxgl.LngLat(location.longitude, location.latitude))
             }
         })
-
-        refreshMapItemsByCenter()
     } else if (navigator.geolocation) { // GEOLOCATE ON
         getMap().on('load', () => {
             geolocateControl.trigger() // Basically 'turn on geolocate'
@@ -332,21 +336,31 @@ let locationsInterval: number | undefined
 onMounted(() => {
     initMap()
     initGeoloc()
-    locationsInterval = window.setInterval(refreshMapItems, 3000)
+
     document.querySelector('.mapboxgl-ctrl-bottom-right')?.remove()
     document.querySelector('.mapboxgl-ctrl-logo')?.remove()
     document.querySelector('.mapboxgl-ctrl-bottom-left')?.setAttribute('style', 'transform: scale(0.85);')
     let searchBar = document.querySelector(".mapboxgl-ctrl-top-left")
     searchBar?.setAttribute('style', 'transition: left 0.3s ease') // search bar animation for transition
+    getMap().resize()
+})
+
+onActivated(() => {
+    getMap().resize()
+    locationsInterval = window.setInterval(refreshMapItems, 3000)
+})
+
+onDeactivated(() => {
+    if (locationsInterval) {
+        window.clearInterval(locationsInterval)
+    }
+    locationsInterval = undefined
 })
 
 onUnmounted(() => {
     map.value?.remove()
     map.value = undefined
-    if (locationsInterval) {
-        window.clearInterval(locationsInterval)
-    }
-    locationsInterval = undefined
+
 })
 
 const selectedLocation = computed(() => {
@@ -364,7 +378,7 @@ const selectedLocation = computed(() => {
                 <button id="search-bt" @click="refreshMapItemsByCenter">Search This Area</button>
             </div>
             <Transition name="popup-transition">
-                <Popup class="popup" v-if="currSelected" :location="selectedLocation"
+                <Popup class="popup" v-if="currSelected" :location="selectedLocation!"
                     :on-submit-callback="updateMarkerColor" />
             </Transition>
         </div>

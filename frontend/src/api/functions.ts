@@ -147,9 +147,9 @@ export async function getLocationId(id: number, logError: boolean = false): Prom
     return undefined
 }
 
-export async function getLocationsByBounds(lat: number, lon: number, logError: boolean = true): Promise<Location[] | undefined> {
+export async function getLocationsByBounds(lat1: number, lon1: number, lat2: number, lon2: number, logError: boolean = true): Promise<Location[] | undefined> {
     try {
-        const response = await axios.get(`${URL}/locations/bounds?lat=${lat}&lon=${lon}`)
+        const response = await axios.get(`${URL}/locations/bounds?lat1=${lat1}&lon1=${lon1}&lat2=${lat2}&lon2=${lon2}`)
         if (response.data.locations)
             return response.data.locations as Location[]
     } catch (error) {
@@ -183,9 +183,16 @@ export async function getNearestLocation(lat: number, lon: number, logError: boo
     return undefined
 }
 
-export async function postLocationReport(locationId: number, reportData: Report, logError: boolean = false): Promise<Location | undefined> {
+export async function postLocationReport(locationId: number, reportData: Report, lat: number, lon: number, logError: boolean = false): Promise<Location | undefined> {
     try {
-        const response = await axios.post(`${URL}/locations/${locationId}/report/`, { report: reportData })
+        const payload = {
+            report: {
+                reportData,
+                lat,
+                lon
+            }
+        }
+        const response = await axios.post(`${URL}/locations/${locationId}/report/`, payload)
         if (response.data.location)
             return response.data.location as Location
     } catch (error) {
@@ -247,6 +254,18 @@ export async function getAllEvents(logError: boolean): Promise<Array<Event> | un
             console.error(error)
     }
     return undefined
+}
+
+
+export async function createEvent(eventData: any, logError: boolean): Promise<boolean> {
+    try {
+        await axios.post(`${URL}/events/`, { event: eventData }, { withCredentials: true })
+        return true
+    } catch (error) {
+        if (logError)
+            console.error(error)
+        return false
+    }
 }
 
 

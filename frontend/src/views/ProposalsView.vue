@@ -3,15 +3,16 @@ import CommonHeader from '@/components/CommonHeader.vue'
 import ProposalList from '@/components/ProposalList.vue'
 import ProposalForm from '@/components/ProposalForm.vue'
 
-import { ref, onActivated, type Ref } from 'vue'
+import { ref, onMounted, type Ref } from 'vue'
 import { URL, getCurrentUser } from '@/api/functions';
 import type { PickleUser } from '@/api/types';
 
 const currentUser: Ref<PickleUser | undefined> = ref(undefined)
 
-onActivated(async () => {
-    currentUser.value = await getCurrentUser(true)
+onMounted(async () => {
+  currentUser.value = await getCurrentUser(true)
 })
+
 </script>
 
 <template>

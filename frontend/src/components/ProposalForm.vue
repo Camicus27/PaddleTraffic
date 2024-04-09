@@ -18,9 +18,6 @@ const newLocationForm = ref({
 
 onMounted(async () => {
     currentUser.value = await getCurrentUser(true)
-})
-
-onActivated(async () => {
     submittedSuccessfully.value = false
     clearForm()
 })

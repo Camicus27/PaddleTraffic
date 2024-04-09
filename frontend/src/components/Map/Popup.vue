@@ -1,12 +1,13 @@
 <script setup lang="ts">
-import { onMounted, ref, type ComputedRef, type Ref, toRef } from 'vue';
+import { onMounted, ref, type ComputedRef, type Ref, toRef, computed } from 'vue';
 import type { Location, Report } from '@/api/types';
 import { postLocationReport } from '@/api/functions';
 import { formatDistanceToNow } from 'date-fns';
+import QRCode from './QRCode.vue';
 
 // const props = defineProps(['location', 'onSubmitCallback'])
 const props = defineProps<{
-    location: Ref<Location> | undefined,
+    location: Ref<Location>, // change to be just, not null
     onSubmitCallback: (locationId: number) => void,
 }>()
 
@@ -16,6 +17,13 @@ const locForm: Ref<Report> = ref({
 })
 
 const submitDataDisabled = ref<boolean>(false)
+const qr_dialog = ref<boolean>(false)
+const loc_dialog = ref<boolean>(false)
+
+const success_snackbar = ref<boolean>(false)
+const outofrange_snackbar = ref<boolean>(false)
+
+const qrcode_cmp = ref()
 
 function pluralize(word: string, num: number): string {
     if (num != 1) {
@@ -38,55 +46,141 @@ function formatTime(timeNum: number): string {
     return formattedString
 }
 
-function formatDateTime(dateTimeString: string) : string {
+function formatDateTime(dateTimeString: string): string {
     const reportDate = new Date(dateTimeString)
-    return formatDistanceToNow(reportDate, {addSuffix: true})
+    return formatDistanceToNow(reportDate, { addSuffix: true })
+}
+
+const navigatorSuccessCallback = (position: GeolocationPosition, location: Ref<Location>) => {
+    postLocationReport(
+        location.value.id,
+        locForm.value,
+        position.coords.latitude,
+        position.coords.longitude)
+        .then(
+            (l) => {
+                if (l) {
+                    location.value = l
+                    props.onSubmitCallback(location.value.id)
+                    success_snackbar.value = true
+                } else {
+                    outofrange_snackbar.value = true
+                }
+            }
+        )
+}
+
+const navigatorFailCallback = () => {
+    loc_dialog.value = true
 }
 
 function submitForm() {
-    if (!props.location) return
+    let location = props.location
+    if (!location) return
     // timeout the button
     submitDataDisabled.value = true
     setTimeout(() => {
         submitDataDisabled.value = false
     }, 3000)
-    console.log(`calculated time booga: ${props.location.value.calculated_time}`)
-    postLocationReport(props.location.value.id, locForm.value).then((l) => {
-        if (props.location) {
-            if (l) props.location.value = l
-            props.onSubmitCallback(props.location?.value.id)
-        }
-    })
+
+    var options = {
+        enableHighAccuracy: true,
+        timeout: 3000,
+        maximumAge: 1000 * 60 * 5 // 5 mins in ms
+    }
+
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            (position) => navigatorSuccessCallback(position, location),
+            (e) => { navigatorFailCallback(); console.log(e.message) }, // geolocation NOT ENABLED or an ERROR occurred
+            options
+        )
+    } else {
+        navigatorFailCallback() // geolocation NOT ENABLED
+    }
+}
+
+const location_url = computed(() => {
+    const l = props.location.value
+    return `https://paddletraffic.net/map/?lat=${l.latitude}&lon=${l.longitude}`
+})
+
+
+const download = () => {
+    let d = qrcode_cmp.value.download
+    if (d) {
+        d(`${props.location.value.name}-QRCode`)
+    }
+    // console.log("SIX CONSOLES CAT CAM TREE CAM CAT TREE")
 }
 </script>
 
 <template>
     <div class="popup">
         <div class="location-info">
-            <div class="location-title">
-                <h4 class="my-3">{{ props.location?.value.name }}</h4>
-                <sub class="mb-6">Courts: {{ props.location?.value.court_count }}</sub>
-            </div>
+            <h4 class="location-title mb-2">{{ props.location.value.name }}</h4>
+            <sub class="mb-6">Courts: {{ props.location.value.court_count }}</sub>
             <div class="data-info">
-                <p>Est. Courts Occupied: {{ props.location?.value.courts_occupied }}</p>
-                <p>Est. Groups Waiting: {{ props.location?.value.number_waiting }}</p>
-                <p class="mb-2">Est. Wait: {{ formatTime(props.location?.value.estimated_wait_time ?? 0) }}</p>
-                <sub>Last updated {{ formatDateTime(props.location?.value.calculated_time ?? "")}}</sub>
-                <a class="mt-4" :href="`https://maps.google.com/?q=${props.location?.value.latitude},${props.location?.value.longitude}`" target="_blank">Get Directions</a>
+                <p>Est. Courts Occupied: {{ props.location.value.courts_occupied }}</p>
+                <p>Est. Groups Waiting: {{ props.location.value.number_waiting }}</p>
+                <p class="mb-2">Est. Wait: {{ formatTime(props.location.value.estimated_wait_time ?? 0) }}</p>
+                <sub class="mb-6">Last updated {{ formatDateTime(props.location.value.calculated_time ?? "") }}</sub>
+                <div class="direction-qr">
+                    <a class="direction-bt"
+                        :href="`https://maps.google.com/?q=${props.location.value.latitude},${props.location.value.longitude}`"
+                        target="_blank">Get Directions</a>
+                    <img @click="qr_dialog = true" class="qr-icon" src="@/assets/IconQR.png" />
+                </div>
+
+                <v-dialog class="qr-dialog" v-model="qr_dialog" max-width="290">
+                    <v-card>
+                        <QRCode ref="qrcode_cmp" :url="location_url" />
+                        <v-card-actions class="qr-actions">
+                            <v-btn @click="qr_dialog = false">BACK</v-btn>
+                            <img class="download-bt" @click="download" src="@\assets\downloadIconGreen.png">
+                        </v-card-actions>
+                    </v-card>
+                </v-dialog>
+
             </div>
         </div>
         <form @submit.prevent="submitForm">
+            <div class="title">Report Status</div>
             <div class="input-box">
                 <label for="courtsOccupied">Courts Occupied:</label>
                 <input type="number" id="courtsOccupied" name="courtsOccupied" min="0"
-                    :max="props.location?.value.court_count" v-model="locForm.courts_occupied" required>
+                    :max="props.location.value.court_count" v-model="locForm.courts_occupied" required>
             </div>
             <div class="input-box">
                 <label for="numberWaiting">Groups Waiting:</label>
                 <input type="number" id="numberWaiting" name="numberWaiting" min="0"
-                    :max="(locForm.courts_occupied < (props.location?.value.court_count ?? 0)) ? 0 : 10"
+                    :max="(locForm.courts_occupied < (props.location.value.court_count ?? 0)) ? 0 : 10"
                     v-model="locForm.number_waiting" required>
             </div>
+
+            <v-dialog v-model="loc_dialog" persistent max-width="290">
+                <v-card>
+                    <v-card-title class="headline">Location Required</v-card-title>
+                    <v-card-text>
+                        This service requires access to your location. Please enable location services in your browser
+                        settings.
+                    </v-card-text>
+                    <v-card-actions>
+                        <v-btn @click="loc_dialog = false">OK</v-btn>
+                    </v-card-actions>
+                </v-card>
+            </v-dialog>
+
+            <v-snackbar color="success" :timeout="3000" v-model="success_snackbar">
+                <v-icon icon="mdi-check-bold" />
+                Report Successfully Sent
+            </v-snackbar>
+
+            <v-snackbar color="red-darken-2" :timeout="3000" v-model="outofrange_snackbar">
+                <v-icon icon="mdi-alert-circle" />
+                You are too far from the court to submit a report
+            </v-snackbar>
+
             <button :disabled="submitDataDisabled">
                 Update Status
             </button>
@@ -112,6 +206,18 @@ $mobile-size: 800px;
 $border: 2px solid $pickle-500;
 $no-border: 0 solid transparent;
 
+.title {
+    font-weight: bold;
+    font-size: large;
+    border-bottom: 1px solid grey;
+    align-self: stretch;
+
+    @include responsive($mobile-size) {
+        font-size: medium;
+        line-height: 1rem;
+    }
+}
+
 .popup {
     flex-direction: column;
     justify-content: center;
@@ -126,6 +232,63 @@ $no-border: 0 solid transparent;
         border-right: $no-border;
         border-top: $border;
     }
+}
+
+.direction-qr {
+    flex-direction: row;
+    align-items: end;
+    justify-content: start;
+}
+
+.qr-actions {
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+
+    button {
+        margin: 0;
+        align-self: auto;
+    }
+}
+
+.qr-icon {
+    border-radius: 4px;
+    background-color: $pickle-300;
+    width: 44px;
+    height: 44px;
+    cursor: pointer;
+
+    @include responsive($mobile-size) {
+        height: 32px;
+        width: 32px;
+    }
+}
+
+.download-bt {
+    background-color: white;
+
+    cursor: pointer;
+    transition: background-color 0.4s ease;
+    border-radius: 4px;
+
+    &:hover {
+        background-color: $pickle-100;
+    }
+
+    &:active {
+        background-color: lighten($pickle-100, 30%);
+    }
+
+    $img-size: 48px;
+    height: $img-size;
+    width: $img-size;
+    padding: 0;
+    margin: 0;
+
+}
+
+.direction-bt {
+    min-height: 32px;
 }
 
 $padding-size: 8px;
@@ -175,11 +338,23 @@ $padding-size: 8px;
     }
 }
 
-.location-title {
-    display: flex;
-    flex-direction: column;
-    justify-content: start;
+h4.location-title {
+  display: -webkit-box; /* Set display mode to box */
+  -webkit-box-orient: vertical; /* Set box orientation to vertical */
+  overflow: hidden; /* Hide any overflowing text */
+  text-overflow: ellipsis; /* Display ellipsis for text overflow */
+  -webkit-line-clamp: 2; /* Limit number of lines */
+  max-height: 2.5em; /* Set maximum height */
+  line-height: 1em; /* Set line height to control vertical spacing */
+  font-size: 2em;
+  padding-bottom: 0.12em; // make space for y & g characters
+
+  @include responsive($mobile-size) {
+    font-size: 1.6em;
+  }
+  
 }
+
 
 .data-info {
     display: flex;
@@ -194,8 +369,9 @@ $padding-size: 8px;
 
     a {
         @extend .dark-solid-button;
-        margin-bottom: 20px;
+        margin-right: 4px;
         align-self: stretch;
+        flex: 1;
 
         @include responsive($mobile-size) {
             height: 8px;
@@ -212,7 +388,7 @@ form {
     background-color: #dddddd;
     flex-grow: 1;
     flex-basis: 50%;
-    width:auto;
+    width: auto;
     border-radius: 0;
 }
 
@@ -222,12 +398,23 @@ form {
 
     label {
         margin-bottom: 4px;
+        font-size: smaller;
+        font-weight: 600;
     }
 
     input {
         border: none;
         align-self: stretch;
         height: 30px;
+    }
+
+    @include responsive($mobile-size) {
+        font-size: small;
+        line-height: 1rem;
+
+        label {
+            margin-bottom: 0;
+        }
     }
 }
 
