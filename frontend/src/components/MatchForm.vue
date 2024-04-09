@@ -1,15 +1,15 @@
 <script setup lang="ts">
-import { ref, onMounted, onActivated, type Ref } from 'vue'
+import { ref, onMounted, onActivated, watch, type Ref } from 'vue'
 import axios from 'axios'
-import { getCurrentUser, getAllLocations } from '@/api/functions';
-import type { PickleUser } from '@/api/types';
+import { URL, getCurrentUser, getAllLocations } from '@/api/functions';
+import type { PickleUser, RestrictedUser, Location } from '@/api/types';
 
 const isFetching = ref(true)
 const submittedSuccessfully = ref(false)
 
 const currentUser: Ref<PickleUser | undefined> = ref(undefined)
-const allFriends: Ref<any> = ref([])
-const allLocations: Ref<any> = ref([])
+const allFriends: Ref<RestrictedUser[]> = ref([])
+const allLocations: Ref<Location[]> = ref([])
 
 const eventForm = ref({
     name: '',
@@ -22,8 +22,14 @@ const eventForm = ref({
     isPublic: true
 })
 const matchVisibility = ref("public")
-const isHostPlaying = ref("yes");
+const isHostPlaying = ref("yes")
 
+const rules = ref([
+  (value: string) => {
+    if (value) return true;
+    return 'You must enter a value.';
+  },
+])
 
 onMounted(async () => {
     currentUser.value = await getCurrentUser(true)
@@ -33,7 +39,10 @@ onMounted(async () => {
     else {
         allFriends.value = currentUser.value.friends
     }
-    allLocations.value = await getAllLocations(true)
+    const allLoc = await getAllLocations(true)
+    if (allLoc) {
+        allLocations.value = allLoc
+    }
 })
 
 onActivated(async () => {
@@ -47,14 +56,6 @@ onActivated(async () => {
         allFriends.value = currentUser.value.friends
     }
 })
-
-let URL: string
-// This is the collection of environment variables.
-const env = import.meta.env
-if (env.MODE === 'production')
-    URL = env.VITE_PROD_URL
-else
-    URL = env.VITE_DEV_URL
 
 function submitForm() {
     if (currentUser.value) {
@@ -95,8 +96,68 @@ function clearForm() {
 
 <template>
     <div v-if="currentUser" id="event-form-wrapper">
-        <form @submit.prevent="submitForm">
-            <section>
+        <v-form @submit.prevent="submitForm">
+
+            <v-text-field
+                class="field"
+                v-model="eventForm.name"
+                :rules="rules"
+                label="Event Name"
+                type="text"
+                id="name"
+                autofocus
+                tabindex="1"
+                required
+            ></v-text-field>
+
+            <v-textarea
+                class="field"
+                v-model="eventForm.description"
+                label="Event Description"
+                maxlength="200"
+                counter
+                multiline
+                tabindex="2"
+            ></v-textarea>
+
+            <v-autocomplete
+                v-model="eventForm.location"
+                :items="allLocations"
+                item-title="name"
+                item-value="id"
+                label="Event Location"
+                no-data-text="No matching locations."
+                tabindex="4"
+                >
+                    <template v-slot:item="{ props, item }">
+                        <v-list-item v-bind="props" :title="item.raw.name"></v-list-item>
+                    </template>
+            </v-autocomplete>
+
+            <v-autocomplete
+                v-model="eventForm.players"
+                :items="allFriends"
+                item-title="username"
+                item-value="id"
+                label="Add Friends to Event"
+                no-data-text="Add friends to invite them here."
+                chips
+                closable-chips
+                tabindex="4"
+                multiple
+                max="3"
+                >
+                    <template v-slot:chip="{ props, item }">
+                        <v-chip v-bind="props" :text="item.raw.username"></v-chip>
+                    </template>
+
+                    <template v-slot:item="{ props, item }">
+                        <v-list-item v-bind="props" :subtitle="item.raw.skill_level"
+                            :title="item.raw.username"></v-list-item>
+                    </template>
+            </v-autocomplete>
+
+            <!-- <section>
                 <label for="name">Event Name:</label>
                 <input type="text" id="name" v-model="eventForm.name" autofocus tabindex="1" placeholder="Awesome Event Name..." required>
             </section>
@@ -128,7 +189,7 @@ function clearForm() {
                         </p>
                     </span>
                 </div>
-            </section>
+            </section> -->
 
             <section>
                 <label for="date">Date:</label>
@@ -173,7 +234,7 @@ function clearForm() {
                     <strong>Success!</strong> Your form has been submitted.
                 </p>
             </div>
-        </form>
+        </v-form>
     </div>
     <div v-else>
         <h3>Sign in to access event creation</h3>
@@ -243,6 +304,12 @@ $mobile-size: 800px;
     justify-content: center;
     p {
         font-size: 1.33rem;
+    }
+}
+
+.field {
+    input {
+        background-color: white;
     }
 }
 </style>
