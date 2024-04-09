@@ -821,7 +821,7 @@ def events(request):
         serializer.save()
 
         request.user.matches_created += 1
-        if data.get("players").includes(request.user.id):
+        if request.user.id in data.get("players"):
             request.user.matches_attended += 1
         request.user.save()
 
