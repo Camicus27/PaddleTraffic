@@ -91,7 +91,8 @@ function canLeaveGame(players: number[]) {
     <a href="/login/">Sign in</a> to create your own events!
   </h3>
   <RouterLink v-else class="dark-solid-button" to="/matchmaking/create-event">Create Your Own Event</RouterLink>
-  <div v-if="!isFetching" id="event-list-wrapper">
+  <v-progress-circular indeterminate v-if="isFetching"></v-progress-circular>
+  <div v-else id="event-list-wrapper">
     <div class="match" v-for="{ id, name, location, host, players, description, date, time, isPublic } in allMatches" :key="id">
       <h2>
         {{ name }}
@@ -143,9 +144,6 @@ function canLeaveGame(players: number[]) {
         <strong>* Failed to join match.</strong>
       </p>
     </div>
-  </div>
-  <div v-else>
-    Loading events...
   </div>
 </template>
 
