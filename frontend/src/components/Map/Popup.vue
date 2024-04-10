@@ -213,7 +213,6 @@ input::-webkit-inner-spin-button {
     margin: 0;
 }
 
-$mobile-size: 800px;
 $border: 2px solid $pickle-500;
 $no-border: 0 solid transparent;
 

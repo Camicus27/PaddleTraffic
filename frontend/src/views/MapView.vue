@@ -385,7 +385,6 @@ const selectedLocation = computed(() => {
 <style scoped lang="scss">
 @use '@/styles/abstracts' as *;
 @use '@/styles/components';
-$mobile-size: 800px;
 
 * {
     display: flex;
