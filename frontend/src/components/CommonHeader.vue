@@ -1,6 +1,9 @@
 <script setup lang="ts">
 import { ref, onMounted, type Ref } from 'vue';
 import { RouterLink } from 'vue-router'
+import { useDisplay } from 'vuetify'
+
+const { width } = useDisplay()
 import { getCurrentUser } from '@/api/functions';
 import type { PickleUser } from '@/api/types';
 
@@ -9,6 +12,17 @@ const currentUser: Ref<PickleUser | undefined> = ref(undefined)
 onMounted(async () => {
   currentUser.value = await getCurrentUser(true)
 })
+// This should be undefined when there is no user currently logged in.
+const myUser: Ref<any> = ref(undefined);
+
+let URL: string
+// This is the collection of environment variables.
+const env = import.meta.env
+if (env.MODE === 'production')
+  URL = env.VITE_PROD_URL
+else
+  URL = env.VITE_DEV_URL
+
 </script>
 
 <template>
@@ -17,16 +31,17 @@ onMounted(async () => {
       <img src="@/assets/logo.png" class="logo" alt="PaddleTraffic Logo" width="64" height="64">
       <h1>PaddleTraffic</h1>
     </RouterLink>
-    <v-menu transition="slide-y-transition">
+
+    <v-menu transition="slide-y-transition" v-if="width < 1050">
       <template v-slot:activator="{ props }">
         <v-btn class="hamburger" icon="mdi-menu" v-bind="props"></v-btn>
       </template>
 
       <div class="burger-contents">
-        <RouterLink to="/map" class="nav-bt">MAP</RouterLink>
-        <RouterLink to="/matchmaking" class="nav-bt">MATCHMAKING</RouterLink>
-        <RouterLink v-if="currentUser?.is_superuser" to="/new-location" class="nav-bt">PROPOSALS</RouterLink>
-        <RouterLink to="/about" class="nav-bt">ABOUT</RouterLink>
+        <RouterLink to="/map" class="nav-bt">Map</RouterLink>
+        <RouterLink to="/matchmaking" class="nav-bt">Matchmaking</RouterLink>
+        <RouterLink v-if="currentUser?.is_superuser" to="/new-location" class="nav-bt">Proposals</RouterLink>
+        <RouterLink to="/about" class="nav-bt">About</RouterLink>
         <div class="burger-spacer"></div>
         <div class="user-buttons">
           <template v-if="currentUser">
@@ -42,14 +57,28 @@ onMounted(async () => {
         </div>
       </div>
     </v-menu>
+    <nav v-else>
+      <RouterLink to="/map" class="nav-bt">Map</RouterLink>
+      <RouterLink to="/matchmaking" class="nav-bt">Matchmaking</RouterLink>
+      <RouterLink v-if="currentUser?.is_superuser" to="/new-location" class="nav-bt">Proposals</RouterLink>
+      <RouterLink to="/about" class="nav-bt">About</RouterLink>
+      <template v-if="currentUser">
+        <RouterLink to="/profile" class="nav-bt">
+          <img src="@/assets/default_user.png" class="pfp" alt="User profile" width="32" height="32">
+        </RouterLink>
+        <a href="/logout/" class="nav-bt">Logout</a>
+      </template>
+      <template v-else>
+        <a href="/login/" class="nav-bt">Login</a>
+        <a href="/register/" class="nav-bt">Register</a>
+      </template>
+    </nav>
   </header>
 </template>
 
 <style scoped lang="scss">
 @use '@/styles/components';
 @use '@/styles/abstracts' as *;
-
-$mobile-size : 800px;
 
 .nav-bt {
   @extend .nav-button;
@@ -86,7 +115,7 @@ $mobile-size : 800px;
   padding: 0.8rem 0;
   border-radius: 4px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
-  
+
   a {
     font-size: x-large;
     line-height: 1.6rem;
@@ -96,7 +125,7 @@ $mobile-size : 800px;
   @include responsive($mobile-size) {
     padding: 0.3rem 0;
     border-radius: 4px;
-    
+
     a {
       font-size: large;
       line-height: 1.6rem;
@@ -130,7 +159,7 @@ nav {
   flex-direction: row;
   justify-content: center;
   align-items: center;
-  font-size: 1.25rem;
+  font-size: 1.2rem;
 
   @include responsive($mobile-size) {
     width: 100%;

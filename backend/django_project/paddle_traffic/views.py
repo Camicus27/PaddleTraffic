@@ -303,10 +303,11 @@ def report(request, id):
         location: m.Location = try_get_instance(m.Location, id)
         if not verify_distance(lat, lon, location):
             return http_unauthorized()
-        
+
         cookie = request.COOKIES.get(cookie_key, None)
         if cookie:
-            time_of_last_request = datetime.strptime(cookie, '%Y-%m-%d %H:%M:%S').replace(tzinfo=timezone.utc)
+            time_of_last_request = datetime.strptime(
+                cookie, '%Y-%m-%d %H:%M:%S').replace(tzinfo=timezone.utc)
             if datetime.now(timezone.utc) - time_of_last_request < timedelta(seconds=20):
                 return http_too_many_requests()
 

@@ -30,7 +30,7 @@ if not DEBUG:
         "localhost",
         "127.0.0.1",
         "[::1]"
-        ]
+    ]
 
 
 # Set custom user model for authentication
@@ -61,7 +61,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-## CORS SETTINGS
+# CORS SETTINGS
 
 if DEBUG:
     CORS_ALLOW_ALL_ORIGINS = True

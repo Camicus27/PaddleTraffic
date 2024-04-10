@@ -48,7 +48,6 @@ function addMapItem(location: Location, map: mapboxgl.Map) {
     // update color!
     updateMarkerColor(location.id)
 
-    // TODO change to be for event listener on like the Popup instead of just on click
     marker.getElement().addEventListener('click', () => {
         selectMarker(location.id)
     })
@@ -245,7 +244,9 @@ function initMap() {
     geocoder.on('result', (e) => {
         const locationId = e.result.locationId;
         if (locationId && locationId !== currSelected.value)
-            selectMarker(locationId);
+            selectMarker(locationId)
+        if (document.activeElement && 'blur' in document.activeElement)
+            (document.activeElement as HTMLElement).blur()
         refreshMapItemsByCenter()
     });
 
@@ -402,7 +403,6 @@ const selectedLocation = computed(() => {
 <style scoped lang="scss">
 @use '@/styles/abstracts' as *;
 @use '@/styles/components';
-$mobile-size: 800px;
 
 * {
     display: flex;
@@ -490,7 +490,8 @@ $transition: "popup-transition";
     padding: 6px 12px;
 
     position: absolute;
-    bottom: 1.25rem; // Adjust as needed for correct placement from the bottom
+    bottom: 0;
+    margin-bottom: 1.25rem;
     left: 50%;
     transition: bottom $time ease, left $time ease;
     transform: translateX(-50%);
