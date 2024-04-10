@@ -1,13 +1,12 @@
 <script setup lang="ts">
-import { onMounted, ref, type ComputedRef, type Ref, toRef, computed } from 'vue';
+import { ref, type Ref, computed } from 'vue';
 import type { Location, Report } from '@/api/types';
 import { postLocationReport } from '@/api/functions';
 import { formatDistanceToNow } from 'date-fns';
 import QRCode from './QRCode.vue';
 
-// const props = defineProps(['location', 'onSubmitCallback'])
 const props = defineProps<{
-    location: Ref<Location>, // change to be just, not null
+    location: Ref<Location>,
     onSubmitCallback: (locationId: number) => void,
 }>()
 
@@ -60,7 +59,7 @@ const navigatorSuccessCallback = (position: GeolocationPosition, location: Ref<L
         position.coords.longitude)
         .then(
             (response) => {
-                if(response) {
+                if (response) {
                     if (response.status === 200 && response.data.location) {
                         location.value = response.data.location
                         props.onSubmitCallback(location.value.id)
@@ -86,6 +85,10 @@ function submitForm() {
     if (!location) return
     // timeout the button
     submitDataDisabled.value = true
+    if (locForm.value.number_waiting > 10) {
+        return
+    }
+
     setTimeout(() => {
         submitDataDisabled.value = false
     }, 1500)
@@ -93,7 +96,7 @@ function submitForm() {
     var options = {
         enableHighAccuracy: true,
         timeout: 3000,
-        maximumAge: 1000 * 60 * 5 // 5 mins in ms
+        maximumAge: Infinity // 1000 * 60 * 5 // 5 mins in ms
     }
 
     if (navigator.geolocation) {
@@ -119,6 +122,41 @@ const download = () => {
         d(`${props.location.value.name}-QRCode`)
     }
 }
+
+const courtsOccupiedError = ref(' ')
+const groupsWaitingError = ref(' ')
+
+function validateFormInputs() {
+    let error_flag = false
+    if (locForm.value.courts_occupied < 0) {
+        courtsOccupiedError.value = 'Must be over 0'
+        error_flag = true
+    } else if (locForm.value.courts_occupied > props.location.value.court_count) {
+        courtsOccupiedError.value = `Must be under ${props.location.value.court_count}`
+        error_flag = true
+    } else {
+        courtsOccupiedError.value = ' '
+    }
+
+    if (locForm.value.number_waiting < 0) {
+        groupsWaitingError.value = 'Must be over 0'
+        error_flag = true
+    } else if ( // Courts Available Case
+        0 <= locForm.value.courts_occupied
+        && locForm.value.courts_occupied < props.location.value.court_count
+        && locForm.value.number_waiting > 0
+    ) {
+        groupsWaitingError.value = `Open courts, must be 0`
+        error_flag = true
+    } else if (locForm.value.number_waiting > 10) {
+        groupsWaitingError.value = `Must under 10`
+        error_flag = true
+    } else {
+        groupsWaitingError.value = ' '
+    }
+
+    submitDataDisabled.value = error_flag
+}
 </script>
 
 <template>
@@ -127,10 +165,10 @@ const download = () => {
             <h4 class="location-title mb-2">{{ props.location.value.name }}</h4>
             <sub class="mb-6">Courts: {{ props.location.value.court_count }}</sub>
             <div class="data-info">
-                <p>Est. Courts Occupied: {{ props.location.value.courts_occupied }}</p>
-                <p>Est. Groups Waiting: {{ props.location.value.number_waiting }}</p>
-                <p class="mb-2">Est. Wait: {{ formatTime(props.location.value.estimated_wait_time ?? 0) }}</p>
-                <sub class="mb-6">Last updated {{ formatDateTime(props.location.value.calculated_time ?? "") }}</sub>
+                <p>Courts Occupied: {{ props.location.value.courts_occupied }}</p>
+                <p>Groups Waiting: {{ props.location.value.number_waiting }}</p>
+                <p class="mb-2">Wait Time: {{ formatTime(props.location.value.estimated_wait_time ?? 0) }}</p>
+                <sub class="mb-6">Last estimate {{ formatDateTime(props.location.value.calculated_time ?? "") }}</sub>
                 <div class="direction-qr">
                     <a class="direction-bt"
                         :href="`https://maps.google.com/?q=${props.location.value.latitude},${props.location.value.longitude}`"
@@ -154,14 +192,15 @@ const download = () => {
             <div class="title">Report Status</div>
             <div class="input-box">
                 <label for="courtsOccupied">Courts Occupied:</label>
-                <input type="number" id="courtsOccupied" name="courtsOccupied" min="0"
-                    :max="props.location.value.court_count" v-model="locForm.courts_occupied" required>
+                <input type="number" id="courtsOccupied" name="courtsOccupied" v-model="locForm.courts_occupied"
+                    @input="validateFormInputs" required>
+                <span class="error-message">{{ courtsOccupiedError }}</span>
             </div>
             <div class="input-box">
                 <label for="numberWaiting">Groups Waiting:</label>
-                <input type="number" id="numberWaiting" name="numberWaiting" min="0"
-                    :max="(locForm.courts_occupied < (props.location.value.court_count ?? 0)) ? 0 : 10"
-                    v-model="locForm.number_waiting" required>
+                <input type="number" id="numberWaiting" name="numberWaiting" v-model="locForm.number_waiting"
+                    @input="validateFormInputs" required>
+                <span class="error-message">{{ groupsWaitingError }}</span>
             </div>
 
             <v-dialog v-model="loc_dialog" persistent max-width="290">
@@ -213,7 +252,6 @@ input::-webkit-inner-spin-button {
     margin: 0;
 }
 
-$mobile-size: 800px;
 $border: 2px solid $pickle-500;
 $no-border: 0 solid transparent;
 
@@ -298,11 +336,13 @@ $no-border: 0 solid transparent;
 
 }
 
-.direction-bt {
-    min-height: 32px;
-}
-
 $padding-size: 8px;
+
+.error-message {
+    color: darken(red, 3%);
+    font-size: 0.7rem;
+    font-weight: bold;
+}
 
 .location-info {
     justify-content: start;
@@ -350,20 +390,27 @@ $padding-size: 8px;
 }
 
 h4.location-title {
-  display: -webkit-box; /* Set display mode to box */
-  -webkit-box-orient: vertical; /* Set box orientation to vertical */
-  overflow: hidden; /* Hide any overflowing text */
-  text-overflow: ellipsis; /* Display ellipsis for text overflow */
-  -webkit-line-clamp: 2; /* Limit number of lines */
-  max-height: 2.5em; /* Set maximum height */
-  line-height: 1em; /* Set line height to control vertical spacing */
-  font-size: 2em;
-  padding-bottom: 0.12em; // make space for y & g characters
+    display: -webkit-box;
+    /* Set display mode to box */
+    -webkit-box-orient: vertical;
+    /* Set box orientation to vertical */
+    overflow: hidden;
+    /* Hide any overflowing text */
+    text-overflow: ellipsis;
+    /* Display ellipsis for text overflow */
+    -webkit-line-clamp: 2;
+    /* Limit number of lines */
+    max-height: 2.5em;
+    /* Set maximum height */
+    line-height: 1em;
+    /* Set line height to control vertical spacing */
+    font-size: 2em;
+    padding-bottom: 0.12em; // make space for y & g characters
 
-  @include responsive($mobile-size) {
-    font-size: 1.6em;
-  }
-  
+    @include responsive($mobile-size) {
+        font-size: 1.6em;
+    }
+
 }
 
 
@@ -401,6 +448,10 @@ form {
     flex-basis: 50%;
     width: auto;
     border-radius: 0;
+
+    @include responsive($mobile-size) {
+        flex-basis: 70%;
+    }
 }
 
 .input-box {
@@ -420,7 +471,7 @@ form {
     }
 
     @include responsive($mobile-size) {
-        font-size: small;
+        font-size: 0.98rem;
         line-height: 1rem;
 
         label {
@@ -431,16 +482,30 @@ form {
 
 button {
     @extend .dark-solid-button;
-    font-size: x-small;
+    font-size: medium;
     height: 2rem;
     margin-top: 1rem;
     line-height: 1rem;
     align-self: stretch;
+    margin-bottom: 6px;
+
+    @include responsive($mobile-size) {
+        font-size: 0.7rem;
+    }
 }
 
 button:disabled {
     border: 1px solid #999999;
     background-color: #cccccc;
     color: #666666;
+}
+
+.direction-bt {
+    min-height: 32px;
+    font-size: large !important;
+
+    @include responsive($mobile-size) {
+        font-size: 0.9rem !important;
+    }
 }
 </style>
