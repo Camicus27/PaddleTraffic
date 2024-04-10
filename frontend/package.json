@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "dev": "vite",
-    "build": "run-p type-check \"build-only {@}\" -- && powershell -file postbuild.ps1",
+    "build": "run-p type-check \"build-only {@}\" -- && ./postbuild.sh",
     "preview": "vite preview",
     "test:unit": "vitest",
     "build-only": "vite build",
