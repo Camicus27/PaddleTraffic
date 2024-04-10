@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import { ref, onMounted, onActivated, type Ref } from 'vue'
-import axios from 'axios'
 import { getCurrentUser, getAllLocations, createEvent } from '@/api/functions';
 import type { PickleUser, RestrictedUser, Location } from '@/api/types';
 import { redirect } from '@/api/utils';
@@ -24,6 +23,27 @@ const eventForm = ref({
     isPublic: true
 })
 const isHostPlaying = ref(true);
+
+const nameRules = ref([
+    (value: string) => {
+        if (value) return true
+
+        return 'Missing value.'
+    },
+    (value: string) => {
+        if (value?.length <= 25) return true
+
+        return 'Name must be less than 25 characters.'
+    },
+])
+
+const generalRules = ref([
+    (value: string) => {
+        if (value) return true
+
+        return 'Missing value.'
+    },
+])
 
 
 onMounted(async () => {
@@ -51,7 +71,6 @@ async function getCurrentUserOrRedirect() {
 }
 
 async function submitForm() {
-    console.log("In submit!")
     if (isHostPlaying.value) {
         eventForm.value.players.push(currentUser.value.id)
     }
@@ -81,9 +100,10 @@ function clearForm() {
 
 <template>
     <v-container class="form-container">
-        <v-form class="pickle-form" @submit.prevent="submitForm">
+        <v-form class="pickle-form" validate-on="submit lazy" @submit.prevent="submitForm">
             <v-text-field
                 bg-color="white"
+                :rules="nameRules"
                 v-model="eventForm.name"
                 label="Awesome Event Name..."
                 autofocus
@@ -100,6 +120,7 @@ function clearForm() {
 
             <v-autocomplete
                 bg-color="white"
+                :rules="generalRules"
                 v-model="eventForm.location"
                 :items="allLocations"
                 item-title="name"
@@ -142,6 +163,7 @@ function clearForm() {
 
             <div class="date-container">
                 <v-date-picker
+                    :rules="generalRules"
                     v-model="eventForm.date"
                     class="mx-2 mb-4"
                     tabindex="4"
@@ -149,6 +171,7 @@ function clearForm() {
                 ></v-date-picker>
 
                 <v-time-picker
+                    :rules="generalRules"
                     v-model="eventForm.time"
                     class="mx-2 mb-4"
                     scrollable

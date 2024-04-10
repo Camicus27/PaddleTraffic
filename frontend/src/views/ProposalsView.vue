@@ -12,22 +12,20 @@ const currentUser: Ref<PickleUser | undefined> = ref(undefined)
 onMounted(async () => {
   currentUser.value = await getCurrentUser(true)
 })
-
 </script>
 
 <template>
     <CommonHeader />
     <div id="proposal-wrapper">
-      <h1>New Court Proposals</h1>
-      <div v-if="currentUser?.is_superuser">
+      <h1>Propose a New Court</h1>
+      <div v-if="currentUser?.is_superuser" class="proposal-sub-wrapper">
         <ProposalForm />
-        <hr>
         <ProposalList />
       </div>
-      <div v-else-if="currentUser">
+      <div v-else-if="currentUser" class="proposal-sub-wrapper">
         <ProposalForm />
       </div>
-      <div v-else>
+      <div v-else class="proposal-sub-wrapper">
         <a href="/login/">Sign in</a> to propose new Pickelball locations for the map!
       </div>
     </div>
@@ -46,7 +44,17 @@ h1 {
   width: 85%;
 
   @include responsive($mobile-size) {
-    width: 90%;
+    width: 100%;
+  }
+}
+
+.proposal-sub-wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  @include responsive($mobile-size) {
+    width: 100%;
   }
 }
 </style>

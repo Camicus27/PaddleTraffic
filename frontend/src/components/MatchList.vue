@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, type Ref } from 'vue';
-import { URL, getAllUsers, getCurrentUser, getAllEvents, createJoinGame, createLeaveGame } from '@/api/functions';
+import { getAllUsers, getCurrentUser, getAllEvents, createJoinGame, createLeaveGame } from '@/api/functions';
+import { redirect } from '@/api/utils';
 import type { PickleUser } from '@/api/types';
 
 import CalendarButtonContainer from "@/components/Calendar/CalendarButtonContainer.vue"
@@ -14,18 +15,13 @@ const allMatches: Ref<any> = ref([])
 const allPlayers: Ref<Record<number, string>> = ref({});
 
 onMounted(async () => {
-  console.log("Mounted")
   currentUser.value = await getCurrentUser(true)
-  console.log(`user got ${currentUser.value}`)
 
   allMatches.value = await getAllEvents(true)
-  console.log(`matches got ${allMatches.value}`)
 
   isFetching.value = false
-  console.log(`isFetching changed ${isFetching.value}`)
 
   const allUsers = await getAllUsers(true)
-  console.log(`all dang users got ${allUsers}`)
 
   if (allUsers) {
     allUsers.forEach(player => {
@@ -35,7 +31,6 @@ onMounted(async () => {
 })
 
 async function tryJoinGame(eventId: number) {
-  console.log("Try Join Game")
   didJoin.value = await createJoinGame(eventId, true)
 
   if (didJoin.value) {
@@ -48,7 +43,6 @@ async function tryJoinGame(eventId: number) {
 }
 
 async function tryLeaveGame(eventId: number) {
-  console.log("Try Leave Game")
   didJoin.value = await createLeaveGame(eventId, true)
 
   if (didJoin.value) {
@@ -84,6 +78,10 @@ function canLeaveGame(players: number[]) {
     return false;
   }
 }
+
+function redirectToLocation(latitude: number, longitude: number) {
+  redirect(`/map/?lat=${latitude}&lon=${longitude}`);
+}
 </script>
 
 <template>
@@ -106,9 +104,7 @@ function canLeaveGame(players: number[]) {
         </RouterLink>
       </p>
       <p class="location">
-        Held at <RouterLink class="link"
-          :to="{ path: '/map/', query: { lat: location.latitude, lon: location.longitude } }"><strong>{{ location.name
-            }}</strong></RouterLink>
+        Held at <a class="link" href="#" @click="redirectToLocation(location.latitude, location.longitude)"><strong>{{ location.name }}</strong></a>
       </p>
       <p class="date-time mb-4">
         on <strong>{{ date }}</strong> at <strong>{{ time }}</strong>
@@ -141,7 +137,7 @@ function canLeaveGame(players: number[]) {
           game</button>
       </div>
       <p id="error-msg" v-if="!didJoin && failedToJoinID === id">
-        <strong>* Failed to join match.</strong>
+        <strong>Failed to join match.</strong>
       </p>
     </div>
   </div>

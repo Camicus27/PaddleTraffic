@@ -1,38 +1,14 @@
 <script setup lang="ts">
 import { ref, onMounted, type Ref } from 'vue';
 import { RouterLink } from 'vue-router'
+import { getCurrentUser } from '@/api/functions';
+import type { PickleUser } from '@/api/types';
 
-import axios from 'axios'
+const currentUser: Ref<PickleUser | undefined> = ref(undefined)
 
-// This should be undefined when there is no user currently logged in.
-const myUser: Ref<any> = ref(undefined);
-
-let URL: string
-// This is the collection of environment variables.
-const env = import.meta.env
-if (env.MODE === 'production')
-  URL = env.VITE_PROD_URL
-else
-  URL = env.VITE_DEV_URL
-
-
-onMounted(() => {
-  getCurrentUser()
+onMounted(async () => {
+  currentUser.value = await getCurrentUser(true)
 })
-
-function getCurrentUser() { // TODO change to be from @/api/functions
-  axios.get(`${URL}/current-user/`)
-    .then((response) => {
-      if (response.data.user)
-        myUser.value = response.data.user
-      else
-        myUser.value = undefined
-    })
-    .catch(() => {
-      myUser.value = undefined
-    })
-}
-
 </script>
 
 <template>
@@ -49,11 +25,11 @@ function getCurrentUser() { // TODO change to be from @/api/functions
       <div class="burger-contents">
         <RouterLink to="/map" class="nav-bt">MAP</RouterLink>
         <RouterLink to="/matchmaking" class="nav-bt">MATCHMAKING</RouterLink>
-        <RouterLink to="/new-location" class="nav-bt">PROPOSALS</RouterLink>
+        <RouterLink v-if="currentUser?.is_superuser" to="/new-location" class="nav-bt">PROPOSALS</RouterLink>
         <RouterLink to="/about" class="nav-bt">ABOUT</RouterLink>
         <div class="burger-spacer"></div>
         <div class="user-buttons">
-          <template v-if="myUser">
+          <template v-if="currentUser">
             <RouterLink to="/profile" class="nav-bt">
               <img src="@/assets/default_user.png" class="pfp" alt="User profile" width="32" height="32">
             </RouterLink>
