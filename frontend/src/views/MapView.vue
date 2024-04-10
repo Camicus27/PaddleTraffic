@@ -490,7 +490,8 @@ $transition: "popup-transition";
     padding: 6px 12px;
 
     position: absolute;
-    bottom: 1.25rem; // Adjust as needed for correct placement from the bottom
+    bottom: 0;
+    margin-bottom: 1.25rem;
     left: 50%;
     transition: bottom $time ease, left $time ease;
     transform: translateX(-50%);
