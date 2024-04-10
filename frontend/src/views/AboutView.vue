@@ -1,5 +1,5 @@
 <script setup lang="ts">
-    import CommonHeader from '@/components/CommonHeader.vue';
+import CommonHeader from '@/components/CommonHeader.vue';
 </script>
 
 <template>
@@ -67,20 +67,21 @@
 $mobile-size: 800px;
 
 .about {
-    @extend %main-page;
-    width: 60%;
+  @extend %main-page;
+  width: 60%;
+
+  @include responsive($mobile-size) {
+    width: 90%;
+  }
+
+  p {
+    font-size: 1.2rem;
+    line-height: 1.5rem;
 
     @include responsive($mobile-size) {
-        width: 90%;
+      font-size: .85rem;
+      line-height: 1.15rem;
     }
-    p {
-        font-size: 1.2rem;
-        line-height: 1.5rem;
-
-        @include responsive($mobile-size) {
-            font-size: .85rem;
-            line-height: 1.15rem;
-        }
-    }
+  }
 }
 </style>

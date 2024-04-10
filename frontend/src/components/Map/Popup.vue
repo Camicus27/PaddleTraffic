@@ -60,7 +60,7 @@ const navigatorSuccessCallback = (position: GeolocationPosition, location: Ref<L
         position.coords.longitude)
         .then(
             (response) => {
-                if(response) {
+                if (response) {
                     if (response.status === 200 && response.data.location) {
                         location.value = response.data.location
                         props.onSubmitCallback(location.value.id)
@@ -349,20 +349,27 @@ $padding-size: 8px;
 }
 
 h4.location-title {
-  display: -webkit-box; /* Set display mode to box */
-  -webkit-box-orient: vertical; /* Set box orientation to vertical */
-  overflow: hidden; /* Hide any overflowing text */
-  text-overflow: ellipsis; /* Display ellipsis for text overflow */
-  -webkit-line-clamp: 2; /* Limit number of lines */
-  max-height: 2.5em; /* Set maximum height */
-  line-height: 1em; /* Set line height to control vertical spacing */
-  font-size: 2em;
-  padding-bottom: 0.12em; // make space for y & g characters
+    display: -webkit-box;
+    /* Set display mode to box */
+    -webkit-box-orient: vertical;
+    /* Set box orientation to vertical */
+    overflow: hidden;
+    /* Hide any overflowing text */
+    text-overflow: ellipsis;
+    /* Display ellipsis for text overflow */
+    -webkit-line-clamp: 2;
+    /* Limit number of lines */
+    max-height: 2.5em;
+    /* Set maximum height */
+    line-height: 1em;
+    /* Set line height to control vertical spacing */
+    font-size: 2em;
+    padding-bottom: 0.12em; // make space for y & g characters
 
-  @include responsive($mobile-size) {
-    font-size: 1.6em;
-  }
-  
+    @include responsive($mobile-size) {
+        font-size: 1.6em;
+    }
+
 }
 
 
