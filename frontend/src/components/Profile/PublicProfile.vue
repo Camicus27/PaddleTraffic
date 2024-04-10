@@ -154,8 +154,8 @@ async function deleteOutgoingFriendRequestUpdate() {
                         <v-card-text class="d-flex flex-column align-center">
                             <h2>Bio</h2>
 
-                            <pre class="text-subtitle-1 text--primary px-md-16 w-100"
-                                style="height: 100px; align-self: flex-start;">{{ pageUser?.bio }}</pre>
+                            <div class="bio text-subtitle-1 text--primary px-md-16 w-100"
+                                style="height: 100px; align-self: flex-start;">{{ pageUser?.bio }}</div>
                         </v-card-text>
                     </v-card>
                 </v-col>
@@ -255,5 +255,10 @@ h1 {
         /* Grey color for the message */
         margin-bottom: 30px;
     }
+}
+
+.bio {
+    white-space: pre-wrap;
+    word-wrap: break-word;
 }
 </style>
