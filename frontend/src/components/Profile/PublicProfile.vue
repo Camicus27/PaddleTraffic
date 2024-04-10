@@ -179,7 +179,7 @@ async function deleteOutgoingFriendRequestUpdate() {
                                 <h2 class="align-self-center">Match Statistics</h2>
                                 <p class="text-h6 text--primary">Matches Attended: <span>{{ pageUser?.matches_attended
                                         }}</span></p>
-                                <p class="text-h6 text--primary">Matches Created: <span>{{ pageUser?.matches_attended
+                                <p class="text-h6 text--primary">Matches Created: <span>{{ pageUser?.matches_created
                                         }}</span>
                                 </p>
                             </div>

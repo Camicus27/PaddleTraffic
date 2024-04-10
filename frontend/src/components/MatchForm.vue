@@ -180,7 +180,7 @@ function clearForm() {
                 required
             ></v-switch>
 
-            <v-btn class="mt-2" type="submit" block>Submit</v-btn>
+            <button class="dark-solid-button" type="submit" tabindex="8">Submit</button>
 
             <div v-if="submissionError">
                 <p id="error-msg">There was an error submitting your event.</p>

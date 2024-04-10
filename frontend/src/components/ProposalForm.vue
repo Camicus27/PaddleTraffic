@@ -122,7 +122,7 @@ function clearForm() {
                 required
             ></v-number-input>
 
-            <button v-if="!submittedSuccessfully" class="dark-solid-button" type="submit" tabindex="---">Submit</button>
+            <button v-if="!submittedSuccessfully" class="dark-solid-button" type="submit" tabindex="4">Submit</button>
             <div id="success-alert" v-else>
                 <p>
                     <strong>Success!</strong> Your proposal has been submitted and is awaiting admin approval.
