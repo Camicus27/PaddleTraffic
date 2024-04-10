@@ -536,6 +536,11 @@ $transition: "popup-transition";
     border: 1px solid #ccc;
     border-radius: 4px;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+
+    @include responsive($mobile-size) {
+        font-size: .5rem;
+        line-height: .69rem;
+    }
     
     cursor: pointer;
     &:hover {
