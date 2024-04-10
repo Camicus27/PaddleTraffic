@@ -1,5 +1,12 @@
-import axios from 'axios'
-import type { FriendRequest, Location, ProposedLocation, PendingFriendRequests, PickleUser, RestrictedUser, Report } from './types'
+import axios, { type AxiosResponse } from 'axios'
+import type { 
+    FriendRequest, 
+    Location, 
+    ProposedLocation, 
+    PendingFriendRequests, 
+    PickleUser, 
+    RestrictedUser, 
+    Report } from './types'
 
 let _URL: string
 // This is the collection of environment variables.
@@ -183,7 +190,7 @@ export async function getNearestLocation(lat: number, lon: number, logError: boo
     return undefined
 }
 
-export async function postLocationReport(locationId: number, reportData: Report, lat: number, lon: number, logError: boolean = false): Promise<Location | undefined> {
+export async function postLocationReport(locationId: number, reportData: Report, lat: number, lon: number, logError: boolean = false): Promise<AxiosResponse<any, any> | undefined> {
     try {
         const payload = {
             report: {
@@ -192,14 +199,19 @@ export async function postLocationReport(locationId: number, reportData: Report,
                 lon
             }
         }
-        const response = await axios.post(`${URL}/locations/${locationId}/report/`, payload)
-        if (response.data.location)
-            return response.data.location as Location
-    } catch (error) {
+        const config = {
+            withCredentials: true
+        };
+        const response = await axios.post(`${URL}/locations/${locationId}/report/`, payload, config)
+        return response
+    } catch (error: any) {
         if (logError)
             console.error(error)
+        if(error.response) {
+            return error.response as Promise<AxiosResponse<any, any>>
+        }
+        return undefined
     }
-    return undefined
 }
 
 export async function getAllProposals(logError: boolean = false): Promise<Array<ProposedLocation> | undefined> {

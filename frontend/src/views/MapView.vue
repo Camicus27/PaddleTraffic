@@ -7,12 +7,9 @@ import { useRoute } from "vue-router"
 import Popup from '@/components/Map/Popup.vue'
 import CommonHeader from '@/components/CommonHeader.vue'
 import {
-    getAllLocations,
-    getLocationId,
     getLocationsByBounds,
     getLocationsByList,
-    getNearestLocation,
-    postLocationReport
+    getNearestLocation
 } from '@/api/functions'
 import { type Location } from '@/api/types'
 // import { appendFile } from 'fs'

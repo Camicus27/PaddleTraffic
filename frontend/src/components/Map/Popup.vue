@@ -22,6 +22,7 @@ const loc_dialog = ref<boolean>(false)
 
 const success_snackbar = ref<boolean>(false)
 const outofrange_snackbar = ref<boolean>(false)
+const toomany_snackbar = ref<boolean>(false)
 
 const qrcode_cmp = ref()
 
@@ -58,13 +59,19 @@ const navigatorSuccessCallback = (position: GeolocationPosition, location: Ref<L
         position.coords.latitude,
         position.coords.longitude)
         .then(
-            (l) => {
-                if (l) {
-                    location.value = l
-                    props.onSubmitCallback(location.value.id)
-                    success_snackbar.value = true
-                } else {
-                    outofrange_snackbar.value = true
+            (response) => {
+                if(response) {
+                    if (response.status === 200 && response.data.location) {
+                        location.value = response.data.location
+                        props.onSubmitCallback(location.value.id)
+                        success_snackbar.value = true
+                    } else if (response.status === 401) {
+                        outofrange_snackbar.value = true
+                    } else if (response.status === 429) {
+                        toomany_snackbar.value = true
+                    } else {
+                        console.error(`Server Error Occurred ${response.status}`)
+                    }
                 }
             }
         )
@@ -81,7 +88,7 @@ function submitForm() {
     submitDataDisabled.value = true
     setTimeout(() => {
         submitDataDisabled.value = false
-    }, 3000)
+    }, 1500)
 
     var options = {
         enableHighAccuracy: true,
@@ -92,7 +99,7 @@ function submitForm() {
     if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(
             (position) => navigatorSuccessCallback(position, location),
-            (e) => { navigatorFailCallback(); console.log(e.message) }, // geolocation NOT ENABLED or an ERROR occurred
+            () => { navigatorFailCallback() }, // geolocation NOT ENABLED or an ERROR occurred
             options
         )
     } else {
@@ -111,7 +118,6 @@ const download = () => {
     if (d) {
         d(`${props.location.value.name}-QRCode`)
     }
-    // console.log("SIX CONSOLES CAT CAM TREE CAM CAT TREE")
 }
 </script>
 
@@ -171,14 +177,19 @@ const download = () => {
                 </v-card>
             </v-dialog>
 
-            <v-snackbar color="success" :timeout="3000" v-model="success_snackbar">
+            <v-snackbar color="success" :timeout="2000" v-model="success_snackbar">
                 <v-icon icon="mdi-check-bold" />
                 Report Successfully Sent
             </v-snackbar>
 
-            <v-snackbar color="red-darken-2" :timeout="3000" v-model="outofrange_snackbar">
+            <v-snackbar color="red-darken-2" :timeout="2000" v-model="outofrange_snackbar">
                 <v-icon icon="mdi-alert-circle" />
                 You are too far from the court to submit a report
+            </v-snackbar>
+
+            <v-snackbar color="orange-darken-2" :timeout="2000" v-model="toomany_snackbar">
+                <v-icon icon="mdi-alert" />
+                You have submitted too many requests recently
             </v-snackbar>
 
             <button :disabled="submitDataDisabled">
