@@ -1,11 +1,11 @@
 <script setup lang="ts">
-import CommonHeader from '@/components/CommonHeader.vue'
-import ProposalList from '@/components/ProposalList.vue'
-import ProposalForm from '@/components/ProposalForm.vue'
-
 import { ref, onMounted, type Ref } from 'vue'
 import { URL, getCurrentUser } from '@/api/functions';
 import type { PickleUser } from '@/api/types';
+
+import CommonHeader from '@/components/CommonHeader.vue'
+import ProposalList from '@/components/ProposalList.vue'
+import ProposalForm from '@/components/ProposalForm.vue'
 
 const currentUser: Ref<PickleUser | undefined> = ref(undefined)
 
