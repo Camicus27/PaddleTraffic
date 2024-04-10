@@ -64,7 +64,8 @@ async function tryDenyLocation(proposalID: number) {
 </script>
 
 <template>
-  <div v-if="!isFetching" id="proposal-list-wrapper">
+  <v-progress-circular indeterminate v-if="isFetching"></v-progress-circular>
+  <div v-else id="proposal-list-wrapper">
     <div class="proposal" v-for="{ id, name, latitude, longitude, court_count, proposer } in allProposals" :key="id">
       <h2>
         {{ name }}
@@ -98,9 +99,6 @@ async function tryDenyLocation(proposalID: number) {
     <h2 v-if="!isFetching && allProposals.length === 0">
       There are currently no new proposals.
     </h2>
-  </div>
-  <div v-else>
-    Loading proposals...
   </div>
 </template>
 
