@@ -165,10 +165,10 @@ function validateFormInputs() {
             <h4 class="location-title mb-2">{{ props.location.value.name }}</h4>
             <sub class="mb-6">Courts: {{ props.location.value.court_count }}</sub>
             <div class="data-info">
-                <p>Est. Courts Occupied: {{ props.location.value.courts_occupied }}</p>
-                <p>Est. Groups Waiting: {{ props.location.value.number_waiting }}</p>
-                <p class="mb-2">Est. Wait: {{ formatTime(props.location.value.estimated_wait_time ?? 0) }}</p>
-                <sub class="mb-6">Last updated {{ formatDateTime(props.location.value.calculated_time ?? "") }}</sub>
+                <p>Courts Occupied: {{ props.location.value.courts_occupied }}</p>
+                <p>Groups Waiting: {{ props.location.value.number_waiting }}</p>
+                <p class="mb-2">Wait Time: {{ formatTime(props.location.value.estimated_wait_time ?? 0) }}</p>
+                <sub class="mb-6">Last estimate {{ formatDateTime(props.location.value.calculated_time ?? "") }}</sub>
                 <div class="direction-qr">
                     <a class="direction-bt"
                         :href="`https://maps.google.com/?q=${props.location.value.latitude},${props.location.value.longitude}`"
