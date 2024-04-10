@@ -1,6 +1,8 @@
 # PaddleTraffic
 
+## AWS
 
+For steps getting AWS set up, see [this file](aws_setup.md)
 
 ## Getting started
 

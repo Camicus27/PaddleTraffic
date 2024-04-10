@@ -63,6 +63,7 @@ npm install
 
 pipx install poetry
 echo "export PATH=~/.local/bin:$PATH" >> ~/.bashrc
+source ~/.bashrc
 
 cd ../backend
 poetry install
