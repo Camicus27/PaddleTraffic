@@ -63,14 +63,18 @@ else
       <RouterLink v-if="currentUser?.is_superuser" to="/new-location" class="nav-bt">Proposals</RouterLink>
       <RouterLink to="/about" class="nav-bt">About</RouterLink>
       <template v-if="currentUser">
-        <RouterLink to="/profile" class="nav-bt">
-          <img src="@/assets/default_user.png" class="pfp" alt="User profile" width="32" height="32">
-        </RouterLink>
-        <a href="/logout/" class="nav-bt">Logout</a>
+        <div class="profile-section">
+          <RouterLink to="/profile" class="nav-bt">
+            <img src="@/assets/default_user.png" class="pfp" alt="User profile" width="32" height="32">
+          </RouterLink>
+          <a href="/logout/" class="nav-bt">Logout</a>
+        </div>
       </template>
       <template v-else>
-        <a href="/login/" class="nav-bt">Login</a>
-        <a href="/register/" class="nav-bt">Register</a>
+        <div class="profile-section">
+          <a href="/login/" class="nav-bt">Login</a>
+          <a href="/register/" class="nav-bt">Register</a>
+        </div>
       </template>
     </nav>
   </header>
@@ -84,7 +88,8 @@ else
   @extend .nav-button;
 
   @include responsive($mobile-size) {
-    padding: 0 0.3rem;
+    padding: .2rem .25rem;
+    margin: .2rem .5rem;
     font-size: 0.8rem;
   }
 }
@@ -139,7 +144,7 @@ header {
   align-items: center; // Ensure vertical alignment in the center
   justify-content: space-between; // Space out the logo and navigation
   width: 100%;
-  border-bottom: 3px solid $pickle-500;
+  border-bottom: 2px solid $pickle-500;
   background-image: linear-gradient(to top, $pickle-600, $pickle-100);
   flex: 0 1 auto;
 }
@@ -152,6 +157,14 @@ header {
 .user-buttons {
   display: flex;
   flex-direction: row;
+}
+
+.profile-section {
+  display: flex;
+  align-items: center;
+  margin-left: 1rem;
+  padding-left: 1rem;
+  border-left: 1px solid $pickle-500;
 }
 
 nav {
