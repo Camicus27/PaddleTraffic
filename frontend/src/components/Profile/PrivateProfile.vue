@@ -96,33 +96,29 @@ async function getFriendRequestsOrEmpty(): Promise<PendingFriendRequests> {
 }
 
 async function updateSkillLevel() {
-    const userCopy = { ...myUser.value }
-    userCopy.skill_level = skillLvl.value
+    const userCopy = { ...myUser.value, skill_level: skillLvl.value, friends: myUser.value.friends.map(f => f.id) }
     if (await updateCurrentUser(userCopy, true))
-        myUser.value = userCopy
+        myUser.value = { ...myUser.value, skill_level: skillLvl.value }
     else
         console.log("Unable to update skill level")
     revealSkillLvl.value = false
 }
 
 async function updateBio() {
-    const userCopy = { ...myUser.value }
-    userCopy.bio = bio.value
+    const userCopy = { ...myUser.value, bio: bio.value, friends: myUser.value.friends.map(f => f.id) }
     if (await updateCurrentUser(userCopy, true))
-        myUser.value = userCopy
+        myUser.value = { ...myUser.value, bio: bio.value }
     else
         console.log("Unable to update bio")
     revealBio.value = false
 }
 
 async function removeFriend(friend: RestrictedUser) {
-    const userCopy = { ...myUser.value }
-    userCopy.friends = userCopy.friends.filter(f => f.id !== friend.id)
+    const userCopy = { ...myUser.value, friends: myUser.value.friends.map(f => f.id).filter(f_id => f_id !== friend.id) }
     if (await updateCurrentUser(userCopy, true))
-        myUser.value = userCopy
+        myUser.value = { ...myUser.value, friends: myUser.value.friends.filter(f => f.id !== friend.id) }
     else
         console.log("Unable to update bio")
-    myUser.value.friends = userCopy.friends
     await updateFriendState()
 }
 
@@ -263,7 +259,7 @@ function getUpdatedFilteredUserList() {
                                 <v-list-item-title>
                                     <a class="user-link" :href="`/profile/${incoming.requester.username}`">{{
                                         incoming.requester.username
-                                        }}</a>
+                                    }}</a>
                                 </v-list-item-title>
                                 <template v-slot:append>
                                     <v-btn icon="mdi-check" variant="text"
@@ -280,7 +276,7 @@ function getUpdatedFilteredUserList() {
                                 <v-list-item-title>
                                     <a class="user-link" :href="`/profile/${outgoing.receiver.username}`">{{
                                         outgoing.receiver.username
-                                        }}</a>
+                                    }}</a>
                                 </v-list-item-title>
                                 <template v-slot:append>
                                     <v-btn icon="mdi-close" variant="text"
