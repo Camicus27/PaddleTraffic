@@ -65,7 +65,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-## CORS SETTINGS
+# CORS SETTINGS
 
 if DEBUG:
     CORS_ALLOW_ALL_ORIGINS = True
