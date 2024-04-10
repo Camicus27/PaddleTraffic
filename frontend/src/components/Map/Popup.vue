@@ -5,9 +5,8 @@ import { postLocationReport } from '@/api/functions';
 import { formatDistanceToNow } from 'date-fns';
 import QRCode from './QRCode.vue';
 
-// const props = defineProps(['location', 'onSubmitCallback'])
 const props = defineProps<{
-    location: Ref<Location>, // change to be just, not null
+    location: Ref<Location>,
     onSubmitCallback: (locationId: number) => void,
 }>()
 
@@ -86,6 +85,10 @@ function submitForm() {
     if (!location) return
     // timeout the button
     submitDataDisabled.value = true
+    if (locForm.value.number_waiting > 10) {
+        return
+    }
+
     setTimeout(() => {
         submitDataDisabled.value = false
     }, 1500)
@@ -118,6 +121,41 @@ const download = () => {
     if (d) {
         d(`${props.location.value.name}-QRCode`)
     }
+}
+
+const courtsOccupiedError = ref(' ')
+const groupsWaitingError = ref(' ')
+
+function validateFormInputs() {
+    let error_flag = false
+    if (locForm.value.courts_occupied < 0) {
+        courtsOccupiedError.value = 'Must be over 0'
+        error_flag = true
+    } else if (locForm.value.courts_occupied > props.location.value.court_count) {
+        courtsOccupiedError.value = `Must be under ${props.location.value.court_count}`
+        error_flag = true
+    } else {
+        courtsOccupiedError.value = ' '
+    }
+
+    if (locForm.value.number_waiting < 0) {
+        groupsWaitingError.value = 'Must be over 0'
+        error_flag = true
+    } else if ( // Courts Available Case
+        0 <= locForm.value.courts_occupied
+        && locForm.value.courts_occupied < props.location.value.court_count
+        && locForm.value.number_waiting > 0
+    ) {
+        groupsWaitingError.value = `Open courts, must be 0`
+        error_flag = true
+    } else if (locForm.value.number_waiting > 10) {
+        groupsWaitingError.value = `Must under 10`
+        error_flag = true
+    } else {
+        groupsWaitingError.value = ' '
+    }
+
+    submitDataDisabled.value = error_flag
 }
 </script>
 
@@ -154,14 +192,15 @@ const download = () => {
             <div class="title">Report Status</div>
             <div class="input-box">
                 <label for="courtsOccupied">Courts Occupied:</label>
-                <input type="number" id="courtsOccupied" name="courtsOccupied" min="0"
-                    :max="props.location.value.court_count" v-model="locForm.courts_occupied" required>
+                <input type="number" id="courtsOccupied" name="courtsOccupied" v-model="locForm.courts_occupied"
+                    @input="validateFormInputs" required>
+                <span class="error-message">{{ courtsOccupiedError }}</span>
             </div>
             <div class="input-box">
                 <label for="numberWaiting">Groups Waiting:</label>
-                <input type="number" id="numberWaiting" name="numberWaiting" min="0"
-                    :max="(locForm.courts_occupied < (props.location.value.court_count ?? 0)) ? 0 : 10"
-                    v-model="locForm.number_waiting" required>
+                <input type="number" id="numberWaiting" name="numberWaiting" v-model="locForm.number_waiting"
+                    @input="validateFormInputs" required>
+                <span class="error-message">{{ groupsWaitingError }}</span>
             </div>
 
             <v-dialog v-model="loc_dialog" persistent max-width="290">
@@ -297,11 +336,13 @@ $no-border: 0 solid transparent;
 
 }
 
-.direction-bt {
-    min-height: 32px;
-}
-
 $padding-size: 8px;
+
+.error-message {
+    color: darken(red, 3%);
+    font-size: 0.7rem;
+    font-weight: bold;
+}
 
 .location-info {
     justify-content: start;
@@ -407,6 +448,10 @@ form {
     flex-basis: 50%;
     width: auto;
     border-radius: 0;
+
+    @include responsive($mobile-size) {
+        flex-basis: 70%;
+    }
 }
 
 .input-box {
@@ -426,7 +471,7 @@ form {
     }
 
     @include responsive($mobile-size) {
-        font-size: small;
+        font-size: 0.98rem;
         line-height: 1rem;
 
         label {
@@ -437,16 +482,30 @@ form {
 
 button {
     @extend .dark-solid-button;
-    font-size: x-small;
+    font-size: medium;
     height: 2rem;
     margin-top: 1rem;
     line-height: 1rem;
     align-self: stretch;
+    margin-bottom: 6px;
+
+    @include responsive($mobile-size) {
+        font-size: 0.7rem;
+    }
 }
 
 button:disabled {
     border: 1px solid #999999;
     background-color: #cccccc;
     color: #666666;
+}
+
+.direction-bt {
+    min-height: 32px;
+    font-size: large !important;
+
+    @include responsive($mobile-size) {
+        font-size: 0.9rem !important;
+    }
 }
 </style>
