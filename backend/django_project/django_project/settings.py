@@ -23,15 +23,19 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = 'django-insecure-a6(p+lk81-y7abxujkxu$(6$4&fkho2vu1@bm%v-880hbd)b#w'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-if not DEBUG:
-    ALLOWED_HOSTS = [
-        "localhost",
-        "127.0.0.1",
-        "[::1]"
-        ]
+ALLOWED_HOSTS = [
+    "localhost",
+    "127.0.0.1",
+    "[::1]"
+    ]
 
+CSRF_TRUSTED_ORIGINS = [
+  'http://52.44.28.39',
+  'http://*.paddletraffic.net',
+  'https://*.paddletraffic.net',
+]
 
 # Set custom user model for authentication
 AUTH_USER_MODEL = "paddle_traffic.PickleUser"
