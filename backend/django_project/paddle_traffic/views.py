@@ -667,25 +667,23 @@ def location_proposal_id(request, id):
     """
 
     def post(all_data):
-        # Get information from proposal
         proposal: m.ProposedLocation = try_get_instance(m.ProposedLocation, id)
-        name = proposal.name
-        latitude = proposal.latitude
-        longitude = proposal.longitude
-        court_count = proposal.court_count
+        if proposal is None:
+            return http_not_found("Proposal does not exist.")
 
-        # Check if the admin made any changes to the proposal
+        # Get and serialize data from admin
         data = all_data.get("location", None)
-        if data is not None:
-            serializer = ser.LocationProposalSerializer(
-                instance=proposal, data=data)
-            if not serializer.is_valid():
-                return http_bad_request_json()
+        if data is None:
+            return http_bad_request_json()
+        serializer = ser.LocationProposalSerializer(data=data)
+        if not serializer.is_valid():
+            return http_bad_request_json()
 
-            name = serializer.data.get('name')
-            latitude = serializer.data.get('latitude')
-            longitude = serializer.data.get('longitude')
-            court_count = serializer.data.get('court_count')
+        # Retrieve information from proposal
+        name = serializer.data.get('name')
+        latitude = serializer.data.get('latitude')
+        longitude = serializer.data.get('longitude')
+        court_count = serializer.data.get('court_count')
 
         # Create a new location
         m.Location(

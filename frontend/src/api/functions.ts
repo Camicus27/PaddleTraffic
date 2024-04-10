@@ -226,9 +226,9 @@ export async function getAllProposals(logError: boolean = false): Promise<Array<
     return undefined
 }
 
-export async function createApproveLocation(proposalID: number, locationChanges: ProposedLocation | undefined, logError: boolean): Promise<boolean> {
+export async function createApproveLocation(proposal: ProposedLocation, logError: boolean): Promise<boolean> {
     try {
-        await axios.post(`${URL}/location/new/${proposalID}/`, { location: locationChanges }, { withCredentials: true })
+        await axios.post(`${URL}/location/new/${proposal.id}/`, { location: proposal }, { withCredentials: true })
         return true
     } catch (error) {
         if (logError)

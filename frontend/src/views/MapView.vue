@@ -23,6 +23,8 @@ interface MapItem {
     marker: mapboxgl.Marker
 }
 
+const proposalInfo = ref(false)
+
 // [Location.id] : MapItem
 const mapItems: Map<number, MapItem> = new Map()
 const currSelected = ref<number | undefined>()
@@ -373,6 +375,21 @@ const selectedLocation = computed(() => {
             <div class="map-overlay-container">
                 <div ref="mapContainer" class="mapbox-container"></div>
                 <button id="search-bt" @click="refreshMapItemsByCenter">Search This Area</button>
+                <v-container class="proposal-container">
+                    <v-btn v-if="!proposalInfo" icon small color="white" @click="proposalInfo = true">
+                        <v-icon color="#333" icon="mdi-information-variant"></v-icon>
+                    </v-btn>
+                    <v-expand-transition>
+                        <div v-if="proposalInfo" class="info-up">
+                            <v-btn icon small density="compact" color="white" variant="flat" :ripple="false" @click="proposalInfo = false">
+                                <v-icon color="#333" icon="mdi-arrow-down-drop-circle-outline"></v-icon>
+                            </v-btn>
+                            <RouterLink to="/new-location" id="proposal-link">
+                                Don't see a location that should be there? Click here to propose a new marker for the map!
+                            </RouterLink>
+                        </div>
+                    </v-expand-transition>
+                </v-container>
             </div>
             <Transition name="popup-transition">
                 <Popup class="popup" v-if="currSelected" :location="selectedLocation!"
@@ -470,42 +487,57 @@ $transition: "popup-transition";
 }
 
 #search-bt {
+    padding: 6px 12px;
+
     position: absolute;
-    bottom: 0; // Adjust as needed for correct placement from the bottom
-    transition: bottom $time ease, left $time ease;
-    margin-bottom: 20px;
+    bottom: 1.25rem; // Adjust as needed for correct placement from the bottom
     left: 50%;
-    transform: translateX(-50%); // Center horizontally
+    transition: bottom $time ease, left $time ease;
+    transform: translateX(-50%);
     z-index: 1; // Ensure the button is above the map layers
-    background-color: white;
+
     color: #333;
+    background-color: white;
     border: 1px solid #ccc;
     border-radius: 4px;
-    padding: 6px 12px;
-    cursor: pointer;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-
+    
+    cursor: pointer;
     &:hover {
         background-color: #f8f8f8;
     }
 }
 
-#proposal-bt {
+.proposal-container {
+    width: 20%;
+    padding: 0;
+
     position: absolute;
     bottom: 1rem;
     right: 1rem;
-    z-index: 1; // Ensure the button is above the map layers
-    width: 15%;
-    font-size: .8rem;
+    transition: bottom $time ease, left $time ease;
+    z-index: 1;
+
+    justify-content: end;
+}
+
+.info-up {
+    flex-direction: column;
+    align-items: center;
+}
+
+#proposal-link {
+    padding: 6px 12px;
+
     text-decoration: none;
-    background-color: white;
+    font-size: .85rem;
     color: #333;
+    background-color: white;
     border: 1px solid #ccc;
     border-radius: 4px;
-    padding: 6px 12px;
-    cursor: pointer;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-
+    
+    cursor: pointer;
     &:hover {
         background-color: #f8f8f8;
     }
