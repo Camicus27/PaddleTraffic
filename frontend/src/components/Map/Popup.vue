@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, type ComputedRef, type Ref, toRef, computed } from 'vue';
+import { ref, type Ref, computed } from 'vue';
 import type { Location, Report } from '@/api/types';
 import { postLocationReport } from '@/api/functions';
 import { formatDistanceToNow } from 'date-fns';
@@ -96,7 +96,7 @@ function submitForm() {
     var options = {
         enableHighAccuracy: true,
         timeout: 3000,
-        maximumAge: 1000 * 60 * 5 // 5 mins in ms
+        maximumAge: Infinity // 1000 * 60 * 5 // 5 mins in ms
     }
 
     if (navigator.geolocation) {
