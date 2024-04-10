@@ -55,7 +55,8 @@ class Command(BaseCommand):
             courts_occupied=0,
             number_waiting=0,
             estimated_wait_time=timedelta(minutes=0),
-            calculated_time = datetime.now(timezone.utc)
+            calculated_time = datetime.now(timezone.utc),
+            city_state_country = "Salt Lake City, UT, USA",
         )
 
         """
@@ -67,20 +68,11 @@ class Command(BaseCommand):
             courts_occupied=,
             number_waiting=,
             estimated_wait_time=timedelta(minutes=0),
-            calculated_time=datetime.now(timezone.utc)
+            calculated_time=datetime.now(timezone.utc),
+            city_state_country=,
         )
         """
 
-        # match1 = Event.objects.create(
-        #     name="Pickleball Scrimmage",
-        #     description="A casual game between pickleball enthusiasts. All are welcome to join!",
-        #     location=crescent_community,
-        #     host=organizer1,
-        #     date=timezone.now().date(),
-        #     time=timezone.now().time(),
-        #     isPublic=True
-        # )
-        # match1.players.add(organizer1, p3)
         match1 = Event.objects.create(
             name="PaddleTraffic Charity Event",
             description="Raising money to fund the extended development of PaddleTraffic!",
@@ -99,29 +91,3 @@ class Command(BaseCommand):
         p1.save()
         p2.save()
         administrator.save()
-
-
-        '''
-        match3 = Event.objects.create(
-            name="Battle of the Picklers",
-            description="An epic battle to determine the ultimate Pickler.",
-            location=picklecoin_hq,
-            host=organizer1,
-            date=timezone.now().date(),
-            time=timezone.now().time(),
-            isPublic=True
-        )
-        match3.players.add(p1, p2)
-        
-        match4 = Event.objects.create(
-            name="Moon Match",
-            description="A chill game of pickleball on the moon.",
-            location=the_moon,
-            host=organizer2,
-            date=timezone.now().date(),
-            time=timezone.now().time(),
-            isPublic=False
-        )
-        match4.players.add(p1, p2)
-
-        '''

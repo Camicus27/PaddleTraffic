@@ -5,6 +5,7 @@ import axios from 'axios'
 import { URL, getCurrentUser } from '@/api/functions';
 import type { PickleUser } from '@/api/types';
 import { generalTextRule, latRules, longRules, courtRules } from '@/api/rules';
+import { redirect } from '@/api/utils';
 
 const submittedSuccessfully = ref(false)
 const submissionError = ref(false)
@@ -46,6 +47,9 @@ function submitForm() {
         .then(response => {
             console.log('New location:', response.data);
             submittedSuccessfully.value = true;
+            if (currentUser.value?.is_superuser) {
+                redirect(`${URL}/new-location/`)
+            }
         })
         .catch(error => {
             console.error('Error:', error);
@@ -74,33 +78,35 @@ function clearForm() {
                 required
             ></v-text-field>
 
-            <v-number-input
+            <v-text-field
                 bg-color="white"
+                style="width: 50%;"
                 :rules="latRules"
                 v-model="newLocationForm.latitude"
                 label="Latitude"
-                control-variant="split"
+                type="number"
+                hide-spin-buttons
                 :max="90"
                 :min="-90"
                 :step="0.000001"
-                inset
                 tabindex="1"
                 required
-            ></v-number-input>
+            ></v-text-field>
 
-            <v-number-input
+            <v-text-field
                 bg-color="white"
+                style="width: 50%;"
                 :rules="longRules"
                 v-model="newLocationForm.longitude"
                 label="Longitude"
-                control-variant="split"
+                type="number"
+                hide-spin-buttons
                 :max="180"
                 :min="-180"
                 :step="0.000001"
-                inset
                 tabindex="2"
                 required
-            ></v-number-input>
+            ></v-text-field>
 
             <v-number-input
                 bg-color="white"
@@ -150,10 +156,10 @@ $mobile-size: 800px;
 }
 
 .v-number-input--split {
-    width: 50%;
+    width: 30%;
 
     @include responsive($mobile-size) {
-        width: 100%;
+        width: 80%;
     }
     
     .v-field__input {
@@ -178,6 +184,6 @@ $mobile-size: 800px;
 }
 
 .v-messages__message {
-    margin-bottom: .75rem;
+    margin-bottom: 1rem;
 }
 </style>

@@ -109,7 +109,7 @@ function clearForm() {
                 required
             >
                 <template v-slot:item="{ props, item }">
-                    <v-list-item v-bind="props" :subtitle="`${item.raw.latitude}, ${item.raw.longitude}`" :title="item.raw.name"></v-list-item>
+                    <v-list-item v-bind="props" :subtitle="`${item.raw.city_state_country}`" :title="item.raw.name"></v-list-item>
                 </template>
             </v-autocomplete>
 

@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { ref, onActivated, onMounted, type Ref } from 'vue';
 import { VNumberInput } from 'vuetify/labs/VNumberInput'
+import {  } from './ProposalForm.vue'
 import { getAllUsers, getCurrentUser, getAllProposals, createApproveLocation, createDenyLocation } from '@/api/functions';
-import type { PickleUser, RestrictedUser, ProposedLocation } from '@/api/types';
+import type { PickleUser, ProposedLocation } from '@/api/types';
 import { redirect } from '@/api/utils';
 import { generalTextRule, latRules, longRules, courtRules } from '@/api/rules';
 
@@ -132,34 +133,38 @@ async function tryDenyLocation(proposal: ProposedLocation) {
       </p>
       
       <div class="location">
-        <v-number-input v-if="editMode && editID === proposal.id"
+        <v-text-field v-if="editMode && editID === proposal.id"
             bg-color="white"
+            style="width: 75%;"
+            dense
             :rules="latRules"
             v-model="editedProposalForm.latitude"
             label="Latitude"
-            control-variant="split"
+            type="number"
+            hide-spin-buttons
             :max="90"
             :min="-90"
             :step="0.000001"
-            inset
             tabindex="1"
-        ></v-number-input>
+        ></v-text-field>
         <p v-else class="latitude">
             Latitude: {{ proposal.latitude }}
         </p>
 
-        <v-number-input v-if="editMode && editID === proposal.id"
+        <v-text-field v-if="editMode && editID === proposal.id"
             bg-color="white"
+            style="width: 75%;"
+            dense
             :rules="longRules"
             v-model="editedProposalForm.longitude"
             label="Longitude"
-            control-variant="split"
+            type="number"
+            hide-spin-buttons
             :max="180"
             :min="-180"
             :step="0.000001"
-            inset
             tabindex="2"
-        ></v-number-input>
+        ></v-text-field>
         <p v-else class="longitude">
             Longitude: {{ proposal.longitude }}
         </p>
@@ -249,6 +254,18 @@ $mobile-size: 800px;
   right: 1rem;
   bottom: 1rem;
   border: 2px solid black;
+}
+
+.v-number-input--split {
+    width: 40%;
+
+    @include responsive($mobile-size) {
+        width: 100%;
+    }
+    
+    .v-field__input {
+        text-align: left;
+    }
 }
 
 .proposal {

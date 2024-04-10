@@ -638,6 +638,12 @@ def location_proposal(request):
 
         if lat is None or long is None or court_count is None:
             return http_bad_request_json()
+        
+        try:
+            lat = float(lat)
+            long = float(long)
+        except ValueError:
+            return http_bad_request_json()
 
         if lat < -90 or lat > 90:
             return http_bad_argument("Invalid latitude")
