@@ -39,6 +39,12 @@ server {
 
 After this point, you can navigate to `http://52.44.28.39/` and you should see a defualt nginx screen.
 
+To setup HTTPS, run these commands. It will ask for your email:
+```bash
+sudo certbot --nginx -d paddletraffic.net -d www.paddletraffic.net
+sudo systemctl restart nginx
+```
+
 Now, clone the repository into `/opt` and setup dependencies:
 ```bash
 cd /opt
