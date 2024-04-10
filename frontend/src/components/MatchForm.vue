@@ -109,7 +109,7 @@ function clearForm() {
                 required
             >
                 <template v-slot:item="{ props, item }">
-                    <v-list-item v-bind="props" :subtitle="`${item.raw.latitude}, ${item.raw.longitude}`" :title="item.raw.name"></v-list-item>
+                    <v-list-item v-bind="props" :subtitle="`${item.raw.city_state_country}`" :title="item.raw.name"></v-list-item>
                 </template>
             </v-autocomplete>
 
@@ -180,7 +180,7 @@ function clearForm() {
                 required
             ></v-switch>
 
-            <v-btn class="mt-2" type="submit" block>Submit</v-btn>
+            <button class="dark-solid-button" type="submit" tabindex="8">Submit</button>
 
             <div v-if="submissionError">
                 <p id="error-msg">There was an error submitting your event.</p>
