@@ -4,9 +4,14 @@ import { RouterLink } from 'vue-router'
 import { useDisplay } from 'vuetify'
 
 const { width } = useDisplay()
+import { getCurrentUser } from '@/api/functions';
+import type { PickleUser } from '@/api/types';
 
-import axios from 'axios'
+const currentUser: Ref<PickleUser | undefined> = ref(undefined)
 
+onMounted(async () => {
+  currentUser.value = await getCurrentUser(true)
+})
 // This should be undefined when there is no user currently logged in.
 const myUser: Ref<any> = ref(undefined);
 
@@ -17,24 +22,6 @@ if (env.MODE === 'production')
   URL = env.VITE_PROD_URL
 else
   URL = env.VITE_DEV_URL
-
-
-onMounted(() => {
-  getCurrentUser()
-})
-
-function getCurrentUser() { // TODO change to be from @/api/functions
-  axios.get(`${URL}/current-user/`)
-    .then((response) => {
-      if (response.data.user)
-        myUser.value = response.data.user
-      else
-        myUser.value = undefined
-    })
-    .catch(() => {
-      myUser.value = undefined
-    })
-}
 
 </script>
 
@@ -53,11 +40,11 @@ function getCurrentUser() { // TODO change to be from @/api/functions
       <div class="burger-contents">
         <RouterLink to="/map" class="nav-bt">Map</RouterLink>
         <RouterLink to="/matchmaking" class="nav-bt">Matchmaking</RouterLink>
-        <RouterLink to="/new-location" class="nav-bt">Proposals</RouterLink>
+        <RouterLink v-if="currentUser?.is_superuser" to="/new-location" class="nav-bt">Proposals</RouterLink>
         <RouterLink to="/about" class="nav-bt">About</RouterLink>
         <div class="burger-spacer"></div>
         <div class="user-buttons">
-          <template v-if="myUser">
+          <template v-if="currentUser">
             <RouterLink to="/profile" class="nav-bt">
               <img src="@/assets/default_user.png" class="pfp" alt="User profile" width="32" height="32">
             </RouterLink>
@@ -73,9 +60,9 @@ function getCurrentUser() { // TODO change to be from @/api/functions
     <nav v-else>
       <RouterLink to="/map" class="nav-bt">Map</RouterLink>
       <RouterLink to="/matchmaking" class="nav-bt">Matchmaking</RouterLink>
-      <RouterLink to="/new-location" class="nav-bt">Proposals</RouterLink>
+      <RouterLink v-if="currentUser?.is_superuser" to="/new-location" class="nav-bt">Proposals</RouterLink>
       <RouterLink to="/about" class="nav-bt">About</RouterLink>
-      <template v-if="myUser">
+      <template v-if="currentUser">
         <RouterLink to="/profile" class="nav-bt">
           <img src="@/assets/default_user.png" class="pfp" alt="User profile" width="32" height="32">
         </RouterLink>

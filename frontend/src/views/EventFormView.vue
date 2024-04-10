@@ -12,7 +12,8 @@ import CommonHeader from '@/components/CommonHeader.vue';
 </template>
 
 <style scoped lang="scss">
-@use '../styles/abstracts';
+@use '@/styles/abstracts' as *;
+$mobile-size: 800px;
 
 h1 {
   margin-bottom: 1.5rem;
@@ -21,5 +22,9 @@ h1 {
 #events-wrapper {
   @extend %main-page;
   width: 85%;
+
+  @include responsive($mobile-size) {
+    width: 100%;
+  }
 }
 </style>
