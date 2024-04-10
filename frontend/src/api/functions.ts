@@ -44,7 +44,7 @@ export async function getCurrentUser(logError: boolean): Promise<PickleUser | un
  * @param logError Whether or not the error should be printed, if one occurs.
  * @returns a PickleUser object if the request is successful; undefined otherwise
  */
-export async function updateCurrentUser(userData: PickleUser, logError: boolean): Promise<boolean> {
+export async function updateCurrentUser(userData: PickleUser | any, logError: boolean): Promise<boolean> {
     try {
         await axios.patch(`${URL}/current-user/`, { user: userData })
         return true
