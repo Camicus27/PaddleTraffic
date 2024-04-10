@@ -28,6 +28,7 @@ urlpatterns = [
     path('map/', views.index),
     path('matchmaking/', views.index),
     path('matchmaking/create-event/', views.index),
+    path('new-location/', views.index),
     path('about/', views.index),
     path('profile/', views.index),
     path('profile/<str:username>/', views.index),

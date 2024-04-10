@@ -5,6 +5,7 @@ import type { PickleUser, RestrictedUser, Location } from '@/api/types';
 import { redirect } from '@/api/utils';
 import { VTimePicker } from 'vuetify/labs/components';
 import { format } from 'date-fns'
+import { generalTextRule, nameRules } from '@/api/rules';
 
 const submissionError = ref(false)
 
@@ -23,28 +24,6 @@ const eventForm = ref({
     isPublic: true
 })
 const isHostPlaying = ref(true);
-
-const nameRules = ref([
-    (value: string) => {
-        if (value) return true
-
-        return 'Missing value.'
-    },
-    (value: string) => {
-        if (value?.length <= 25) return true
-
-        return 'Name must be less than 25 characters.'
-    },
-])
-
-const generalRules = ref([
-    (value: string) => {
-        if (value) return true
-
-        return 'Missing value.'
-    },
-])
-
 
 onMounted(async () => {
     currentUser = ref(await getCurrentUserOrRedirect())
@@ -120,7 +99,7 @@ function clearForm() {
 
             <v-autocomplete
                 bg-color="white"
-                :rules="generalRules"
+                :rules="generalTextRule"
                 v-model="eventForm.location"
                 :items="allLocations"
                 item-title="name"
@@ -163,7 +142,7 @@ function clearForm() {
 
             <div class="date-container">
                 <v-date-picker
-                    :rules="generalRules"
+                    :rules="generalTextRule"
                     v-model="eventForm.date"
                     class="mx-2 mb-4"
                     tabindex="4"
@@ -171,7 +150,7 @@ function clearForm() {
                 ></v-date-picker>
 
                 <v-time-picker
-                    :rules="generalRules"
+                    :rules="generalTextRule"
                     v-model="eventForm.time"
                     class="mx-2 mb-4"
                     scrollable

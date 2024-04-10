@@ -52,9 +52,6 @@ h1 {
   display: flex;
   flex-direction: column;
   align-items: center;
-
-  @include responsive($mobile-size) {
-    width: 100%;
-  }
+  width: 100%;
 }
 </style>

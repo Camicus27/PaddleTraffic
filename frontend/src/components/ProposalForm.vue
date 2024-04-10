@@ -4,6 +4,7 @@ import { VNumberInput } from 'vuetify/labs/VNumberInput'
 import axios from 'axios'
 import { URL, getCurrentUser } from '@/api/functions';
 import type { PickleUser } from '@/api/types';
+import { generalTextRule, latRules, longRules, courtRules } from '@/api/rules';
 
 const submittedSuccessfully = ref(false)
 const submissionError = ref(false)
@@ -17,53 +18,6 @@ const newLocationForm = ref({
     court_count: 1,
     proposer: -1
 })
-
-const nameRules = ref([
-    (value: string) => {
-        if (value) return true
-
-        return 'Missing a name.'
-    },
-])
-
-const latRules = ref([
-    (value: number) => {
-        if (value) return true
-
-        return 'Missing value.'
-    },
-    (value: number) => {
-        if (90 > value && value > -90) return true
-
-        return 'Latitude must be between 90 and -90 degrees'
-    },
-])
-
-const longRules = ref([
-    (value: number) => {
-        if (value) return true
-
-        return 'Missing value.'
-    },
-    (value: number) => {
-        if (180 > value && value > -180) return true
-
-        return 'Longitude must be between 180 and -180 degrees'
-    },
-])
-
-const courtRules = ref([
-    (value: number) => {
-        if (value) return true
-
-        return 'Missing value.'
-    },
-    (value: number) => {
-        if (value > 0) return true
-
-        return 'Court count must be a positive number'
-    },
-])
 
 onMounted(async () => {
     currentUser.value = await getCurrentUser(true)
@@ -112,7 +66,7 @@ function clearForm() {
         <v-form class="proposal-form" validate-on="submit lazy" @submit.prevent="submitForm">
             <v-text-field
                 bg-color="white"
-                :rules="nameRules"
+                :rules="generalTextRule"
                 v-model="newLocationForm.name"
                 label="New Location Name..."
                 autofocus
