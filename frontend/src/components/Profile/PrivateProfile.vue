@@ -168,8 +168,8 @@ function getUpdatedFilteredUserList() {
                     <v-card-text class="d-flex flex-column align-center">
                         <h2>Bio</h2>
 
-                        <pre class="text-subtitle-1 text--primary px-md-16 w-100"
-                            style="height: 100px; align-self: flex-start;">{{ myUser.bio }}</pre>
+                        <div class="bio text-subtitle-1 text--primary px-md-16 w-100"
+                            style="height: 100px; align-self: flex-start;">{{ myUser.bio }}</div>
                     </v-card-text>
                     <v-card-actions>
                         <v-btn color="#4b5320" variant="text" @click="revealBio = true">
@@ -393,5 +393,10 @@ h1 {
         font-weight: bold;
         align-self: center;
     }
+}
+
+.bio {
+    white-space: pre-wrap;
+    word-wrap: break-word;
 }
 </style>
