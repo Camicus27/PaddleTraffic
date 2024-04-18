@@ -8,7 +8,12 @@ import CommonHeader from '@/components/CommonHeader.vue';
     <header>
       <h1>About PaddleTraffic</h1>
     </header>
-    <p>
+    <nav>
+      <RouterLink to="/staff">Staff</RouterLink>
+      <RouterLink to="/tutorial">Tutorial</RouterLink>
+    </nav>
+
+    <!-- <p>
       At PaddleTraffic, our mission is to revolutionize the way pickleball enthusiasts find and join
       games at local courts. Recognizing the growing popularity of pickleball — now the
       fastest-growing sport in the United States — we identified a need for an innovative solution
@@ -58,7 +63,7 @@ import CommonHeader from '@/components/CommonHeader.vue';
       Whether you're looking to find an open court, join a game, or connect with the pickleball
       community, PaddleTraffic is your go-to platform. Join us in our journey to make pickleball
       more accessible and enjoyable for everyone!
-    </p>
+    </p> -->
   </div>
 </template>
 
