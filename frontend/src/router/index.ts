@@ -5,6 +5,8 @@ import EventsView from '../views/EventsView.vue'
 import EventFormView from '../views/EventFormView.vue'
 import ProfileView from '../views/ProfileView.vue'
 import ProposalsView from '@/views/ProposalsView.vue'
+import StaffView from '@/views/StaffView.vue'
+import TutorialView from '@/views/TutorialView.vue'
 
 const router = createRouter({
     history: createWebHistory(),
@@ -17,6 +19,16 @@ const router = createRouter({
             path: '/about',
             name: 'about',
             component: AboutView
+        },
+        {
+            path: '/staff',
+            name: 'staff',
+            component: StaffView
+        },
+        {
+            path: '/tutorial',
+            name: 'tutorial',
+            component: TutorialView
         },
         {
             path: '/map',
