@@ -1,10 +1,18 @@
 <script setup lang="ts">
 import CommonHeader from '@/components/CommonHeader.vue';
+import { useDisplay } from 'vuetify'
+
+const { mobile } = useDisplay()
+
 </script>
 
 <template>
     <CommonHeader />
-    <h1>Tutorials</h1>
+    <div class="top-bar">
+        <v-btn :size="mobile ? 'small' : 'large'" color="#183400" @click="$router.push('/about')" variant="outlined">Back to About</v-btn>
+        <h1>Tutorials</h1>
+        <div></div>
+    </div>
     <div class="grid">
         <div>
             <h2>Map</h2>
@@ -42,13 +50,16 @@ import CommonHeader from '@/components/CommonHeader.vue';
 <style scoped lang="scss">
 @use '@/styles/abstracts' as *;
 
-h1 {
-    margin-top: 20px;
-}
+$tutorial-mobile-size : 1200px;
 
 iframe {
     border-radius: 3%;
     box-shadow: 2px 4px 6px rgba(0, 0, 0, 0.4);
+
+    @include responsive($tutorial-mobile-size) {
+        width: 90svw;
+        max-width: 600px;
+    }
 }
 
 .grid {
@@ -57,5 +68,35 @@ iframe {
     row-gap: 50px;
     grid-template-columns: repeat(2, 1fr);
     margin-top: 30px;
+    @include responsive($tutorial-mobile-size) {
+        grid-template-columns: repeat(1, 1fr);
+    }
 }
+
+.top-bar {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    padding: 20px;
+    width: 75svw;
+
+    @include responsive($mobile-size) {
+        width: 95svw;
+    }
+
+    button {
+        width: fit-content;
+
+        &:hover {
+            background-color: lighten($pickle-100, 15%);
+        }
+    }
+}
+
+h1 {
+    @include responsive($mobile-size) {
+        font-size: 2.5rem;
+        line-height: 2.5rem;
+    }
+}
+
 </style>
