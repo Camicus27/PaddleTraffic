@@ -36,6 +36,7 @@ onMounted(() => {
 
 <template>
     <div id="qr-code" ref="qrCode"></div>
+    <div>{{ url }}</div>
 </template>
 
 <style scoped lang="scss"></style>

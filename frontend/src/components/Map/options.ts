@@ -28,12 +28,12 @@ const options = {
   qrOptions: {
     typeNumber: 0 as TypeNumber,
     mode: 'Byte' as Mode,
-    errorCorrectionLevel: 'Q' as ErrorCorrectionLevel
+    errorCorrectionLevel: 'H' as ErrorCorrectionLevel
   },
   imageOptions: {
     hideBackgroundDots: true,
-    imageSize: 0.8,
-    margin: 6,
+    imageSize: 0.4,
+    margin: 1,
     crossOrigin: 'anonymous',
   },
   dotsOptions: {
@@ -41,7 +41,7 @@ const options = {
     type: 'dots' as DotType
   },
   backgroundOptions: {
-    color: '#ffffff',
+    color: '#00000000',
   },
   cornersSquareOptions: {
     color: bg_color,
