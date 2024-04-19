@@ -28,6 +28,15 @@ defineProps<{
 <style scoped lang="scss">
     @use '@/styles/abstracts' as *;
 
+    %text-mobile {
+        @include responsive($mobile-size) {
+            $text: 0.80rem;
+            font-size: $text;
+            line-height: $text;
+            max-width: 75%;
+        }
+    }
+
     * {
         display: flex;
     }
@@ -35,6 +44,7 @@ defineProps<{
     .main {
         flex-direction: row;
         max-width: 750px;
+        width: 80svw;
         padding: 16px;
         justify-content: space-around;
     }
@@ -56,23 +66,28 @@ defineProps<{
 
     .bio {
         $text: 1rem;
-
+        display: inline;
         padding: 0;
         font-size: $text;
         line-height: $text;
         font-family: sans-serif;
         color: $pickle-500;
         align-items: center;
-        // white-space: pre-wrap;
+        @extend %text-mobile;
     }
 
     .contact {
         padding: 0;
+        @extend %text-mobile;
     }
 
     img {
         border-radius: 50%;
         height: 150px;
-        width: 150px;
+        width: auto;
+
+        @include responsive($mobile-size) {
+            height: 50px;
+        }
     }
 </style>

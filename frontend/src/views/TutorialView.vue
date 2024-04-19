@@ -9,7 +9,7 @@ const { mobile } = useDisplay()
 <template>
     <CommonHeader />
     <div class="top-bar">
-        <v-btn :size="mobile ? 'small' : 'large'" color="#183400" @click="$router.push('/about')" variant="outlined">Back to About</v-btn>
+        <v-btn :size="mobile ? 'small' : 'large'" color="#183400" @click="$router.push('/about')" variant="outlined">Back</v-btn>
         <h1>Tutorials</h1>
         <div></div>
     </div>
@@ -68,6 +68,7 @@ iframe {
     row-gap: 50px;
     grid-template-columns: repeat(2, 1fr);
     margin-top: 30px;
+    padding-bottom: 24px;
     @include responsive($tutorial-mobile-size) {
         grid-template-columns: repeat(1, 1fr);
     }
