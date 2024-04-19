@@ -63,6 +63,7 @@ defineProps<{
         font-family: sans-serif;
         color: $pickle-500;
         align-items: center;
+        // white-space: pre-wrap;
     }
 
     .contact {
