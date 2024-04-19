@@ -10,6 +10,10 @@ defineProps<{
         <v-card class="main" variant="tonal">
             <img :src="imagePath" alt="Staff member profile image">
             <div class="info">
+                <v-card-title class="title">
+                    <slot name="title"></slot>
+                </v-card-title>
+
                 <v-card-text class="bio">
                     <slot name="bio"></slot>
                 </v-card-text>
@@ -43,8 +47,15 @@ defineProps<{
         justify-content: start;
     }
 
+    .title {
+        padding: 0;
+        font-weight: bold;
+        font-family: sans-serif;
+        font-style: italic;
+    }
+
     .bio {
-        $text: 1.4rem;
+        $text: 1rem;
 
         padding: 0;
         font-size: $text;

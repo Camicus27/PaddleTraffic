@@ -16,7 +16,18 @@ const { mobile } = useDisplay()
     <div class="grid">
         <StaffBio class="bio"
             image-path="https://media.licdn.com/dms/image/C5603AQFc98B9cSqmdw/profile-displayphoto-shrink_200_200/0/1642535153163?e=2147483647&v=beta&t=JIITcjzpVjOJ-hhPRLHnIJM0YUudqcPZvIuDA6vq9g8">
+            <template v-slot:title>
+                Jacob Knowlton
+            </template>
             <template v-slot:bio>
+                I am jake knowlton I am jake knowltonI am jake knowltonI am jake knowltonI am jake knowltonI am jake
+                knowlton
+                I am jake knowlton I am jake knowltonI am jake knowltonI am jake knowltonI am jake knowltonI am jake
+                knowlton
+                I am jake knowlton I am jake knowltonI am jake knowltonI am jake knowltonI am jake knowltonI am jake
+                knowlton
+                I am jake knowlton I am jake knowltonI am jake knowltonI am jake knowltonI am jake knowltonI am jake
+                knowlton
                 I am jake knowlton I am jake knowltonI am jake knowltonI am jake knowltonI am jake knowltonI am jake
                 knowlton
             </template>
