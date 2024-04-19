@@ -95,7 +95,7 @@ async function acceptFriendRequestUpdate() {
     const friendReq = pendingRequests.value.incoming_requests.find(req => req.requester.id === pageUser.value?.id)
     if (!friendReq)
         return
-    await createFriendRequest(friendReq.id, true)
+    await acceptFriendRequest(friendReq.id, true)
     await updateFriendState()
 }
 
