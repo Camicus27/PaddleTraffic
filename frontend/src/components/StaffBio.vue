@@ -8,7 +8,9 @@ defineProps<{
 <template>
     <div>
         <v-card class="main" variant="tonal">
-            <img :src="imagePath" alt="Staff member profile image">
+            <div class="photo">
+                <img :src="imagePath" alt="Staff member profile image">
+            </div>
             <div class="info">
                 <v-card-title class="title">
                     <slot name="title"></slot>
@@ -26,68 +28,86 @@ defineProps<{
 </template>
 
 <style scoped lang="scss">
-    @use '@/styles/abstracts' as *;
+@use '../styles/components';
+@use '@/styles/abstracts' as *;
 
-    %text-mobile {
-        @include responsive($mobile-size) {
-            $text: 0.80rem;
-            font-size: $text;
-            line-height: $text;
-            max-width: 75%;
-        }
-    }
+.main {
+    display: flex;
+    flex-direction: row;
+    max-width: 750px;
+    width: 80svw;
+    padding: 1rem;
+    justify-content: space-around;
 
-    * {
-        display: flex;
-    }
-    
-    .main {
-        flex-direction: row;
-        max-width: 750px;
-        width: 80svw;
-        padding: 16px;
-        justify-content: space-around;
-    }
-
-    
-    .info {
-        flex-direction: column;
-        padding: 0;
-        padding-left: 24px;
-        justify-content: start;
-    }
-
-    .title {
-        padding: 0;
-        font-weight: bold;
-        font-family: sans-serif;
-        font-style: italic;
-    }
-
-    .bio {
-        $text: 1rem;
-        display: inline;
-        padding: 0;
-        font-size: $text;
-        line-height: $text;
-        font-family: sans-serif;
-        color: $pickle-500;
-        align-items: center;
-        @extend %text-mobile;
-    }
-
-    .contact {
-        padding: 0;
-        @extend %text-mobile;
-    }
-
-    img {
-        border-radius: 50%;
-        height: 150px;
+    @include responsive($mobile-size) {
+        display: block;
         width: auto;
-
-        @include responsive($mobile-size) {
-            height: 50px;
-        }
     }
+}
+
+.photo {
+    display: flex;
+
+    @include responsive($mobile-size) {
+        justify-content: center;
+        padding: 1rem;
+        padding-top: 0;
+    }
+}
+
+.info {
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    padding-left: 1.75rem;
+    justify-content: start;
+
+    @include responsive($mobile-size) {
+        padding-left: 0;
+    }
+}
+
+.title {
+    padding: 0;
+    margin-bottom: .5rem;
+    font-weight: bold;
+    font-family: sans-serif;
+    font-style: italic;
+    font-size: 2rem;
+    line-height: 2.5rem;
+    
+    @include responsive($mobile-size) {
+        font-size: 1.25rem;
+        line-height: 1.75rem;
+        text-align: center;
+    }
+}
+
+.bio {
+    padding: 0;
+    font-size: 1rem;
+    line-height: 1.2rem;
+    align-items: center;
+    
+    @include responsive($mobile-size) {
+        font-size: .85rem;
+        line-height: .95rem;
+    }
+}
+
+.contact {
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+}
+
+img {
+    border-radius: 50%;
+    height: 150px;
+    width: auto;
+
+    @include responsive($mobile-size) {
+        width: 150px;
+    }
+}
 </style>
