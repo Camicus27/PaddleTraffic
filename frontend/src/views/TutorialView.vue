@@ -31,7 +31,7 @@ const { mobile } = useDisplay()
         </div>
         <div>
             <h2>Profile</h2>
-            <iframe width="560" height="315" src="https://www.youtube.com/embed/I6fztruG7GE?si=PuIlEJVCshCeiIMv"
+            <iframe width="560" height="315" src="https://www.youtube.com/embed/aJhFYfkJGLc?si=gT6mHulRGMyDCQB3"
                 title="YouTube video player" frameborder="0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
