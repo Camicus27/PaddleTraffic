@@ -48,7 +48,7 @@ sudo systemctl restart nginx
 Now, clone the repository into `/opt` and setup dependencies:
 ```bash
 cd /opt
-sudo git clone https://capstone-cs.eng.utah.edu/paddletraffic/paddletraffic.git
+sudo git clone -b aws --single-branch https://capstone-cs.eng.utah.edu/paddletraffic/paddletraffic.git
 ```
 
 For security, create a new user and continue setup with that user (explanation in `user_setup.md`):
