@@ -28,10 +28,18 @@ export const latRules = ref([
         return 'Missing value.'
     },
     (value: number) => {
+        const inter_val = +(value)
+        const lat = +(inter_val.toFixed(6))
+
+        if (isNaN(lat)) return 'Malformed latitude'
+
+        return true
+    },
+    (value: number) => {
         if (90 > value && value > -90) return true
 
         return 'Latitude must be between 90 and -90 degrees'
-    },
+    }
 ])
 
 export const longRules = ref([
@@ -41,10 +49,18 @@ export const longRules = ref([
         return 'Missing value.'
     },
     (value: number) => {
+        const inter_val = +(value)
+        const long = +(inter_val.toFixed(6))
+        
+        if (isNaN(long)) return 'Malformed longitude'
+
+        return true
+    },
+    (value: number) => {
         if (180 > value && value > -180) return true
 
         return 'Longitude must be between 180 and -180 degrees'
-    },
+    }
 ])
 
 export const courtRules = ref([

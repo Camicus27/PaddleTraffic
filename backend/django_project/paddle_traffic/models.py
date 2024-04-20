@@ -47,10 +47,8 @@ to all the Events being held at the location.
 
 class Location(models.Model):
     name = models.CharField(max_length=255)
-    latitude = models.DecimalField(
-        max_digits=9, decimal_places=6
-    )  # max_digits can change but we can't not have them
-    longitude = models.DecimalField(max_digits=9, decimal_places=6)
+    latitude = models.DecimalField(max_digits=9, decimal_places=6)
+    longitude = models.DecimalField(max_digits=10, decimal_places=6)
     court_count = models.IntegerField()
     courts_occupied = models.IntegerField()  # current courts occupied
     number_waiting = models.IntegerField()  # current number waiting
@@ -68,10 +66,8 @@ has courts, like a park or rec center. Identified by a lat/long coordinate.
 
 class ProposedLocation(models.Model):
     name = models.CharField(max_length=255)
-    latitude = models.DecimalField(
-        max_digits=9, decimal_places=6
-    )  # max_digits can change but we can't not have them
-    longitude = models.DecimalField(max_digits=9, decimal_places=6)
+    latitude = models.DecimalField(max_digits=9, decimal_places=6)
+    longitude = models.DecimalField(max_digits=10, decimal_places=6)
     court_count = models.IntegerField()
     proposer = models.ForeignKey(
         PickleUser, on_delete=models.CASCADE, related_name="proposed_locations", null=False

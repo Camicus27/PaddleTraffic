@@ -36,11 +36,19 @@ function submitForm() {
     submissionError.value = false
     submittedSuccessfully.value = false
 
+    // Error check
     if (currentUser.value) {
         newLocationForm.value.proposer = currentUser.value.id
     }
     else {
-        newLocationForm.value.proposer = -1
+        submissionError.value = true;
+        return;
+    }
+
+    // Error check
+    if (isNaN(newLocationForm.value.latitude) || isNaN(newLocationForm.value.longitude)) {
+        submissionError.value = true;
+        return;
     }
     
     axios.post(`${URL}/location/new/`, { location: newLocationForm.value })
@@ -88,7 +96,6 @@ function clearForm() {
                 hide-spin-buttons
                 :max="90"
                 :min="-90"
-                :step="0.000001"
                 tabindex="1"
                 required
             ></v-text-field>
@@ -103,7 +110,6 @@ function clearForm() {
                 hide-spin-buttons
                 :max="180"
                 :min="-180"
-                :step="0.000001"
                 tabindex="2"
                 required
             ></v-text-field>

@@ -1,5 +1,8 @@
 from datetime import datetime, timedelta, timezone
+import requests
 import math
+import json
+import re
 
 from django.contrib.auth import authenticate, login, logout
 from django.http import JsonResponse, HttpRequest
@@ -12,9 +15,6 @@ from django.db import models as django_model
 from paddle_traffic import serializers as ser
 from paddle_traffic.ApiHttpResponses import *
 from django.db.models import ExpressionWrapper, FloatField, F
-import json
-import re
-import math
 from sklearn.cluster import KMeans
 from sklearn.metrics import pairwise_distances_argmin_min
 import numpy as np
@@ -65,7 +65,41 @@ def is_admin(user):
     return user.is_superuser
 
 
-""""""
+"""
+Google Maps Geocoding API
+"""
+def get_address(latitude, longitude):
+    url = f"https://maps.googleapis.com/maps/api/geocode/json?latlng={latitude},{longitude}&key=AIzaSyBjqdNRs9JW2yfvq8Lbnp-tgr12PR_RCPw"
+
+    try:
+        response = requests.get(url)
+        data = response.json()
+        
+        # Extract city, state, and country from the response
+        if data["status"] == "OK":
+            address_components = data["results"][0]["address_components"]
+            city = next((component["long_name"] for component in address_components if "locality" in component["types"]), None)
+            state = next((component["short_name"] for component in address_components if "administrative_area_level_1" in component["types"]), None)
+            country = next((component["short_name"] for component in address_components if "country" in component["types"]), None)
+        
+            formatted_city_state_country = ""
+            if city:
+                formatted_city_state_country += ", " + city
+            if state:
+                formatted_city_state_country += ", " + state
+            if country:
+                formatted_city_state_country += ", " + country
+            
+            if len(formatted_city_state_country) == 0:
+                return "No Info"
+            else:
+                return formatted_city_state_country.strip(", ")
+        else:
+            return "No Info"
+        
+    except Exception as e:
+        print("Error:", e)
+        return None
 
 
 def index(request, username=None):
@@ -654,9 +688,13 @@ def location_proposal(request):
 
         if court_count < 1:
             return http_bad_argument("Cannot have zero or negative courts at a location")
-
+        
+        data["latitude"] = lat
+        data["longitude"] = long
+        
         serializer = ser.LocationProposalCreationSerializer(data=data)
         if not serializer.is_valid():
+            print(serializer.errors)
             return http_bad_request_json()
         new_location = serializer.save()
 
@@ -691,6 +729,10 @@ def location_proposal_id(request, id):
         latitude = serializer.data.get('latitude')
         longitude = serializer.data.get('longitude')
         court_count = serializer.data.get('court_count')
+        
+        formatted_address = get_address(latitude,longitude)
+        if formatted_address is None:
+            http_bad_argument("Latitude/Longitude geocoordinate not found")
 
         # Create a new location
         m.Location(
@@ -702,6 +744,7 @@ def location_proposal_id(request, id):
             number_waiting=0,
             estimated_wait_time=timedelta(minutes=0),
             calculated_time=datetime.now(timezone.utc),
+            city_state_country=formatted_address
         ).save()
 
         # Remove the proposal

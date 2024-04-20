@@ -132,7 +132,7 @@ function validateFormInputs() {
         courtsOccupiedError.value = 'Must be over 0'
         error_flag = true
     } else if (locForm.value.courts_occupied > props.location.value.court_count) {
-        courtsOccupiedError.value = `Must be under ${props.location.value.court_count}`
+        courtsOccupiedError.value = `Must be ${props.location.value.court_count} or under`
         error_flag = true
     } else {
         courtsOccupiedError.value = ' '
@@ -149,7 +149,7 @@ function validateFormInputs() {
         groupsWaitingError.value = `Open courts, must be 0`
         error_flag = true
     } else if (locForm.value.number_waiting > 10) {
-        groupsWaitingError.value = `Must under 10`
+        groupsWaitingError.value = `Must be 10 or under`
         error_flag = true
     } else {
         groupsWaitingError.value = ' '
