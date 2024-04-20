@@ -192,13 +192,13 @@ function validateFormInputs() {
             <div class="title">Report Status</div>
             <div class="input-box">
                 <label for="courtsOccupied">Courts Occupied:</label>
-                <input type="number" id="courtsOccupied" name="courtsOccupied" v-model="locForm.courts_occupied"
+                <input type="number" id="courtsOccupied" name="courtsOccupied" inputmode="numeric" v-model="locForm.courts_occupied"
                     @input="validateFormInputs" required>
                 <span class="error-message">{{ courtsOccupiedError }}</span>
             </div>
             <div class="input-box">
                 <label for="numberWaiting">Groups Waiting:</label>
-                <input type="number" id="numberWaiting" name="numberWaiting" v-model="locForm.number_waiting"
+                <input type="number" id="numberWaiting" name="numberWaiting" inputmode="numeric" v-model="locForm.number_waiting"
                     @input="validateFormInputs" required>
                 <span class="error-message">{{ groupsWaitingError }}</span>
             </div>
