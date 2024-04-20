@@ -9,15 +9,15 @@ const { mobile } = useDisplay()
 <template>
     <CommonHeader />
     <div class="top-bar">
-        <v-btn :size="mobile ? 'small' : 'large'" color="#183400" @click="$router.push('/about')" variant="outlined">Back</v-btn>
+        <v-btn :size="mobile ? 'small' : 'large'" color="#183400" @click="$router.push('/about')"
+            variant="outlined">Back</v-btn>
         <h1>Tutorials</h1>
         <div></div>
     </div>
     <div class="grid">
         <div>
             <h2>Map</h2>
-
-            <iframe width="560" height="315" src="https://www.youtube.com/embed/zcbgX5TXNxs?si=FpQD6B87mAUzQyot"
+            <iframe width="560" height="315" src="https://www.youtube.com/embed/oAXnOtJalxo?si=j6O2J6rWDFdN4Syi"
                 title="YouTube video player" frameborder="0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
@@ -69,6 +69,7 @@ iframe {
     grid-template-columns: repeat(2, 1fr);
     margin-top: 30px;
     padding-bottom: 24px;
+
     @include responsive($tutorial-mobile-size) {
         grid-template-columns: repeat(1, 1fr);
     }
@@ -99,5 +100,4 @@ h1 {
         line-height: 2.5rem;
     }
 }
-
 </style>
