@@ -41,7 +41,7 @@ After this point, you can navigate to `http://52.44.28.39/` and you should see a
 
 To setup HTTPS, run these commands. It will ask for your email:
 ```bash
-sudo certbot --nginx -d paddletraffic.net -d www.paddletraffic.net
+sudo certbot --register-unsafely-without-email --nginx -d paddletraffic.net -d www.paddletraffic.net
 sudo systemctl restart nginx
 ```
 
