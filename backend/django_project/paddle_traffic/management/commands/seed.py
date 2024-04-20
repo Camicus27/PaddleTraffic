@@ -71,6 +71,7 @@ class Command(BaseCommand):
             latitude = 40.670454,
             longitude = -111.682705,
             court_count=20,
+            courts_occupied=0,
             number_waiting=0,
             estimated_wait_time=timedelta(minutes=0),
             calculated_time = datetime.now(timezone.utc),
