@@ -30,6 +30,8 @@ urlpatterns = [
     path('matchmaking/create-event/', views.index),
     path('new-location/', views.index),
     path('about/', views.index),
+    path('tutorial/', views.index),
+    path('staff/', views.index),
     path('profile/', views.index),
     path('profile/<str:username>/', views.index),
 

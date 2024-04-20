@@ -310,7 +310,7 @@ def verify_distance(lat, lon, location):
     distance_to_location = math.sqrt(
         (lat - float(court_lat)) ** 2 + (lon - float(court_lon)) ** 2)
     # 0.00725 is 0.5 miles in lat/lon coords (at equator)
-    VERIFICATION_DISTANCE = 0.00725 * 10  # TODO: Decrease dist to realistic value
+    VERIFICATION_DISTANCE = 0.00725 * 2  # TODO: Decrease dist to realistic value
     return distance_to_location < VERIFICATION_DISTANCE
 
 
@@ -630,7 +630,7 @@ def location_bounds(request):
         m_locations = get_locations_by_boundary(lat1, lon1, lat2, lon2)
         m_locations = lazy_decay(m_locations)
 
-        NUM_CLUSTERS = 20
+        NUM_CLUSTERS = 35
         if (len(m_locations) >= NUM_CLUSTERS):
             m_locations = cluster(m_locations, NUM_CLUSTERS)
 

@@ -1,5 +1,12 @@
 <script setup lang="ts">
 import CommonHeader from '@/components/CommonHeader.vue';
+
+const env = import.meta.env
+let map_src: string
+if (env.MODE === 'production')
+  map_src = '/static/map_screenshot.png'
+else
+  map_src = 'map_screenshot.png'
 </script>
 
 <template>
@@ -8,63 +15,77 @@ import CommonHeader from '@/components/CommonHeader.vue';
     <header>
       <h1>About PaddleTraffic</h1>
     </header>
-    <p>
-      At PaddleTraffic, our mission is to revolutionize the way pickleball enthusiasts find and join
-      games at local courts. Recognizing the growing popularity of pickleball — now the
-      fastest-growing sport in the United States — we identified a need for an innovative solution
-      to help players easily locate available courts and join games.
-    </p>
+    <nav>
+      <v-btn color="#183400" @click="$router.push('/staff')" variant="outlined">Our Team</v-btn>
+      <v-btn color="#183400" @click="$router.push('/tutorial')" variant="outlined">Tutorials</v-btn>
+    </nav>
 
-    <h2>Our Vision</h2>
-    <p>
-      PaddleTraffic was born from a simple vision: to make pickleball more accessible and enjoyable
-      for everyone. Whether you’re a beginner or a seasoned player, our platform is designed to help
-      you find the perfect spot to play, connect with fellow enthusiasts, and enjoy the game to its
-      fullest.
-    </p>
-    <h2>Our Team</h2>
-    <p>
-      PaddleTraffic is the brainchild of a passionate team of pickleball fans and tech experts:
-      Brensen Villegas, Camron Wilson, Ian McBride, and Jacob Knowlton. Each member brings unique
-      skills and a shared love for the game, driving us to create the most user-friendly and
-      efficient pickleball court locator.
-    </p>
+    <div>
+      <p class="text-center">PaddleTraffic is a community-driven web application designed to streamline the process of finding and using
+        pickleball courts. Our mission is to help players spend less time searching and more time playing.</p>
 
-    <h2>How It Works</h2>
-    <p>
-      Our website and mobile app offer a real-time map displaying pickleball courts in your area.
-      With just a tap, you can view detailed information about each court, including the number of
-      available courts, current occupancy, waiting times, and historical data trends. This instant
-      insight helps you decide where to play, saving you time and enhancing your playing experience.
-    </p>
+      <img :src="map_src" alt="Map Overview">
+      <div class="py-4">
+        <h2>Key Features</h2>
+        <ul>
+          <li>Dynamic Court Map: View nearby courts, their availability, and real-time busyness levels.</li>
+          <li>Estimated Wait Times: Our algorithms calculate estimated wait times to help you plan your outing.</li>
+          <li>User Profiles & Connections: Create a profile, track your stats, connect with other players, and form
+            teams.
+          </li>
+          <li>Community-Powered Data: PaddleTraffic leverages user-submitted information to provide the most accurate
+            and
+            up-to-date court details.</li>
+          <li>Matchmaking & Event Creation: Easily find players at your skill level, organize games, and schedule
+            events.
+          </li>
+          <li>Propose New Locations: Help expand our database by suggesting pickleball courts that aren't yet listed.
+          </li>
+        </ul>
+      </div>
 
-    <h2>Beyond Finding Courts</h2>
-    <p>
-      But we don’t just stop at helping you find courts. PaddleTraffic also facilitates proximity
-      matchmaking and team formation, enabling you to connect with other players looking to form a
-      group or complete a team.
-    </p>
-
-    <h2>Community-Driven Data</h2>
-    <p>
-      Our innovative approach to data collection relies on crowdsourcing. QR codes at court
-      locations link players to our site, where they can report live updates on court status. This
-      community-driven data enriches our service, ensuring accurate and current information for all
-      users.
-    </p>
-
-    <h2>Join Us in Growing the Pickleball Community</h2>
-    <p>
-      Whether you're looking to find an open court, join a game, or connect with the pickleball
-      community, PaddleTraffic is your go-to platform. Join us in our journey to make pickleball
-      more accessible and enjoyable for everyone!
-    </p>
+      <div class="py-4">
+        <h2>Technologies</h2>
+        <ul>
+          <li>Django Backend: A robust framework for user management, data handling, API functionality.</li>
+          <li>Vue Frontend: Delivers a responsive and user-friendly interface.</li>
+          <li>Mapbox: Provides interactive mapping and location services.</li>
+        </ul>
+      </div>
+      <div class="py-4">
+        <h2>Join the PaddleTraffic Community</h2>
+        <p class="text-center">Whether you're a casual player or a seasoned competitor, PaddleTraffic makes it easier to find your place on
+          the court.</p>
+      </div>
+    </div>
   </div>
 </template>
 
 <style scoped lang="scss">
 @use '@/styles/abstracts' as *;
 $mobile-size: 800px;
+
+nav {
+  display: flex;
+  justify-content: center;
+  padding: 12px;
+  width: 50svw;
+  gap: 12px;
+
+  @include responsive($mobile-size) {
+    flex-direction: column;
+  }
+}
+
+img {
+  padding: 40px 0;
+  width: 100%;
+  height: auto;
+}
+
+button:hover {
+  background-color: lighten($pickle-100, 15%);
+}
 
 .about {
   @extend %main-page;
@@ -75,11 +96,11 @@ $mobile-size: 800px;
   }
 
   p {
-    font-size: 1.2rem;
+    font-size: 1.2em;
     line-height: 1.5rem;
 
     @include responsive($mobile-size) {
-      font-size: .85rem;
+      font-size: 1rem;
       line-height: 1.15rem;
     }
   }
