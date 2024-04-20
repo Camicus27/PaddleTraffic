@@ -7,6 +7,7 @@ import { useRoute } from "vue-router"
 import Popup from '@/components/Map/Popup.vue'
 import CommonHeader from '@/components/CommonHeader.vue'
 import {
+    getAllLocations,
     getLocationsByBounds,
     getLocationsByList,
     getNearestLocation
@@ -28,6 +29,7 @@ const proposalInfo = ref(false)
 // [Location.id] : MapItem
 const mapItems: Map<number, MapItem> = new Map()
 const currSelected = ref<number | undefined>()
+let searchLocations: Location[] = []
 
 function addMapItem(location: Location, map: mapboxgl.Map) {
     if (mapItems.has(location.id)) return
@@ -100,9 +102,11 @@ function removeMapItem(locId: number) {
     mapItems.delete(locId)
 }
 
-function removeAllMapItems() {
+function removeAllMapItems(keepList: number[] = []) {
     let keys = mapItems.keys()
     for (let key of keys) { // for-of iterator, not for-in for properties in object :/
+        if(keepList.includes(key))
+            continue
         removeMapItem(key)
     }
 }
@@ -123,7 +127,7 @@ function refreshMapItems() {
     })
 }
 
-function refreshMapItemsByCenter() {
+function refreshMapItemsByCenter(keepList: number[] = []) {
     var bounds = getMap().getBounds();
 
     // Extract the coordinates of the corners
@@ -131,7 +135,7 @@ function refreshMapItemsByCenter() {
     var sw = bounds.getSouthWest(); // Southwest corner
     getLocationsByBounds(ne.lat, ne.lng, sw.lat, sw.lng).then((locations) => {
         if (!locations) return // don't refresh if no new data could be received
-        removeAllMapItems()
+        removeAllMapItems(keepList)
         addAllMapItems(locations, getMap())
 
         if (currSelected.value) {
@@ -180,9 +184,8 @@ else
 // TODO: Remove and add backend endpoint to get ALL location names & coords & address ORRRR figure out backend search
 function forwardGeocoder(query: string): any[] {
     const matchingFeatures: any[] = [];
-    let locations: Location[] = Array.from(mapItems.values()).map(mapItem => mapItem.location.value)
 
-    for (const location of locations) {
+    for (const location of searchLocations) {
         if (location.name.toLowerCase().includes(query.toLowerCase())) {
             const result: any = {
                 type: "Feature",
@@ -192,7 +195,7 @@ function forwardGeocoder(query: string): any[] {
                     coordinates: [location.longitude, location.latitude]
                 },
                 place_name: `🎾 ${location.name}, ${location.city_state_country}`,
-                locationId: location.id
+                location: location
             };
             matchingFeatures.push(result);
         }
@@ -242,12 +245,14 @@ function initMap() {
     });
 
     geocoder.on('result', (e) => {
-        const locationId = e.result.locationId;
+        let loc = e.result.location
+        const locationId = loc.id;
+        refreshMapItemsByCenter([locationId])
+        addMapItem(loc, getMap())
         if (locationId && locationId !== currSelected.value)
             selectMarker(locationId)
         if (document.activeElement && 'blur' in document.activeElement)
             (document.activeElement as HTMLElement).blur()
-        refreshMapItemsByCenter()
     });
 
     getMap().addControl(geocoder, 'top-left');
@@ -348,6 +353,9 @@ onMounted(() => {
 onActivated(() => {
     getMap().resize()
     locationsInterval = window.setInterval(refreshMapItems, 3000)
+    getAllLocations().then((locs) => {
+        searchLocations = locs ?? []
+    })
 })
 
 onDeactivated(() => {
@@ -375,18 +383,20 @@ const selectedLocation = computed(() => {
         <div class="orientation">
             <div class="map-overlay-container">
                 <div ref="mapContainer" class="mapbox-container"></div>
-                <button id="search-bt" @click="refreshMapItemsByCenter">Search This Area</button>
+                <button id="search-bt" @click="() => {refreshMapItemsByCenter()}">Search This Area</button>
                 <v-container class="proposal-container">
                     <v-btn v-if="!proposalInfo" icon small color="white" @click="proposalInfo = true">
                         <v-icon color="#333" icon="mdi-information-variant"></v-icon>
                     </v-btn>
                     <v-expand-transition>
                         <div v-if="proposalInfo" class="info-up">
-                            <v-btn icon small density="compact" color="white" variant="flat" :ripple="false" @click="proposalInfo = false">
+                            <v-btn icon small density="compact" color="white" variant="flat" :ripple="false"
+                                @click="proposalInfo = false">
                                 <v-icon color="#333" icon="mdi-arrow-down-drop-circle-outline"></v-icon>
                             </v-btn>
                             <RouterLink to="/new-location" id="proposal-link">
-                                Don't see a location that should be there? Click here to propose a new marker for the map!
+                                Don't see a location that should be there? Click here to propose a new marker for the
+                                map!
                             </RouterLink>
                         </div>
                     </v-expand-transition>
@@ -502,8 +512,9 @@ $transition: "popup-transition";
     border: 1px solid #ccc;
     border-radius: 4px;
     box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-    
+
     cursor: pointer;
+
     &:hover {
         background-color: #f8f8f8;
     }
@@ -542,8 +553,9 @@ $transition: "popup-transition";
         font-size: .5rem;
         line-height: .69rem;
     }
-    
+
     cursor: pointer;
+
     &:hover {
         background-color: #f8f8f8;
     }
