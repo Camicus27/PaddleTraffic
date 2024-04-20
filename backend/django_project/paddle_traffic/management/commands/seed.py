@@ -20,6 +20,8 @@ class Command(BaseCommand):
 
         administrator = PickleUser.objects.create_superuser(
             "PaddleTrafficCEO", "pickle.coin.ceo@paddletraffic.net", "picklers4life")
+        adminEasyLogin = PickleUser.objects.create_superuser(
+            "admin", "pickle.coin.ceo@paddletraffic.net", "password")
 
         organizer1 = PickleUser.objects.create_user(
             "pickle_gym1", "organizer1@paddletraffic.net", "a1")
@@ -29,8 +31,8 @@ class Command(BaseCommand):
 
         p1 = PickleUser.objects.create_user(
             "jim4500", "p1@paddletraffic.net", "p1")
-        p2 = PickleUser.objects.create_user(
-            "aaron9213", "p2@paddletraffic.net", "p2")
+        p2 = PickleUser.objects.create_superuser(
+            "aaron", "p2@paddletraffic.net", "aaron")
         p3 = PickleUser.objects.create_user(
             "david2834", "p3@paddletraffic.net", "p3")
         players.user_set.add(p1, p2, p3)
@@ -64,6 +66,18 @@ class Command(BaseCommand):
             city_state_country = "Salt Lake City, UT, USA",
         )
 
+        theMoon = Location.objects.create(
+            name="The Moon (aaron's secret hideout)",
+            latitude = 40.670454,
+            longitude = -111.682705,
+            court_count=20,
+            courts_occupied=0,
+            number_waiting=0,
+            estimated_wait_time=timedelta(minutes=0),
+            calculated_time = datetime.now(timezone.utc),
+            city_state_country = "Gobblers Knob, UT, USA"
+        )
+
         """
          = Location.objects.create(
             name="",
@@ -87,12 +101,25 @@ class Command(BaseCommand):
             time=datetime.now().time(),
             isPublic=True
         )
+
+        match2 = Event.objects.create(
+            name="Party with aaron",
+            description="This is aaron's favorite location, so we're hosting a party here!",
+            location=theMoon,
+            host=administrator,
+            date=datetime.now().date(),
+            time=datetime.now().time(),
+            isPublic=True
+        )
+
+        match2.players.add(p2)
+
         match1.players.add(p1, p2)
         p1.matches_attended = 1
         p1.matches_created = 0
-        p2.matches_attended = 1
+        p2.matches_attended = 2
         p2.matches_created = 0
-        administrator.matches_created = 1
+        administrator.matches_created = 2
         p1.save()
         p2.save()
         administrator.save()
