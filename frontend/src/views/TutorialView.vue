@@ -24,7 +24,7 @@ const { mobile } = useDisplay()
         </div>
         <div>
             <h2>Matchmaking</h2>
-            <iframe width="560" height="315" src="https://www.youtube.com/embed/rv3Yq-B8qp4?si=k2owhYWYO5DoZIT7"
+            <iframe width="560" height="315" src="https://www.youtube.com/embed/0G5sOPkklxI?si=KCgZCH0-XUvl4jEN"
                 title="YouTube video player" frameborder="0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
@@ -38,7 +38,7 @@ const { mobile } = useDisplay()
         </div>
         <div>
             <h2>Proposing Courts</h2>
-            <iframe width="560" height="315" src="https://www.youtube.com/embed/48tzWRTkGRA?si=f_K9nPnFju-szYlC"
+            <iframe width="560" height="315" src="https://www.youtube.com/embed/B3gAwSXJCDc?si=KqAnDfHX9_n-6M5L"
                 title="YouTube video player" frameborder="0"
                 allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                 referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
