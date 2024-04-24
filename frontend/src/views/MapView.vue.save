@@ -163,7 +163,9 @@ const props = {
     lon: Number(useRoute().query.lon)
 }
 
-mapboxgl.accessToken = 'pk.eyJ1Ijoic3VudHp1Y2Fwc3RvbmUiLCJhIjoiY2x2ZDFwdTByMHE2aTJ2bTlzdG9jczd4dSJ9.zVxZGXuU_JUdI1A7Rnqsow'
+// TODO: improve token handling
+//mapboxgl.accessToken = 'pk.eyJ1Ijoic3VudHp1Y2Fwc3RvbmUiLCJhIjoiY2xwOHl6MGZiMWQwcjJ2bzNpdTh3ZXZ5diJ9.2OxP9v87qKxpFmL7FFrD-g'
+mapboxgl.accessToken = ''
 const map: Ref<mapboxgl.Map | undefined> = ref() // TODO can we make this just like not undefined? or something
 const getMap = () => {
     if (map.value)
