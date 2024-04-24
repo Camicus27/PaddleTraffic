@@ -675,8 +675,8 @@ def location_proposal(request):
             return http_bad_request_json()
         
         try:
-            lat = float(lat)
-            long = float(long)
+            lat = round(float(lat), 6)
+            long = round(float(long), 6)
         except ValueError:
             return http_bad_request_json()
 
